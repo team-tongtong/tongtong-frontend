@@ -1,17 +1,19 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
-import { QueryClientProvider } from '@tanstack/react-query'
+import { ApiQueryProvider } from '@/app/ApiQueryProvider'
 import { App } from '@/app/App'
-import { queryClient } from '@/app/query-client'
+import { ToastProvider } from '@/components/toast/ToastProvider'
 import '@/styles/global.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </QueryClientProvider>
+    <ToastProvider>
+      <ApiQueryProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ApiQueryProvider>
+    </ToastProvider>
   </StrictMode>,
 )

@@ -32,7 +32,6 @@ select {
   outline-offset: 4px;
 }
 .message-page {
-  max-width: 480px;
-  margin: 80px auto;
+  margin-block: 80px;
   padding: 24px;
 }

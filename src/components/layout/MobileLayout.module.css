@@ -1,0 +1,8 @@
+.container {
+  display: flow-root;
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin-inline: auto;
+}
