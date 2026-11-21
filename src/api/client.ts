@@ -12,6 +12,13 @@ export class ApiError extends Error {
   }
 }
 
+export class NetworkError extends TypeError {
+  constructor(cause: TypeError) {
+    super(cause.message, { cause })
+    this.name = 'NetworkError'
+  }
+}
+
 function isApiResponse(value: unknown): value is ApiResponse<unknown> {
   return (
     typeof value === 'object' &&
@@ -38,11 +45,22 @@ export async function apiRequest<T>(
   if (typeof options.body === 'string' && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
   }
-  const response = await fetch(`${baseUrl.replace(/\/+$/, '')}${path}`, {
-    ...options,
-    headers,
-  })
-  const payload: unknown = await response.json().catch(() => null)
+  let response: Response
+  let payload: unknown
+  try {
+    response = await fetch(`${baseUrl.replace(/\/+$/, '')}${path}`, {
+      ...options,
+      headers,
+    })
+    payload = await response.json().catch((error: unknown) => {
+      if (error instanceof SyntaxError) return null
+      throw error
+    })
+  } catch (error) {
+    if (options.signal?.aborted) throw options.signal.reason
+    if (error instanceof TypeError) throw new NetworkError(error)
+    throw error
+  }
   if (!isApiResponse(payload)) {
     throw new ApiError('서버 응답 형식을 확인할 수 없습니다.', response.status)
   }
