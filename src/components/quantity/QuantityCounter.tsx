@@ -1,6 +1,9 @@
 import styles from './QuantityCounter.module.css'
+import minus from '@/assets/recruitment/minus.svg'
+import plus from '@/assets/recruitment/plus.svg'
 
 type QuantityCounterProps = {
+  variant?: 'menu' | 'recruitment'
   label: string
   value: number
   unit?: string
@@ -10,6 +13,7 @@ type QuantityCounterProps = {
 }
 
 export function QuantityCounter({
+  variant = 'menu',
   label,
   value,
   unit,
@@ -18,14 +22,19 @@ export function QuantityCounter({
   onChange,
 }: QuantityCounterProps) {
   return (
-    <div className={styles.counter} role="group" aria-label={label}>
+    <div
+      className={styles.counter}
+      data-variant={variant}
+      role="group"
+      aria-label={label}
+    >
       <button
         type="button"
         aria-label={`${label} 줄이기`}
         disabled={value <= min}
         onClick={() => onChange(value - 1)}
       >
-        −
+        {variant === 'recruitment' ? <img src={minus} alt="" /> : '−'}
       </button>
       <span aria-live="polite" aria-atomic="true">
         {value}
@@ -37,7 +46,7 @@ export function QuantityCounter({
         disabled={max !== undefined && value >= max}
         onClick={() => onChange(value + 1)}
       >
-        +
+        {variant === 'recruitment' ? <img src={plus} alt="" /> : '+'}
       </button>
     </div>
   )

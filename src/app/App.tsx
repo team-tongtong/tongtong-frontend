@@ -3,6 +3,7 @@ import { BottomNavigation } from '@/components/layout/BottomNavigation'
 import { MobileLayout } from '@/components/layout/MobileLayout'
 import { GroupOrderDetailPage } from '@/pages/GroupOrderDetailPage'
 import { HomePage } from '@/pages/HomePage'
+import { CreateRoomPage } from '@/pages/CreateRoomPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
 export function App() {
@@ -43,14 +44,7 @@ export function App() {
             }
           />
         </Route>
-        <Route
-          path="/rooms/new"
-          element={
-            <main>
-              <h1>모집방 만들기</h1>
-            </main>
-          }
-        />
+        <Route path="/rooms/new" element={<CreateRoomPage />} />
         <Route path="/rooms/:roomId" element={<GroupOrderDetailPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

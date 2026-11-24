@@ -1,0 +1,94 @@
+.radio {
+  appearance: none;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  background: url('../../assets/recruitment/radio.svg') center no-repeat;
+  cursor: pointer;
+}
+.radio:checked {
+  background-image: url('../../assets/recruitment/radio-selected.svg');
+}
+@media (forced-colors: active) {
+  .radio {
+    appearance: auto;
+  }
+}
+.choice {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: var(--tt-space-12);
+  padding: 13px 14px;
+  border: 1px solid var(--tt-border-default);
+  border-radius: var(--tt-radius-12);
+  background: var(--tt-surface-default);
+  cursor: pointer;
+}
+.choice[data-variant='spot'] {
+  border-color: var(--tt-border-subtle);
+}
+.choice:has(:checked) {
+  border-color: var(--tt-action-primary);
+  background: var(--tt-surface-selected);
+}
+.copy {
+  display: grid;
+  gap: 3px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--tt-text-secondary);
+  letter-spacing: -0.025em;
+}
+.copy strong {
+  font: 600 14px/23px var(--tt-font-family);
+  color: var(--tt-text-primary);
+  letter-spacing: 0;
+}
+.choice[data-variant='spot'] .copy {
+  line-height: 18px;
+  letter-spacing: 0;
+}
+.choice[data-variant='spot'] strong {
+  font-size: 15px;
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+}
+.inputRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--tt-space-10);
+  font: 500 13px/1.5 var(--tt-font-family);
+}
+.inputRow small {
+  display: block;
+  margin-top: var(--tt-space-2);
+  font: 400 10px/1.4 var(--tt-font-family);
+  letter-spacing: -0.025em;
+  color: var(--tt-text-secondary);
+}
+.progress {
+  padding: var(--tt-space-16) var(--tt-page-gutter);
+  background: var(--tt-surface-default);
+}
+.progress progress {
+  display: block;
+  width: 100%;
+  height: 4px;
+  appearance: none;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--tt-radius-2);
+  background: var(--tt-border-subtle);
+}
+.progress progress::-webkit-progress-bar {
+  background: var(--tt-border-subtle);
+}
+.progress progress::-webkit-progress-value {
+  background: var(--tt-action-primary);
+}
+.progress progress::-moz-progress-bar {
+  background: var(--tt-action-primary);
+}

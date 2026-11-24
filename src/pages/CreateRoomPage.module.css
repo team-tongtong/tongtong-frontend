@@ -1,0 +1,153 @@
+.body {
+  display: grid;
+  gap: var(--tt-space-20);
+  padding: var(--tt-space-24) var(--tt-page-gutter)
+    max(var(--tt-space-24), env(safe-area-inset-bottom));
+}
+.body h2 {
+  margin: 0 0 var(--tt-space-12);
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.body h2:focus {
+  outline: 0;
+}
+.panel,
+.methodPanel {
+  padding: var(--tt-space-20);
+  border-radius: var(--tt-radius-16);
+  background: var(--tt-surface-default);
+}
+.body[data-first-step='true'] {
+  min-height: calc(100dvh - 92px - env(safe-area-inset-top));
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--tt-space-20);
+}
+.intro h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.intro p {
+  margin: 4px 0 0;
+  color: var(--tt-text-secondary);
+  font-size: 13px;
+  line-height: 20px;
+}
+.emptyMenu {
+  display: grid;
+  min-height: 155px;
+  align-content: center;
+  justify-items: center;
+  gap: 9px;
+  border-radius: var(--tt-radius-16);
+  background: var(--tt-surface-default);
+  color: var(--tt-text-secondary);
+  font: 600 14px/1.4 var(--tt-font-family);
+  letter-spacing: -0.025em;
+}
+.emptyMenu p {
+  margin: 0;
+}
+.addMenu,
+.changeMenu {
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+  gap: 3px;
+}
+.addMenu {
+  height: 38px;
+  padding-inline: 11px;
+  border-radius: var(--tt-radius-20);
+  background: var(--tt-background-canvas);
+}
+.changeMenu {
+  color: var(--tt-text-secondary);
+  font-size: 12px;
+}
+.addMenu select,
+.changeMenu select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.addMenu:has(:focus-visible),
+.changeMenu:has(:focus-visible) {
+  outline: 3px solid var(--tt-text-accent);
+  outline-offset: 3px;
+}
+.menuRow,
+.menuTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--tt-space-8);
+}
+.menuRow h2 {
+  margin: 0;
+}
+.menuRow + .menuRow {
+  margin-top: var(--tt-space-12);
+}
+.menuCopy {
+  display: grid;
+  font-size: 14px;
+}
+.menuCopy span,
+.menuCopy small {
+  color: var(--tt-text-secondary);
+}
+.menuTotal {
+  margin-top: var(--tt-space-16);
+  padding-top: var(--tt-space-12);
+  border-top: 1px solid var(--tt-border-default);
+  font-size: 13px;
+}
+.menuTotal strong {
+  font-size: 18px;
+}
+.methodPanel {
+  padding-block: 18px;
+}
+.methodPanel h2 {
+  margin-bottom: var(--tt-space-10);
+}
+.next {
+  margin-top: auto;
+}
+.choices,
+.conditions {
+  display: grid;
+  gap: var(--tt-space-10);
+}
+.conditions {
+  gap: var(--tt-space-16);
+}
+.pickup {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tt-space-10);
+  width: 100%;
+  padding: 0;
+  border: 0;
+  color: var(--tt-text-primary);
+  background: transparent;
+  text-align: start;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pickup small {
+  display: block;
+  margin-top: var(--tt-space-4);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--tt-text-secondary);
+}

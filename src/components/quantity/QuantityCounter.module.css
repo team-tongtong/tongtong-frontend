@@ -27,3 +27,17 @@
   color: var(--tt-text-disabled);
   cursor: default;
 }
+
+.counter[data-variant='recruitment'] {
+  font: 600 14px/1.5 var(--tt-font-family);
+  letter-spacing: -0.025em;
+}
+
+.counter[data-variant='recruitment'] button {
+  width: 30px;
+  height: 30px;
+}
+
+.counter button:disabled img {
+  opacity: 0.45;
+}
