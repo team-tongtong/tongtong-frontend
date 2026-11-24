@@ -1,0 +1,31 @@
+.page {
+  flex: 1;
+  padding: calc(var(--tt-space-20) + env(safe-area-inset-top))
+    var(--tt-page-gutter) var(--tt-space-24);
+  background: var(--tt-surface-default);
+}
+.page section {
+  margin-top: var(--tt-space-40);
+}
+.page h2 {
+  margin: 0 0 var(--tt-space-16);
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 600;
+}
+.page ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tt-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.page li {
+  max-width: 100%;
+}
+.page p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--tt-text-secondary);
+}

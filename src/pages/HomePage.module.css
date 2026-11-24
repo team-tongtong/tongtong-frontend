@@ -1,27 +1,185 @@
-.container {
-  padding-block: 80px;
-  padding-inline: var(--tt-page-gutter);
+.home {
+  flex: 1;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
-.brand {
-  color: var(--color-primary);
-  font-size: 28px;
-  font-weight: 800;
+.map {
+  position: relative;
+  flex: 1;
+  min-height: 0;
 }
-.container h1 {
-  font-size: clamp(32px, 8vw, 44px);
-  line-height: 1.3;
-  letter-spacing: -0.04em;
+.map::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -20px;
+  background: #f3f0e7 url('../assets/home/sample-map.jpg') no-repeat
+    calc(50% - 12px) bottom;
+  background-size: max(609px, 100%, calc(78dvh - 200px)) auto;
 }
-.container p {
-  line-height: 1.7;
+.location {
+  position: absolute;
+  left: 42.3%;
+  bottom: 27px;
+  width: 54px;
+  height: 54px;
+  transform: translateX(-50%);
+  background:
+    url('../assets/home/location-dot.svg') center no-repeat,
+    url('../assets/home/location-halo.svg') center no-repeat;
 }
-.card {
-  margin-top: 48px;
-  padding: 24px;
-  border-radius: 20px;
-  background: white;
-  border: 1px solid #eee4de;
+.location::before {
+  content: '';
+  position: absolute;
+  right: 9px;
+  top: 7px;
+  width: 11px;
+  height: 9px;
+  transform: rotate(38.5deg);
+  background: url('../assets/home/location-heading.svg') center no-repeat;
 }
-.card h2 {
-  font-size: 20px;
+.marker {
+  position: absolute;
+  width: 44px;
+  height: 63px;
+  padding: 0;
+  border: 0;
+  transform: translateX(-50%);
+  background:
+    url('../assets/home/pickup-pin.svg') center top no-repeat,
+    url('../assets/home/pickup-shadow.svg') center bottom no-repeat;
+  cursor: pointer;
+}
+.marker img {
+  display: block;
+  position: absolute;
+  width: 33px;
+  height: 33px;
+  left: 50%;
+  top: 4px;
+  transform: translateX(-50%);
+}
+.marker[aria-pressed='true'] {
+  filter: drop-shadow(0 0 3px var(--tt-text-accent));
+}
+.marker[data-spot='ERICA 정문'] {
+  left: 31.7%;
+  bottom: min(104px, 48%);
+}
+.marker[data-spot='기숙사'] {
+  left: 20.6%;
+  bottom: 8px;
+}
+.marker[data-spot='셔틀콕'] {
+  left: 62.7%;
+  bottom: 23px;
+}
+.home[data-expanded='true'] .marker[data-spot='ERICA 정문'] {
+  left: 37.3%;
+  bottom: min(97px, 48%);
+}
+.home[data-expanded='true'] .marker[data-spot='기숙사'] {
+  bottom: 12px;
+}
+.home[data-expanded='true'] .marker[data-spot='셔틀콕'] {
+  left: 61.6%;
+}
+.panel {
+  --collapsed-height: min(299px, 54dvh);
+  --expanded-height: min(485px, 66dvh);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: var(--collapsed-height);
+  max-height: var(--expanded-height);
+  height: var(--collapsed-height);
+  border-radius: var(--tt-radius-20) var(--tt-radius-20) 0 0;
+  background: var(--tt-surface-default);
+  overflow: hidden;
+}
+.home[data-expanded='true'] .panel {
+  height: var(--expanded-height);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .panel {
+    transition: height 160ms ease-out;
+  }
+}
+.handle {
+  position: relative;
+  padding: 24px 21px 0;
+  width: 100%;
+  height: 45px;
+  flex: none;
+  border: 0;
+  background: transparent;
+  user-select: none;
+  touch-action: none;
+}
+.grip {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 4px;
+  border-radius: var(--tt-radius-pill);
+  background: #c5c5c5;
+}
+.region {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--tt-text-primary);
+}
+.filters {
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 10px var(--tt-page-gutter) 3px;
+}
+.handle:focus-visible {
+  outline-offset: -3px;
+}
+.scrollArea {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+.rooms {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.empty {
+  margin: var(--tt-space-20);
+  color: var(--tt-text-secondary);
+  font-size: 14px;
+}
+
+.feedback {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: var(--tt-space-8);
+  min-height: 106px;
+  color: var(--tt-text-secondary);
+  font-size: 14px;
+}
+.feedback p {
+  margin: 0;
+}
+.feedback button {
+  border: 1px solid var(--tt-border-default);
+  border-radius: var(--tt-radius-pill);
+  background: var(--tt-surface-default);
+  color: var(--tt-text-primary);
+  padding: var(--tt-space-6) var(--tt-space-12);
+  cursor: pointer;
 }

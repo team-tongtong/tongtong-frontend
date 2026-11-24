@@ -2,6 +2,7 @@
 @import './tokens.css';
 
 :root {
+  scrollbar-gutter: stable both-edges;
   font-family: var(--tt-font-family);
   color: var(--tt-text-primary);
   background-color: var(--tt-background-canvas);
@@ -9,6 +10,13 @@
   text-rendering: optimizeLegibility;
 
   --color-primary: var(--tt-text-accent);
+}
+/* On narrow screens a classic scrollbar would take space from the mobile canvas. */
+@media (max-width: 430px) {
+  :root {
+    scrollbar-gutter: auto;
+    scrollbar-width: none;
+  }
 }
 * {
   box-sizing: border-box;
