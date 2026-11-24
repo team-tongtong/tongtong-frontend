@@ -1,5 +1,6 @@
 .container {
-  padding: 80px 24px;
+  padding-block: 80px;
+  padding-inline: var(--tt-page-gutter);
 }
 .brand {
   color: var(--color-primary);

@@ -1,0 +1,108 @@
+/* TONG TONG developer handoff — sourced from working Figma design system */
+:root {
+  --tt-orange-500: #ff5e2d;
+  --tt-orange-200: #ffad94;
+  --tt-orange-150: #ffb59e;
+  --tt-orange-700: #b63d14;
+  --tt-orange-50: #fff3ed;
+  --tt-lime-300: #edf46b;
+  --tt-yellow-300: #ffd75f;
+  --tt-neutral-950: #121215;
+  --tt-neutral-900: #111111;
+  --tt-neutral-850: #222222;
+  --tt-neutral-600: #767676;
+  --tt-neutral-400: #aaaaaa;
+  --tt-neutral-300: #d6d6d7;
+  --tt-neutral-200: #e4e7eb;
+  --tt-neutral-150: #eaeaea;
+  --tt-neutral-100: #f3f5f7;
+  --tt-neutral-50: #f8f8fa;
+  --tt-neutral-0: #ffffff;
+  --tt-cream-50: #fdfdf1;
+  --tt-cream-100: #f8f8eb;
+  --tt-blue-100: #d3e8ff;
+  --tt-blue-500: #3598fc;
+  --tt-violet-500: #6568ea;
+
+  --tt-action-primary: var(--tt-orange-500);
+  --tt-action-disabled: var(--tt-orange-200);
+  --tt-action-soft: var(--tt-orange-150);
+  --tt-text-accent: var(--tt-orange-700);
+  --tt-surface-selected: var(--tt-orange-50);
+  --tt-brand-lime: var(--tt-lime-300);
+  --tt-brand-yellow: var(--tt-yellow-300);
+  --tt-text-primary: var(--tt-neutral-950);
+  --tt-text-strong: var(--tt-neutral-900);
+  --tt-text-title: var(--tt-neutral-850);
+  --tt-text-secondary: var(--tt-neutral-600);
+  --tt-text-disabled: var(--tt-neutral-400);
+  --tt-border-default: var(--tt-neutral-300);
+  --tt-border-subtle: var(--tt-neutral-200);
+  --tt-border-divider: var(--tt-neutral-150);
+  --tt-background-canvas: var(--tt-neutral-100);
+  --tt-surface-subtle: var(--tt-neutral-50);
+  --tt-surface-default: var(--tt-neutral-0);
+  --tt-background-onboarding: var(--tt-cream-50);
+  --tt-background-onboarding-muted: var(--tt-cream-100);
+  --tt-accent-blue-soft: var(--tt-blue-100);
+  --tt-accent-blue: var(--tt-blue-500);
+  --tt-accent-location: var(--tt-violet-500);
+  --tt-text-inverse: var(--tt-neutral-0);
+
+  --tt-space-0: 0px;
+  --tt-space-2: 2px;
+  --tt-space-4: 4px;
+  --tt-space-6: 6px;
+  --tt-space-8: 8px;
+  --tt-space-10: 10px;
+  --tt-space-12: 12px;
+  --tt-space-16: 16px;
+  --tt-space-20: 20px;
+  --tt-space-24: 24px;
+  --tt-space-32: 32px;
+  --tt-space-40: 40px;
+  --tt-space-48: 48px;
+  --tt-space-52: 52px;
+  --tt-space-64: 64px;
+  --tt-radius-2: 2px;
+  --tt-radius-4: 4px;
+  --tt-radius-8: 8px;
+  --tt-radius-10: 10px;
+  --tt-radius-12: 12px;
+  --tt-radius-16: 16px;
+  --tt-radius-20: 20px;
+  --tt-radius-24: 24px;
+  --tt-radius-pill: 100px;
+  --tt-mobile-width: 390px;
+  --tt-page-gutter: 20px;
+  --tt-content-width: 350px;
+  --tt-font-family: Pretendard, sans-serif;
+}
+
+.tt-container {
+  width: 100%;
+  max-width: var(--tt-mobile-width);
+  margin-inline: auto;
+  padding-inline: var(--tt-page-gutter);
+  box-sizing: border-box;
+}
+.tt-button-primary {
+  min-height: 52px;
+  border: 0;
+  border-radius: var(--tt-radius-12);
+  background: var(--tt-action-primary);
+  color: var(--tt-text-inverse);
+  font: 600 15px/1.4 var(--tt-font-family);
+  cursor: pointer;
+}
+.tt-button-primary:disabled {
+  background: var(--tt-action-disabled);
+  cursor: not-allowed;
+}
+.tt-search-input {
+  width: 100%;
+  height: 42px;
+  border: 1px solid var(--tt-border-default);
+  border-radius: var(--tt-radius-10);
+  font: 400 14px/1.4 var(--tt-font-family);
+}
