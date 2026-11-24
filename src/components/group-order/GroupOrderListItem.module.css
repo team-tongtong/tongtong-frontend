@@ -1,0 +1,68 @@
+.item {
+  width: 100%;
+  min-height: 106px;
+  display: flex;
+  align-items: center;
+  gap: var(--tt-space-12);
+  padding: var(--tt-space-12) var(--tt-page-gutter);
+  border: 0;
+  border-bottom: 1px solid var(--tt-border-divider);
+  background: var(--tt-surface-default);
+  color: var(--tt-text-primary);
+  text-align: start;
+  cursor: pointer;
+}
+.item[aria-pressed='true'] {
+  background: var(--tt-surface-selected);
+}
+.item:focus-visible {
+  outline-offset: -3px;
+}
+.logo {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  border-radius: var(--tt-radius-8);
+}
+.info {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: var(--tt-space-2);
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tt-space-4);
+  margin-bottom: var(--tt-space-2);
+  font-size: 12px;
+}
+.tags > * {
+  background: var(--tt-brand-lime);
+  border-radius: var(--tt-radius-4);
+  padding: 3px 6px;
+}
+.name {
+  font-size: 16px;
+}
+.spot,
+.members {
+  font-size: 12px;
+  color: var(--tt-text-secondary);
+}
+.members {
+  display: grid;
+  justify-items: center;
+  gap: var(--tt-space-2);
+}
+.avatars {
+  display: flex;
+}
+.avatars img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+.avatars img + img {
+  margin-inline-start: -20px;
+}
