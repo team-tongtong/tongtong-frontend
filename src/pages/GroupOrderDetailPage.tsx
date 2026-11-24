@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { AppHeader } from '@/components/layout/AppHeader'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
+import { QuantityCounter } from '@/components/quantity/QuantityCounter'
 import { LoadingSpinner } from '@/components/loading/LoadingSpinner'
 import blackJjimdak from '@/assets/order/black-jjimdak.png'
 import pickupMap from '@/assets/order/pickup-map.png'
@@ -140,43 +141,19 @@ function RoomDetails({ room }: { room: GroupOrderDetail }) {
                   <strong>{menu.name}</strong>
                   <p>{won(menu.price)}</p>
                 </div>
-                <div className={styles.counter}>
-                  <button
-                    type="button"
-                    aria-label={menu.name + ' 수량 줄이기'}
-                    disabled={!menu.quantity}
-                    onClick={() =>
-                      setQuantities((q) => ({
-                        ...q,
-                        [menu.name]: Math.max(0, (q[menu.name] ?? 0) - 1),
-                      }))
-                    }
-                  >
-                    −
-                  </button>
-                  <span>{menu.quantity}개</span>
-                  <button
-                    type="button"
-                    aria-label={menu.name + ' 수량 늘리기'}
-                    onClick={() =>
-                      setQuantities((q) => ({
-                        ...q,
-                        [menu.name]: (q[menu.name] || 0) + 1,
-                      }))
-                    }
-                  >
-                    +
-                  </button>
-                </div>
+                <QuantityCounter
+                  label={`${menu.name} 수량`}
+                  value={menu.quantity}
+                  unit="개"
+                  onChange={(value) =>
+                    setQuantities((current) => ({
+                      ...current,
+                      [menu.name]: value,
+                    }))
+                  }
+                />
               </div>
             ))}
-            <button
-              type="button"
-              className={styles.menuButton}
-              onClick={() => setEditing(false)}
-            >
-              완료
-            </button>
           </>
         ) : selected.length ? (
           <>
@@ -197,10 +174,12 @@ function RoomDetails({ room }: { room: GroupOrderDetail }) {
                 <span>{won(menu.price * menu.quantity)}</span>
               </div>
             ))}
-            <div className={styles.row}>
-              <strong>개인 메뉴 합계</strong>
-              <strong>{won(total)}</strong>
-            </div>
+            {shared && (
+              <div className={styles.row}>
+                <strong>개인 메뉴 합계</strong>
+                <strong>{won(total)}</strong>
+              </div>
+            )}
           </>
         ) : (
           <div className={styles.emptyMenu}>
@@ -220,6 +199,35 @@ function RoomDetails({ room }: { room: GroupOrderDetail }) {
               <span aria-hidden="true">＋</span> 메뉴 담기
             </button>
           </div>
+        )}
+        {!shared && selected.length > 0 && (
+          <>
+            <div className={styles.deliveryFee}>
+              <strong>배달비</strong>
+              <span>
+                {room.deliveryFeePerPerson == null
+                  ? '확인 전'
+                  : won(room.deliveryFeePerPerson)}
+              </span>
+            </div>
+            <div className={styles.total}>
+              <span>총 금액</span>
+              <strong>
+                {room.deliveryFeePerPerson == null
+                  ? '배달비 확인 후 안내'
+                  : won(total + room.deliveryFeePerPerson)}
+              </strong>
+            </div>
+          </>
+        )}
+        {editing && (
+          <button
+            type="button"
+            className={styles.menuButton}
+            onClick={() => setEditing(false)}
+          >
+            완료
+          </button>
         )}
       </section>
       <section className={styles.pickup}>

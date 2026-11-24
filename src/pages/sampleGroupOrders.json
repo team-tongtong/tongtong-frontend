@@ -1,6 +1,7 @@
 [
   {
     "id": "sample-1",
+    "deliveryFeePerPerson": 675,
     "name": "맥도날드 안산고잔DT점",
     "image": "mcdonalds",
     "method": "각자 담기",

@@ -184,32 +184,39 @@
   justify-items: center;
   gap: 9px;
 }
-.menuButton,
-.counter button {
+.deliveryFee {
+  display: grid;
+  font-size: 16px;
+}
+.deliveryFee span {
+  color: var(--tt-text-secondary);
+  font-size: 14px;
+}
+.total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tt-space-8);
+  border-top: 1px solid var(--tt-border-default);
+  padding-top: var(--tt-space-12);
+  font: 500 13px/20px var(--tt-font-family);
+  letter-spacing: 0;
+}
+.total strong {
+  font-size: 18px;
+  line-height: 27px;
+}
+.menuButton {
+  justify-self: center;
   border: none;
   color: var(--tt-text-secondary);
   background: var(--tt-background-canvas);
   border-radius: var(--tt-radius-20);
   padding: 8px 12px;
 }
-.menuButton {
-  justify-self: center;
-}
 .menuButton span {
   font-size: 18px;
   vertical-align: middle;
-}
-.counter {
-  display: flex;
-  align-items: center;
-  gap: var(--tt-space-8);
-}
-.counter button {
-  min-width: 32px;
-  border-radius: var(--tt-radius-8);
-}
-.counter button:disabled {
-  opacity: 0.5;
 }
 .pickup img {
   display: block;
