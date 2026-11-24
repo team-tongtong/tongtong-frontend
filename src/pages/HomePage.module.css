@@ -178,3 +178,24 @@
   color: var(--tt-text-secondary);
   font-size: 14px;
 }
+
+.feedback {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: var(--tt-space-8);
+  min-height: 106px;
+  color: var(--tt-text-secondary);
+  font-size: 14px;
+}
+.feedback p {
+  margin: 0;
+}
+.feedback button {
+  border: 1px solid var(--tt-border-default);
+  border-radius: var(--tt-radius-pill);
+  background: var(--tt-surface-default);
+  color: var(--tt-text-primary);
+  padding: var(--tt-space-6) var(--tt-space-12);
+  cursor: pointer;
+}

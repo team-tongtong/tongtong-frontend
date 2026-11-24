@@ -1,10 +1,12 @@
+import { useQuery } from '@tanstack/react-query'
+import { LoadingSpinner } from '@/components/loading/LoadingSpinner'
 import { useRef, useState } from 'react'
 import { GroupOrderListItem } from '@/components/group-order/GroupOrderListItem'
 import areaIcon from '@/assets/home/area.svg'
 import pickupCat from '@/assets/home/pickup-cat.png'
 import {
   pickupSpots,
-  sampleGroupOrders,
+  loadSampleGroupOrders,
   type PickupSpot,
 } from './sampleGroupOrders'
 import styles from './HomePage.module.css'
@@ -22,11 +24,6 @@ export function HomePage() {
     handled: false,
   })
   const suppressClick = useRef(false)
-  const filtered = sampleGroupOrders.filter(
-    (room) => !spot || room.spot === spot,
-  )
-  const rooms = expanded ? filtered : filtered.slice(0, 2)
-
   function startSwipe(x: number, y: number) {
     suppressClick.current = false
     swipe.current = { x, y, atTop: (list.current?.scrollTop ?? 0) <= 0 }
@@ -44,6 +41,7 @@ export function HomePage() {
   }
 
   function selectSpot(next: PickupSpot | null) {
+    if (next !== spot && list.current) list.current.scrollTop = 0
     setSpot(next)
     setSelectedRoomId(null)
   }
@@ -177,31 +175,80 @@ export function HomePage() {
             </button>
           ))}
         </div>
-        <div
-          id="nearby-rooms"
-          ref={list}
-          key={spot ?? '전체'}
-          className={styles.scrollArea}
-        >
-          {rooms.length > 0 ? (
-            <ul className={styles.rooms} aria-label="모집방 목록">
-              {rooms.map((room) => (
-                <li key={room.id}>
-                  <GroupOrderListItem
-                    room={room}
-                    selected={selectedRoomId === room.id}
-                    onSelect={setSelectedRoomId}
-                  />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className={styles.empty}>
-              이 픽업 위치에는 모집 중인 방이 없어요.
-            </p>
-          )}
+        <div id="nearby-rooms" ref={list} className={styles.scrollArea}>
+          <NearbyRoomList
+            spot={spot}
+            expanded={expanded}
+            selectedRoomId={selectedRoomId}
+            onSelect={setSelectedRoomId}
+          />
         </div>
       </section>
     </main>
+  )
+}
+
+function NearbyRoomList({
+  spot,
+  expanded,
+  selectedRoomId,
+  onSelect,
+}: {
+  spot: PickupSpot | null
+  expanded: boolean
+  selectedRoomId: string | null
+  onSelect: (id: string) => void
+}) {
+  const query = useQuery({
+    queryKey: ['group-orders', 'sample'],
+    queryFn: ({ signal }) => loadSampleGroupOrders(signal),
+    staleTime: Infinity,
+    networkMode: 'always',
+  })
+
+  if (query.isPending) {
+    return (
+      <div className={styles.feedback}>
+        <LoadingSpinner label="모집방 목록을 불러오는 중" />
+      </div>
+    )
+  }
+
+  if (query.isError) {
+    return (
+      <div className={styles.feedback}>
+        <p role="alert">모집방 목록을 불러오지 못했어요.</p>
+        <button type="button" onClick={() => void query.refetch()}>
+          다시 시도
+        </button>
+      </div>
+    )
+  }
+
+  const filtered = spot
+    ? query.data.filter((room) => room.spot === spot)
+    : query.data
+  if (!filtered.length) {
+    return (
+      <p className={styles.empty} role="status">
+        {spot
+          ? '이 픽업 위치에는 모집 중인 방이 없어요.'
+          : '현재 모집 중인 방이 없어요.'}
+      </p>
+    )
+  }
+
+  return (
+    <ul className={styles.rooms} aria-label="모집방 목록">
+      {(expanded ? filtered : filtered.slice(0, 2)).map((room) => (
+        <li key={room.id}>
+          <GroupOrderListItem
+            room={room}
+            selected={selectedRoomId === room.id}
+            onSelect={onSelect}
+          />
+        </li>
+      ))}
+    </ul>
   )
 }
