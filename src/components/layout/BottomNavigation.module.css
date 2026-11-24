@@ -1,0 +1,54 @@
+.bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: auto;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--tt-surface-default);
+}
+
+.item {
+  height: 100px;
+  display: grid;
+  place-items: center;
+  color: var(--tt-border-default);
+  text-decoration: none;
+}
+
+.item[aria-current='page'] {
+  color: var(--tt-text-primary);
+}
+
+.item:focus-visible {
+  outline-offset: -4px;
+}
+
+.create {
+  position: relative;
+  width: 57px;
+  max-width: 90%;
+}
+
+.create img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+.badge {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--tt-action-primary);
+  color: var(--tt-text-inverse);
+  font-size: 18px;
+  line-height: 1;
+}

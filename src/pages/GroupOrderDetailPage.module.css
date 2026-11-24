@@ -1,0 +1,240 @@
+.page {
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+  color: var(--tt-text-primary);
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+}
+.page :is(h1, h2, p) {
+  margin: 0;
+}
+.page h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+.page button:enabled {
+  cursor: pointer;
+}
+.body {
+  padding-inline: var(--tt-page-gutter);
+}
+.content {
+  margin-top: var(--tt-space-40);
+  display: grid;
+  gap: var(--tt-space-20);
+}
+.card,
+.menu,
+.shared,
+.pickup,
+.feedback {
+  background: var(--tt-surface-default);
+  border-radius: var(--tt-radius-16);
+}
+.menu,
+.shared,
+.pickup,
+.feedback {
+  padding: var(--tt-space-20);
+}
+.feedback {
+  text-align: center;
+  margin-top: var(--tt-space-40);
+}
+.feedback p {
+  margin-bottom: var(--tt-space-12);
+}
+.store {
+  display: flex;
+  align-items: center;
+  gap: var(--tt-space-10);
+  min-height: 107px;
+  padding: var(--tt-space-16) var(--tt-space-20);
+  border-bottom: 1px solid var(--tt-border-divider);
+}
+.store img {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.store h2 {
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+.store p,
+.emptyMenu p,
+.pickup p {
+  font-size: 14px;
+  color: var(--tt-text-secondary);
+}
+.tag {
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: var(--tt-space-6);
+  border-radius: var(--tt-radius-4);
+  background: var(--tt-brand-lime);
+  font-size: 12px;
+}
+.recruitment {
+  padding: var(--tt-space-16) var(--tt-space-20) var(--tt-space-20);
+}
+.track {
+  display: flex;
+  align-items: center;
+  margin: 18px 9px 40px;
+  height: 18px;
+}
+.step {
+  position: relative;
+  flex: 1;
+  height: 10px;
+  background: var(--tt-border-default);
+}
+.step:last-child {
+  flex: 0;
+}
+.step:has(+ .step[data-filled='true']) {
+  background: var(--tt-action-primary);
+}
+.step::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  width: 8px;
+  height: 8px;
+  box-sizing: content-box;
+  border: 5px solid var(--tt-border-default);
+  background: var(--tt-surface-default);
+  border-radius: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+.step[data-filled='true']::before {
+  border-color: var(--tt-action-primary);
+}
+.step img,
+.step b {
+  position: absolute;
+  left: 0;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+.step img {
+  width: 40px;
+  height: 40px;
+  top: -15px;
+}
+.step b {
+  top: 26px;
+  padding: 5px 10px;
+  border-radius: var(--tt-radius-pill);
+  background: var(--tt-brand-lime);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.step b::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: calc(50% - 5px);
+  border: 5px solid transparent;
+  border-top: 0;
+  border-bottom-color: var(--tt-brand-lime);
+}
+.step:first-child b {
+  left: 10px;
+}
+.step:last-child b {
+  left: -10px;
+}
+.shared,
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tt-space-8);
+}
+.shared {
+  min-height: 124px;
+}
+.shared h2 {
+  margin-bottom: var(--tt-space-10);
+}
+.shared img {
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+}
+.shared p,
+.menu,
+.pickup p {
+  font-size: 14px;
+}
+.shared small {
+  font-size: 10px;
+}
+.menu {
+  display: grid;
+  gap: var(--tt-space-12);
+}
+.emptyMenu {
+  min-height: 115px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 9px;
+}
+.deliveryFee {
+  display: grid;
+  font-size: 16px;
+}
+.deliveryFee span {
+  color: var(--tt-text-secondary);
+  font-size: 14px;
+}
+.total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tt-space-8);
+  border-top: 1px solid var(--tt-border-default);
+  padding-top: var(--tt-space-12);
+  font: 500 13px/20px var(--tt-font-family);
+  letter-spacing: 0;
+}
+.total strong {
+  font-size: 18px;
+  line-height: 27px;
+}
+.menuButton {
+  justify-self: center;
+  border: none;
+  color: var(--tt-text-secondary);
+  background: var(--tt-background-canvas);
+  border-radius: var(--tt-radius-20);
+  padding: 8px 12px;
+}
+.menuButton span {
+  font-size: 18px;
+  vertical-align: middle;
+}
+.pickup img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 310 / 129;
+  object-fit: cover;
+  border-radius: var(--tt-radius-8);
+  margin: var(--tt-space-12) 0 var(--tt-space-16);
+}
+.pickup strong {
+  font-size: 15px;
+  font-weight: 500;
+}
+.pickup p {
+  margin-top: var(--tt-space-4);
+}
+.footer p:not(:empty) {
+  text-align: center;
+  margin-top: var(--tt-space-8);
+  font-size: 14px;
+}

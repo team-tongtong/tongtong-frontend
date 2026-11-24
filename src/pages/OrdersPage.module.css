@@ -1,0 +1,14 @@
+.header {
+  padding: env(safe-area-inset-top, 0px) var(--tt-page-gutter)
+    var(--tt-space-16);
+  border-bottom: 1px solid var(--tt-border-default);
+  background: var(--tt-surface-default);
+}
+.header h1 {
+  display: grid;
+  place-items: center;
+  min-height: 56px;
+  margin: 0 0 var(--tt-space-20);
+  font: 600 20px/1.4 var(--tt-font-family);
+  letter-spacing: -0.025em;
+}

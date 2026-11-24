@@ -1,0 +1,100 @@
+[
+  {
+    "id": "sample-1",
+    "deliveryFeePerPerson": 675,
+    "name": "맥도날드 안산고잔DT점",
+    "image": "mcdonalds",
+    "method": "각자 담기",
+    "orderTime": "16:00",
+    "pickupSpot": "한양대학교 ERICA 행복관 1층",
+    "spot": "기숙사",
+    "participants": 2,
+    "capacity": 4,
+    "avatars": ["rabbit", "paw"],
+    "menus": [
+      {
+        "name": "불고기버거 세트",
+        "price": 8000
+      },
+      {
+        "name": "슈비버거 라지 세트",
+        "price": 10800
+      }
+    ]
+  },
+  {
+    "id": "sample-2",
+    "name": "두찜 - 까만찜닭",
+    "image": "ddukzzim",
+    "method": "내 몫 담기",
+    "orderTime": "16:30",
+    "pickupSpot": "한양대학교 ERICA 정문",
+    "spot": "ERICA 정문",
+    "participants": 3,
+    "capacity": 4,
+    "avatars": ["rabbit", "paw", "rabbit"],
+    "menus": [
+      {
+        "name": "공깃밥",
+        "price": 1000
+      },
+      {
+        "name": "든든세트",
+        "price": 9000
+      }
+    ],
+    "sharedMenu": {
+      "name": "까만 찜닭",
+      "pricePerPerson": 9000,
+      "image": "blackJjimdak"
+    }
+  },
+  {
+    "id": "sample-3",
+    "name": "신전 떡볶이",
+    "image": "sinjeon",
+    "method": "각자 담기",
+    "orderTime": "17:00",
+    "pickupSpot": "한양대학교 ERICA 정문",
+    "spot": "ERICA 정문",
+    "participants": 3,
+    "capacity": 4,
+    "avatars": ["rabbit", "paw", "rabbit"],
+    "menus": [
+      {
+        "name": "떡볶이",
+        "price": 4000
+      },
+      {
+        "name": "치즈김밥",
+        "price": 3500
+      }
+    ]
+  },
+  {
+    "id": "sample-4",
+    "name": "엽기떡볶이 - 로제떡볶이",
+    "image": "yeopgi",
+    "method": "내 몫 담기",
+    "orderTime": "17:30",
+    "pickupSpot": "한양대학교 ERICA 정문",
+    "spot": "ERICA 정문",
+    "participants": 3,
+    "capacity": 4,
+    "avatars": ["rabbit", "paw", "rabbit"],
+    "menus": [
+      {
+        "name": "주먹김밥",
+        "price": 2000
+      },
+      {
+        "name": "계란찜",
+        "price": 2000
+      }
+    ],
+    "sharedMenu": {
+      "name": "로제떡볶이",
+      "pricePerPerson": 4500
+    }
+  }
+]

@@ -1,7 +1,8 @@
 .container {
-  display: flow-root;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  max-width: 480px;
+  max-width: var(--tt-mobile-width);
   min-height: 100vh;
   min-height: 100dvh;
   margin-inline: auto;

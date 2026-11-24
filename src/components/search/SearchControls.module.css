@@ -1,0 +1,50 @@
+.form {
+  position: relative;
+}
+.form input {
+  padding-inline: var(--tt-space-20) 58px;
+  border: 0;
+  border-radius: var(--tt-radius-pill);
+  background: var(--tt-surface-default);
+  color: var(--tt-text-primary);
+  box-shadow: 0 2px 20px rgb(0 0 0 / 10%);
+}
+.form button,
+.chip button {
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.form button {
+  position: absolute;
+  inset: 0 8px 0 auto;
+  width: 42px;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 0 5px 0 14px;
+  min-height: 34px;
+  border: 1px solid var(--tt-border-default);
+  border-radius: var(--tt-radius-pill);
+  font: 400 14px/1.4 var(--tt-font-family);
+  letter-spacing: -0.025em;
+}
+.chip .term {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-height: 32px;
+}
+.remove {
+  flex: none;
+  width: 27px;
+  height: 32px;
+}
