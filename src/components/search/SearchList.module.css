@@ -1,0 +1,85 @@
+.restaurant,
+.menu {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  text-align: start;
+  color: var(--tt-text-primary);
+}
+.restaurant {
+  border: 0;
+  gap: var(--tt-space-8);
+  padding: var(--tt-space-8) var(--tt-space-6);
+  border-radius: var(--tt-radius-10);
+  background: var(--tt-surface-default);
+  cursor: pointer;
+}
+.logo {
+  width: 60px;
+  height: 60px;
+  flex: none;
+  border-radius: var(--tt-radius-10);
+  object-fit: cover;
+}
+.copy {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: var(--tt-space-6);
+  overflow-wrap: anywhere;
+}
+.storeName {
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: -0.03em;
+}
+.meta,
+.description {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--tt-text-secondary);
+}
+.meta img {
+  vertical-align: -1px;
+}
+.menu {
+  gap: var(--tt-space-16);
+  justify-content: space-between;
+  padding-bottom: var(--tt-space-12);
+  background: url('../../assets/search/divider.svg') center bottom / 100% 1px
+    no-repeat;
+}
+.menuName,
+.price {
+  font-size: 14px;
+  font-weight: 500;
+}
+.price {
+  margin-top: var(--tt-space-4);
+  font-variant-numeric: tabular-nums;
+}
+.photo {
+  position: relative;
+  flex: none;
+}
+.food {
+  display: block;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.photo button {
+  position: absolute;
+  right: 0;
+  bottom: 3px;
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--tt-action-primary);
+  cursor: pointer;
+}

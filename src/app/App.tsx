@@ -5,6 +5,7 @@ import { GroupOrderDetailPage } from '@/pages/GroupOrderDetailPage'
 import { HomePage } from '@/pages/HomePage'
 import { CreateRoomPage } from '@/pages/CreateRoomPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
+import { SearchPage } from '@/pages/SearchPage'
 
 export function App() {
   return (
@@ -19,14 +20,7 @@ export function App() {
           }
         >
           <Route path="/" element={<HomePage />} />
-          <Route
-            path="/search"
-            element={
-              <main>
-                <h1>검색</h1>
-              </main>
-            }
-          />
+          <Route path="/search" element={<SearchPage />} />
           <Route
             path="/orders"
             element={
