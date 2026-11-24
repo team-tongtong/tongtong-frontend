@@ -1,6 +1,7 @@
 import { Outlet, Route, Routes } from 'react-router'
 import { BottomNavigation } from '@/components/layout/BottomNavigation'
 import { MobileLayout } from '@/components/layout/MobileLayout'
+import { GroupOrderDetailPage } from '@/pages/GroupOrderDetailPage'
 import { HomePage } from '@/pages/HomePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 
@@ -50,6 +51,7 @@ export function App() {
             </main>
           }
         />
+        <Route path="/rooms/:roomId" element={<GroupOrderDetailPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </MobileLayout>

@@ -10,9 +10,10 @@
   background: var(--tt-surface-default);
   color: var(--tt-text-primary);
   text-align: start;
+  text-decoration: none;
   cursor: pointer;
 }
-.item[aria-pressed='true'] {
+.item:active {
   background: var(--tt-surface-selected);
 }
 .item:focus-visible {

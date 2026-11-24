@@ -1,3 +1,4 @@
+import { queryOptions } from '@tanstack/react-query'
 import sampleUrl from './sampleGroupOrders.json?url&no-inline'
 import type { GroupOrderSummary } from '@/components/group-order/GroupOrderListItem'
 import mcdonalds from '@/assets/logo-mcdonalds.png'
@@ -13,13 +14,17 @@ export type PickupSpot = (typeof pickupSpots)[number]
 const logos = { mcdonalds, ddukzzim, sinjeon, yeopgi }
 const avatars = { rabbit, paw }
 
+type OrderMenu = { name: string; price: number }
+
 type SampleGroupOrder = Omit<GroupOrderSummary, 'image' | 'avatars'> & {
+  menus: OrderMenu[]
+  sharedMenu?: { name: string; pricePerPerson: number; image?: 'blackJjimdak' }
   spot: PickupSpot
   image: keyof typeof logos
   avatars: (keyof typeof avatars)[]
 }
 
-export async function loadSampleGroupOrders(signal: AbortSignal) {
+async function loadSampleGroupOrders(signal: AbortSignal) {
   const response = await fetch(sampleUrl, { signal })
   if (!response.ok) throw new Error('모집방 목록을 불러오지 못했어요.')
   const rows: SampleGroupOrder[] = await response.json()
@@ -29,3 +34,14 @@ export async function loadSampleGroupOrders(signal: AbortSignal) {
     avatars: room.avatars.map((avatar) => avatars[avatar]),
   }))
 }
+
+export type GroupOrderDetail = Awaited<
+  ReturnType<typeof loadSampleGroupOrders>
+>[number]
+
+export const sampleGroupOrdersQuery = queryOptions({
+  queryKey: ['group-orders', 'sample', sampleUrl],
+  queryFn: ({ signal }) => loadSampleGroupOrders(signal),
+  staleTime: Infinity,
+  networkMode: 'always',
+})

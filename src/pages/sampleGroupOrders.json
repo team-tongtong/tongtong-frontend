@@ -9,7 +9,17 @@
     "spot": "기숙사",
     "participants": 2,
     "capacity": 4,
-    "avatars": ["rabbit", "paw"]
+    "avatars": ["rabbit", "paw"],
+    "menus": [
+      {
+        "name": "불고기버거 세트",
+        "price": 8000
+      },
+      {
+        "name": "슈비버거 라지 세트",
+        "price": 10800
+      }
+    ]
   },
   {
     "id": "sample-2",
@@ -21,7 +31,22 @@
     "spot": "ERICA 정문",
     "participants": 3,
     "capacity": 4,
-    "avatars": ["rabbit", "paw", "rabbit"]
+    "avatars": ["rabbit", "paw", "rabbit"],
+    "menus": [
+      {
+        "name": "공깃밥",
+        "price": 1000
+      },
+      {
+        "name": "든든세트",
+        "price": 9000
+      }
+    ],
+    "sharedMenu": {
+      "name": "까만 찜닭",
+      "pricePerPerson": 9000,
+      "image": "blackJjimdak"
+    }
   },
   {
     "id": "sample-3",
@@ -33,7 +58,17 @@
     "spot": "ERICA 정문",
     "participants": 3,
     "capacity": 4,
-    "avatars": ["rabbit", "paw", "rabbit"]
+    "avatars": ["rabbit", "paw", "rabbit"],
+    "menus": [
+      {
+        "name": "떡볶이",
+        "price": 4000
+      },
+      {
+        "name": "치즈김밥",
+        "price": 3500
+      }
+    ]
   },
   {
     "id": "sample-4",
@@ -45,6 +80,20 @@
     "spot": "ERICA 정문",
     "participants": 3,
     "capacity": 4,
-    "avatars": ["rabbit", "paw", "rabbit"]
+    "avatars": ["rabbit", "paw", "rabbit"],
+    "menus": [
+      {
+        "name": "주먹김밥",
+        "price": 2000
+      },
+      {
+        "name": "계란찜",
+        "price": 2000
+      }
+    ],
+    "sharedMenu": {
+      "name": "로제떡볶이",
+      "pricePerPerson": 4500
+    }
   }
 ]

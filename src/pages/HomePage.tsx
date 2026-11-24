@@ -6,7 +6,7 @@ import areaIcon from '@/assets/home/area.svg'
 import pickupCat from '@/assets/home/pickup-cat.png'
 import {
   pickupSpots,
-  loadSampleGroupOrders,
+  sampleGroupOrdersQuery,
   type PickupSpot,
 } from './sampleGroupOrders'
 import styles from './HomePage.module.css'
@@ -14,7 +14,6 @@ import styles from './HomePage.module.css'
 export function HomePage() {
   const [expanded, setExpanded] = useState(false)
   const [spot, setSpot] = useState<PickupSpot | null>(null)
-  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null)
   const list = useRef<HTMLDivElement>(null)
   const swipe = useRef<{ x: number; y: number; atTop: boolean } | null>(null)
   const wheel = useRef({
@@ -43,7 +42,6 @@ export function HomePage() {
   function selectSpot(next: PickupSpot | null) {
     if (next !== spot && list.current) list.current.scrollTop = 0
     setSpot(next)
-    setSelectedRoomId(null)
   }
 
   return (
@@ -176,12 +174,7 @@ export function HomePage() {
           ))}
         </div>
         <div id="nearby-rooms" ref={list} className={styles.scrollArea}>
-          <NearbyRoomList
-            spot={spot}
-            expanded={expanded}
-            selectedRoomId={selectedRoomId}
-            onSelect={setSelectedRoomId}
-          />
+          <NearbyRoomList spot={spot} expanded={expanded} />
         </div>
       </section>
     </main>
@@ -191,20 +184,11 @@ export function HomePage() {
 function NearbyRoomList({
   spot,
   expanded,
-  selectedRoomId,
-  onSelect,
 }: {
   spot: PickupSpot | null
   expanded: boolean
-  selectedRoomId: string | null
-  onSelect: (id: string) => void
 }) {
-  const query = useQuery({
-    queryKey: ['group-orders', 'sample'],
-    queryFn: ({ signal }) => loadSampleGroupOrders(signal),
-    staleTime: Infinity,
-    networkMode: 'always',
-  })
+  const query = useQuery(sampleGroupOrdersQuery)
 
   if (query.isPending) {
     return (
@@ -242,11 +226,7 @@ function NearbyRoomList({
     <ul className={styles.rooms} aria-label="모집방 목록">
       {(expanded ? filtered : filtered.slice(0, 2)).map((room) => (
         <li key={room.id}>
-          <GroupOrderListItem
-            room={room}
-            selected={selectedRoomId === room.id}
-            onSelect={onSelect}
-          />
+          <GroupOrderListItem room={room} />
         </li>
       ))}
     </ul>
