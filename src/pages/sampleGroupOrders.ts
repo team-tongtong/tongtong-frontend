@@ -18,6 +18,7 @@ type OrderMenu = { name: string; price: number }
 
 type SampleGroupOrder = Omit<GroupOrderSummary, 'image' | 'avatars'> & {
   menus: OrderMenu[]
+  minimumOrderAmount?: number | null
   deliveryFeePerPerson?: number | null
   sharedMenu?: { name: string; pricePerPerson: number; image?: 'blackJjimdak' }
   spot: PickupSpot

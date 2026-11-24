@@ -82,36 +82,6 @@
   outline: 3px solid var(--tt-text-accent);
   outline-offset: 3px;
 }
-.menuRow,
-.menuTotal {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--tt-space-8);
-}
-.menuRow h2 {
-  margin: 0;
-}
-.menuRow + .menuRow {
-  margin-top: var(--tt-space-12);
-}
-.menuCopy {
-  display: grid;
-  font-size: 14px;
-}
-.menuCopy span,
-.menuCopy small {
-  color: var(--tt-text-secondary);
-}
-.menuTotal {
-  margin-top: var(--tt-space-16);
-  padding-top: var(--tt-space-12);
-  border-top: 1px solid var(--tt-border-default);
-  font-size: 13px;
-}
-.menuTotal strong {
-  font-size: 18px;
-}
 .methodPanel {
   padding-block: 18px;
 }
@@ -121,13 +91,9 @@
 .next {
   margin-top: auto;
 }
-.choices,
-.conditions {
+.choices {
   display: grid;
   gap: var(--tt-space-10);
-}
-.conditions {
-  gap: var(--tt-space-16);
 }
 .pickup {
   display: flex;

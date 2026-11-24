@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import addMenu from '@/assets/recruitment/add-menu.svg'
-import { QuantityCounter } from '@/components/quantity/QuantityCounter'
+import { SelectedMenuCard } from '@/components/order/SelectedMenuCard'
 import { sampleGroupOrdersQuery } from './sampleGroupOrders'
 import styles from './CreateRoomPage.module.css'
 
@@ -9,6 +9,7 @@ export type RoomMenuSelection = {
   storeName: string
   name: string
   price: number
+  minimumOrderAmount?: number | null
   quantity: number
 }
 
@@ -26,6 +27,7 @@ export function CreateRoomMenu({ selected, onChange }: Props) {
       ...menu,
       storeId: room.id,
       storeName: room.name,
+      minimumOrderAmount: room.minimumOrderAmount,
       quantity: 1,
     })),
   }))
@@ -62,49 +64,30 @@ export function CreateRoomMenu({ selected, onChange }: Props) {
     </label>
   )
   return (
-    <section
-      aria-label="메뉴 선택"
-      className={selected ? styles.panel : styles.emptyMenu}
-    >
+    <>
       {selected ? (
-        <>
-          <div className={styles.menuRow}>
-            <h2>선택한 메뉴</h2>
-            {picker}
-          </div>
-          <div className={styles.menuRow}>
-            <div className={styles.menuCopy}>
-              <small>{selected.storeName}</small>
-              <strong>{selected.name}</strong>
-              <span>{selected.price.toLocaleString('ko-KR')}원</span>
-            </div>
-            <QuantityCounter
-              label={selected.name + ' 수량'}
-              value={selected.quantity}
-              unit="개"
-              onChange={(quantity) =>
-                onChange(quantity > 0 ? { ...selected, quantity } : undefined)
-              }
-            />
-          </div>
-          <div className={styles.menuTotal}>
-            <span>총 금액</span>
-            <strong>
-              {(selected.price * selected.quantity).toLocaleString('ko-KR')}원
-            </strong>
-          </div>
-        </>
+        <SelectedMenuCard
+          name={selected.name}
+          storeName={selected.storeName}
+          unitPrice={selected.price}
+          quantity={selected.quantity}
+          subtotal={selected.price * selected.quantity}
+          changeControl={picker}
+          onQuantityChange={(quantity) =>
+            onChange(quantity > 0 ? { ...selected, quantity } : undefined)
+          }
+        />
       ) : (
-        <>
+        <section aria-label="메뉴 선택" className={styles.emptyMenu}>
           <p>원하는 메뉴를 담아주세요</p>
           {picker}
-        </>
+        </section>
       )}
       {query.isError && (
         <button type="button" onClick={() => void query.refetch()}>
           메뉴 다시 불러오기
         </button>
       )}
-    </section>
+    </>
   )
 }

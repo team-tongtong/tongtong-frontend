@@ -5,7 +5,8 @@ import { PrimaryButton } from '@/components/button/PrimaryButton'
 import { orderMethodLabels } from '@/components/group-order/orderMethod'
 import { AppHeader } from '@/components/layout/AppHeader'
 import { ChoiceCard } from '@/components/recruitment/ChoiceCard'
-import { RecruitmentInputRow } from '@/components/recruitment/RecruitmentInputRow'
+import { RecruitmentConditionsCard } from '@/components/order/RecruitmentConditionsCard'
+import { PaymentMethodsCard } from '@/components/order/PaymentMethodsCard'
 import { RecruitmentProgress } from '@/components/recruitment/RecruitmentProgress'
 import styles from './CreateRoomPage.module.css'
 import { CreateRoomMenu, type RoomMenuSelection } from './CreateRoomMenu'
@@ -13,6 +14,13 @@ import { CreateRoomMenu, type RoomMenuSelection } from './CreateRoomMenu'
 const methods = [
   { value: '내 몫 담기', description: '같은 메뉴를 나눠 담아 내 몫만 받아요.' },
   { value: '각자 담기', description: '각자 고른 메뉴를 담고 배달비를 나눠요.' },
+] as const
+
+const paymentMethods = [
+  '신용, 체크카드',
+  '토스페이',
+  '카카오페이',
+  '네이버페이',
 ] as const
 
 const spots = [
@@ -33,6 +41,7 @@ export function CreateRoomPage() {
   const [menu, setMenu] = useState<RoomMenuSelection>()
   const [people, setPeople] = useState(4)
   const [minutes, setMinutes] = useState(10)
+  const [paymentMethod, setPaymentMethod] = useState<string>()
   const [spot, setSpot] = useState('')
   const [choosingSpot, setChoosingSpot] = useState(false)
   const [draftSpot, setDraftSpot] = useState('')
@@ -82,31 +91,13 @@ export function CreateRoomPage() {
               </div>
             </section>
             {menu && method && (
-              <section
-                className={styles.panel}
-                aria-labelledby="conditions-title"
-              >
-                <h2 id="conditions-title">모집 조건</h2>
-                <div className={styles.conditions}>
-                  <RecruitmentInputRow
-                    label="모집 인원"
-                    description="나를 포함한 전체 인원이에요"
-                    unit="명"
-                    min={2}
-                    value={people}
-                    onChange={setPeople}
-                  />
-                  <RecruitmentInputRow
-                    label="모집 시간"
-                    description="최대 60분까지 가능해요"
-                    unit="분"
-                    min={1}
-                    max={60}
-                    value={minutes}
-                    onChange={setMinutes}
-                  />
-                </div>
-              </section>
+              <RecruitmentConditionsCard
+                minimumOrderAmount={menu.minimumOrderAmount}
+                people={people}
+                minutes={minutes}
+                onPeopleChange={setPeople}
+                onMinutesChange={setMinutes}
+              />
             )}
             <div className={styles.next}>
               <PrimaryButton
@@ -153,25 +144,32 @@ export function CreateRoomPage() {
             </PrimaryButton>
           </>
         ) : (
-          <section className={styles.panel} aria-labelledby="pickup-title">
-            <h2 id="pickup-title" ref={focusHeading} tabIndex={-1}>
-              픽업 장소 선택
-            </h2>
-            <button
-              type="button"
-              className={styles.pickup}
-              onClick={() => {
-                setDraftSpot(spot)
-                setChoosingSpot(true)
-              }}
-            >
-              <span>
-                {spot || '어디에서 받을까요?'}
-                <small>등록된 통통 스팟에서 함께 받아요.</small>
-              </span>
-              <img src={chevron} alt="" />
-            </button>
-          </section>
+          <>
+            <section className={styles.panel} aria-labelledby="pickup-title">
+              <h2 id="pickup-title" ref={focusHeading} tabIndex={-1}>
+                픽업 장소 선택
+              </h2>
+              <button
+                type="button"
+                className={styles.pickup}
+                onClick={() => {
+                  setDraftSpot(spot)
+                  setChoosingSpot(true)
+                }}
+              >
+                <span>
+                  {spot || '어디에서 받을까요?'}
+                  <small>등록된 통통 스팟에서 함께 받아요.</small>
+                </span>
+                <img src={chevron} alt="" />
+              </button>
+            </section>
+            <PaymentMethodsCard
+              methods={paymentMethods}
+              selected={paymentMethod}
+              onChange={setPaymentMethod}
+            />
+          </>
         )}
       </div>
     </main>

@@ -1,0 +1,74 @@
+.card {
+  min-width: 0;
+  padding: var(--tt-space-20);
+  border-radius: var(--tt-radius-16);
+  background: var(--tt-surface-default);
+  overflow-wrap: anywhere;
+}
+.heading,
+.row,
+.subtotal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tt-space-8);
+}
+.heading {
+  margin-bottom: var(--tt-space-10);
+}
+.card .heading h2 {
+  margin: 0;
+  font: 600 16px/1.4 var(--tt-font-family);
+  letter-spacing: -0.025em;
+}
+.heading small {
+  color: var(--tt-text-secondary);
+  font-size: 12px;
+  text-align: end;
+}
+.menu {
+  display: grid;
+  min-width: 0;
+}
+.menu strong {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font: 600 16px/1.4 var(--tt-font-family);
+  letter-spacing: -0.025em;
+}
+.menu span,
+.menu small {
+  color: var(--tt-text-secondary);
+  font-size: 13px;
+  line-height: 20px;
+}
+.subtotal {
+  margin-top: var(--tt-space-16);
+  padding-top: var(--tt-space-12);
+  border-top: 1px solid var(--tt-border-default);
+  font-size: 13px;
+}
+.subtotal strong {
+  font-size: 18px;
+}
+.conditions {
+  display: grid;
+  gap: var(--tt-space-16);
+  margin-top: var(--tt-space-16);
+}
+.payment {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 50px;
+  padding-block: var(--tt-space-4);
+  cursor: pointer;
+  font: 500 14px/1.4 var(--tt-font-family);
+  letter-spacing: -0.025em;
+}
+.payment input {
+  width: 24px;
+  height: 24px;
+  background-size: contain;
+}
