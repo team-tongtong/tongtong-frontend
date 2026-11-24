@@ -1,5 +1,5 @@
 .page {
-  padding: 0 var(--tt-page-gutter) max(24px, env(safe-area-inset-bottom));
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
   color: var(--tt-text-primary);
   line-height: 1.4;
   letter-spacing: -0.025em;
@@ -11,37 +11,11 @@
   font-size: 16px;
   font-weight: 600;
 }
-.page button {
+.page button:enabled {
   cursor: pointer;
 }
-.header {
-  display: grid;
-  place-items: center;
-  position: relative;
-  margin-inline: calc(-1 * var(--tt-page-gutter));
-  height: calc(56px + env(safe-area-inset-top));
-  padding-top: env(safe-area-inset-top);
-  background: var(--tt-surface-default);
-  border-bottom: 1px solid var(--tt-border-default);
-}
-.header h1 {
-  font-size: 20px;
-  font-weight: 600;
-}
-.header button {
-  position: absolute;
-  inset-inline-start: calc(var(--tt-page-gutter) - 8px);
-  bottom: 5px;
-  display: grid;
-  place-items: center;
-  background: transparent;
-  border: none;
-  width: 44px;
-  height: 44px;
-  color: inherit;
-}
-.header button span {
-  font: 32px/1 var(--tt-font-family);
+.body {
+  padding-inline: var(--tt-page-gutter);
 }
 .content {
   margin-top: var(--tt-space-40);
@@ -251,13 +225,6 @@
 }
 .pickup p {
   margin-top: var(--tt-space-4);
-}
-.footer button {
-  width: 100%;
-  border-radius: var(--tt-radius-pill);
-}
-.footer button:disabled {
-  cursor: not-allowed;
 }
 .footer p:not(:empty) {
   text-align: center;

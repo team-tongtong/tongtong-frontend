@@ -2,6 +2,8 @@ import { orderMethodLabels } from '@/components/group-order/orderMethod'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
+import { AppHeader } from '@/components/layout/AppHeader'
+import { PrimaryButton } from '@/components/button/PrimaryButton'
 import { LoadingSpinner } from '@/components/loading/LoadingSpinner'
 import blackJjimdak from '@/assets/order/black-jjimdak.png'
 import pickupMap from '@/assets/order/pickup-map.png'
@@ -23,39 +25,36 @@ export function GroupOrderDetailPage() {
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <button
-          type="button"
-          aria-label="홈으로 돌아가기"
-          onClick={() =>
-            location.state?.fromHome
-              ? navigate(-1)
-              : navigate('/', { replace: true })
-          }
-        >
-          <span aria-hidden="true">‹</span>
-        </button>
-        <h1>공동 주문 상세</h1>
-      </header>
-      {query.isPending ? (
-        <LoadingSpinner label="모집방을 불러오는 중" />
-      ) : query.isError ? (
-        <section className={styles.feedback}>
-          <p role="alert">모집방 정보를 불러오지 못했어요.</p>
-          <button type="button" onClick={() => void query.refetch()}>
-            다시 시도
-          </button>
-        </section>
-      ) : room ? (
-        <RoomDetails key={room.id} room={room} />
-      ) : (
-        <section className={styles.feedback}>
-          <p>모집방을 찾을 수 없어요.</p>
-          <Link to="/" replace>
-            홈으로 돌아가기
-          </Link>
-        </section>
-      )}
+      <AppHeader
+        title="공동 주문 상세"
+        backLabel="홈으로 돌아가기"
+        onBack={() =>
+          location.state?.fromHome
+            ? navigate(-1)
+            : navigate('/', { replace: true })
+        }
+      />
+      <div className={styles.body}>
+        {query.isPending ? (
+          <LoadingSpinner label="모집방을 불러오는 중" />
+        ) : query.isError ? (
+          <section className={styles.feedback}>
+            <p role="alert">모집방 정보를 불러오지 못했어요.</p>
+            <button type="button" onClick={() => void query.refetch()}>
+              다시 시도
+            </button>
+          </section>
+        ) : room ? (
+          <RoomDetails key={room.id} room={room} />
+        ) : (
+          <section className={styles.feedback}>
+            <p>모집방을 찾을 수 없어요.</p>
+            <Link to="/" replace>
+              홈으로 돌아가기
+            </Link>
+          </section>
+        )}
+      </div>
     </main>
   )
 }
@@ -234,9 +233,7 @@ function RoomDetails({ room }: { room: GroupOrderDetail }) {
         </p>
       </section>
       <footer className={styles.footer}>
-        <button
-          type="button"
-          className="tt-button-primary"
+        <PrimaryButton
           disabled={editing || room.participants >= room.capacity}
           onClick={() => {
             setNotice(
@@ -247,7 +244,7 @@ function RoomDetails({ room }: { room: GroupOrderDetail }) {
           }}
         >
           참여하기
-        </button>
+        </PrimaryButton>
         <p role="status">{notice}</p>
       </footer>
     </div>

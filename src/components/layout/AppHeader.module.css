@@ -1,0 +1,38 @@
+.header {
+  display: grid;
+  place-items: center;
+  position: relative;
+  padding-inline: calc(var(--tt-page-gutter) + 44px);
+  color: var(--tt-text-primary);
+  line-height: 1.4;
+  letter-spacing: -0.025em;
+  height: calc(56px + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top);
+  background: var(--tt-surface-default);
+  border-bottom: 1px solid var(--tt-border-default);
+}
+.header h1 {
+  margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 20px;
+  font-weight: 600;
+}
+.header button {
+  position: absolute;
+  inset-inline-start: calc(var(--tt-page-gutter) - 8px);
+  bottom: 5px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  width: 44px;
+  height: 44px;
+  color: inherit;
+}
+.header button span {
+  font: 32px/1 var(--tt-font-family);
+}

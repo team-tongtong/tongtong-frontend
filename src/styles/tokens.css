@@ -87,9 +87,10 @@
   box-sizing: border-box;
 }
 .tt-button-primary {
-  min-height: 52px;
+  width: 100%;
+  min-height: var(--tt-space-52);
   border: 0;
-  border-radius: var(--tt-radius-12);
+  border-radius: var(--tt-radius-pill);
   background: var(--tt-action-primary);
   color: var(--tt-text-inverse);
   font: 600 15px/1.4 var(--tt-font-family);
