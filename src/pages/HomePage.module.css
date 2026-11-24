@@ -143,22 +143,6 @@
   gap: 5px;
   padding: 10px var(--tt-page-gutter) 3px;
 }
-.filters button {
-  border: 1px solid var(--tt-border-default);
-  border-radius: var(--tt-radius-pill);
-  padding: 0 10px;
-  height: 29px;
-  white-space: nowrap;
-  background: var(--tt-surface-default);
-  color: var(--tt-text-primary);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-}
-.filters button[aria-pressed='true'] {
-  border-color: var(--tt-brand-lime);
-  background: var(--tt-brand-lime);
-}
 .handle:focus-visible {
   outline-offset: -3px;
 }

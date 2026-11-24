@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { LoadingSpinner } from '@/components/loading/LoadingSpinner'
 import { useRef, useState } from 'react'
+import { FilterChip } from '@/components/filter/FilterChip'
 import { GroupOrderListItem } from '@/components/group-order/GroupOrderListItem'
 import areaIcon from '@/assets/home/area.svg'
 import pickupCat from '@/assets/home/pickup-cat.png'
@@ -155,22 +156,17 @@ export function HomePage() {
           role="group"
           aria-label="픽업 위치 필터"
         >
-          <button
-            type="button"
-            aria-pressed={spot === null}
-            onClick={() => selectSpot(null)}
-          >
+          <FilterChip selected={spot === null} onClick={() => selectSpot(null)}>
             전체
-          </button>
+          </FilterChip>
           {pickupSpots.map((point) => (
-            <button
+            <FilterChip
               key={point}
-              type="button"
-              aria-pressed={spot === point}
+              selected={spot === point}
               onClick={() => selectSpot(point)}
             >
               {point}
-            </button>
+            </FilterChip>
           ))}
         </div>
         <div id="nearby-rooms" ref={list} className={styles.scrollArea}>
