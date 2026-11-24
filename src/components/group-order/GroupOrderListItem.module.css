@@ -45,15 +45,21 @@
 .name {
   font-size: 16px;
 }
-.spot,
-.members {
+.spot {
   font-size: 12px;
   color: var(--tt-text-secondary);
 }
 .members {
   display: grid;
   justify-items: center;
-  gap: var(--tt-space-2);
+  flex: none;
+  gap: 3px;
+  margin-block-end: 4px;
+  color: var(--tt-text-disabled);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 12px;
+  letter-spacing: -0.05em;
 }
 .avatars {
   display: flex;
@@ -61,8 +67,14 @@
 .avatars img {
   width: 40px;
   height: 40px;
-  object-fit: contain;
+  object-fit: cover;
+  border: 1px solid var(--tt-border-default);
+  border-radius: 50%;
+  background: var(--tt-surface-default);
 }
 .avatars img + img {
   margin-inline-start: -20px;
+}
+.avatars img + img:last-child {
+  margin-inline-start: -15px;
 }

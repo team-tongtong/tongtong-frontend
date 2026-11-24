@@ -1,7 +1,7 @@
 import type { GroupOrderSummary } from '@/components/group-order/GroupOrderListItem'
 import mcdonalds from '@/assets/logo-mcdonalds.png'
 import ddukzzim from '@/assets/logo-ddukzzim.png'
-import cat from '@/assets/character-cat-face.png'
+import paw from '@/assets/character-paw.png'
 import rabbit from '@/assets/character-rabbit-face.png'
 
 export const sampleGroupOrders: GroupOrderSummary[] = [
@@ -14,7 +14,7 @@ export const sampleGroupOrders: GroupOrderSummary[] = [
     pickupSpot: '한양대학교 ERICA 행복관 1층',
     participants: 2,
     capacity: 4,
-    avatars: [cat, rabbit],
+    avatars: [rabbit, paw],
   },
   {
     id: 'sample-2',
@@ -25,6 +25,6 @@ export const sampleGroupOrders: GroupOrderSummary[] = [
     pickupSpot: '한양대학교 ERICA 정문',
     participants: 3,
     capacity: 4,
-    avatars: [rabbit, cat, rabbit],
+    avatars: [rabbit, paw, rabbit],
   },
 ]
