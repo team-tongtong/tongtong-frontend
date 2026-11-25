@@ -27,11 +27,7 @@ export function SearchPage() {
   )
   const menus = stores.flatMap((store) =>
     store.menus
-      .filter(
-        (menu) =>
-          normalize(store.name).includes(keyword) ||
-          normalize(menu.name).includes(keyword),
-      )
+      .filter((menu) => normalize(menu.name).includes(keyword))
       .map((menu) => ({ store, menu })),
   )
 
