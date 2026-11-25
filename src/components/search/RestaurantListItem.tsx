@@ -4,9 +4,9 @@ import styles from './SearchList.module.css'
 type RestaurantListItemProps = {
   image: string
   name: string
-  rating: number
+  rating?: number
   reviewCount?: number
-  minimumOrder: number
+  minimumOrder?: number | null
   deliveryInfo?: string
   onSelect: () => void
 }
@@ -25,12 +25,17 @@ export function RestaurantListItem({
       <img className={styles.logo} src={image} alt="" />
       <span className={styles.copy}>
         <strong className={styles.storeName}>{name}</strong>
-        <span className={styles.meta}>
-          <img src={star} alt="평점" /> {rating.toFixed(1)}
-          {reviewCount != null && ` (${reviewCount.toLocaleString('ko-KR')})`}
-          {' | 최소주문 '}
-          {minimumOrder.toLocaleString('ko-KR')}원
-        </span>
+        {rating != null && (
+          <span className={styles.meta}>
+            <img src={star} alt="평점" /> {rating.toFixed(1)}
+            {reviewCount != null && ` (${reviewCount.toLocaleString('ko-KR')})`}
+          </span>
+        )}
+        {minimumOrder != null && (
+          <span className={styles.meta}>
+            최소주문 {minimumOrder.toLocaleString('ko-KR')}원
+          </span>
+        )}
         {deliveryInfo && (
           <span className={styles.description}>{deliveryInfo}</span>
         )}

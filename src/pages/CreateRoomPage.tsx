@@ -1,26 +1,23 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import chevron from '@/assets/recruitment/chevron.svg'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
 import { orderMethodLabels } from '@/components/group-order/orderMethod'
 import { AppHeader } from '@/components/layout/AppHeader'
 import { ChoiceCard } from '@/components/recruitment/ChoiceCard'
 import { RecruitmentConditionsCard } from '@/components/order/RecruitmentConditionsCard'
+import { paymentMethods } from '@/components/order/paymentMethods'
 import { PaymentMethodsCard } from '@/components/order/PaymentMethodsCard'
 import { RecruitmentProgress } from '@/components/recruitment/RecruitmentProgress'
 import styles from './CreateRoomPage.module.css'
-import { CreateRoomMenu, type RoomMenuSelection } from './CreateRoomMenu'
+import { SearchPage } from './SearchPage'
+import { RoomPaymentSummary } from './RoomPaymentSummary'
+import { CreateRoomMenu } from './CreateRoomMenu'
+import type { RoomMenuSelection } from './roomMenuSelection'
 
 const methods = [
   { value: '내 몫 담기', description: '같은 메뉴를 나눠 담아 내 몫만 받아요.' },
   { value: '각자 담기', description: '각자 고른 메뉴를 담고 배달비를 나눠요.' },
-] as const
-
-const paymentMethods = [
-  '신용, 체크카드',
-  '토스페이',
-  '카카오페이',
-  '네이버페이',
 ] as const
 
 const spots = [
@@ -38,7 +35,10 @@ export function CreateRoomPage() {
   const navigate = useNavigate()
   const [step, setStep] = useState<1 | 2>(1)
   const [method, setMethod] = useState<keyof typeof orderMethodLabels>()
-  const [menu, setMenu] = useState<RoomMenuSelection>()
+  const { state, search } = useLocation()
+  const [menu, setMenu] = useState<RoomMenuSelection | undefined>(
+    state?.selectedMenu,
+  )
   const [people, setPeople] = useState(4)
   const [minutes, setMinutes] = useState(10)
   const [paymentMethod, setPaymentMethod] = useState<string>()
@@ -46,17 +46,38 @@ export function CreateRoomPage() {
   const [choosingSpot, setChoosingSpot] = useState(false)
   const [draftSpot, setDraftSpot] = useState('')
 
+  const [notice, setNotice] = useState('')
+
   function goBack() {
+    setNotice('')
     if (choosingSpot) setChoosingSpot(false)
     else if (step === 2) setStep(1)
     else navigate('/', { replace: true })
+  }
+
+  if (new URLSearchParams(search).get('menu') === 'search') {
+    function returnToRoom() {
+      if (state?.fromRoomForm) navigate(-1)
+      else navigate('/rooms/new', { replace: true })
+    }
+    return (
+      <>
+        <AppHeader title="메뉴 검색" onBack={returnToRoom} />
+        <SearchPage
+          onSelectMenu={(selection) => {
+            setMenu(selection)
+            returnToRoom()
+          }}
+        />
+      </>
+    )
   }
 
   return (
     <main>
       <AppHeader title="모집방 만들기" onBack={goBack} />
       <RecruitmentProgress step={step} />
-      <div className={styles.body} data-first-step={step === 1}>
+      <div className={styles.body}>
         {step === 1 ? (
           <>
             <div className={styles.intro}>
@@ -65,31 +86,44 @@ export function CreateRoomPage() {
               </h2>
               <p>우리 동네에서 가볍게 함께 주문해요.</p>
             </div>
-            <CreateRoomMenu selected={menu} onChange={setMenu} />
-            <section
-              className={styles.methodPanel}
-              aria-labelledby="method-title"
-            >
-              <h2 id="method-title">어떻게 주문할까요?</h2>
-              <div
-                className={styles.choices}
-                role="radiogroup"
+            <CreateRoomMenu
+              onOpenSearch={() =>
+                navigate('?menu=search', {
+                  state: { ...state, fromRoomForm: true },
+                })
+              }
+              selected={menu}
+              onChange={(selection) => {
+                setMenu(selection)
+                if (!selection) setMethod(undefined)
+              }}
+            />
+            {menu && (
+              <section
+                className={styles.methodPanel}
                 aria-labelledby="method-title"
               >
-                {methods.map(({ value, description }) => (
-                  <ChoiceCard
-                    key={value}
-                    variant="method"
-                    name="order-method"
-                    value={value}
-                    label={orderMethodLabels[value]}
-                    description={description}
-                    checked={method === value}
-                    onChange={() => setMethod(value)}
-                  />
-                ))}
-              </div>
-            </section>
+                <h2 id="method-title">어떻게 주문할까요?</h2>
+                <div
+                  className={styles.choices}
+                  role="radiogroup"
+                  aria-labelledby="method-title"
+                >
+                  {methods.map(({ value, description }) => (
+                    <ChoiceCard
+                      key={value}
+                      variant="method"
+                      name="order-method"
+                      value={value}
+                      label={orderMethodLabels[value]}
+                      description={description}
+                      checked={method === value}
+                      onChange={() => setMethod(value)}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
             {menu && method && (
               <RecruitmentConditionsCard
                 minimumOrderAmount={menu.minimumOrderAmount}
@@ -164,11 +198,27 @@ export function CreateRoomPage() {
                 <img src={chevron} alt="" />
               </button>
             </section>
+            {menu && (
+              <RoomPaymentSummary
+                menu={menu}
+                people={people}
+                shared={method === '내 몫 담기'}
+              />
+            )}
             <PaymentMethodsCard
               methods={paymentMethods}
               selected={paymentMethod}
               onChange={setPaymentMethod}
             />
+            <div className={styles.next}>
+              <PrimaryButton
+                disabled={!spot || !paymentMethod}
+                onClick={() => setNotice('모집방 생성 기능은 준비 중이에요.')}
+              >
+                모집방 만들기
+              </PrimaryButton>
+              {notice && <p role="status">{notice}</p>}
+            </div>
           </>
         )}
       </div>

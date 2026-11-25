@@ -1,7 +1,9 @@
 .body {
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100dvh - 92px - env(safe-area-inset-top));
   gap: var(--tt-space-20);
-  padding: var(--tt-space-24) var(--tt-page-gutter)
+  padding: var(--tt-space-20) var(--tt-page-gutter)
     max(var(--tt-space-24), env(safe-area-inset-bottom));
 }
 .body h2 {
@@ -19,12 +21,6 @@
   padding: var(--tt-space-20);
   border-radius: var(--tt-radius-16);
   background: var(--tt-surface-default);
-}
-.body[data-first-step='true'] {
-  min-height: calc(100dvh - 92px - env(safe-area-inset-top));
-  display: flex;
-  flex-direction: column;
-  padding-top: var(--tt-space-20);
 }
 .intro h2 {
   margin: 0;
@@ -54,7 +50,10 @@
 .addMenu,
 .changeMenu {
   display: inline-flex;
-  position: relative;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
   align-items: center;
   gap: 3px;
 }
@@ -65,22 +64,10 @@
   background: var(--tt-background-canvas);
 }
 .changeMenu {
+  padding: 0;
+  background: transparent;
   color: var(--tt-text-secondary);
   font-size: 12px;
-}
-.addMenu select,
-.changeMenu select {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-}
-.addMenu:has(:focus-visible),
-.changeMenu:has(:focus-visible) {
-  outline: 3px solid var(--tt-text-accent);
-  outline-offset: 3px;
 }
 .methodPanel {
   padding-block: 18px;
@@ -116,4 +103,28 @@
   font-size: 12px;
   font-weight: 400;
   color: var(--tt-text-secondary);
+}
+.amounts {
+  display: grid;
+  gap: var(--tt-space-12);
+  margin: 0;
+  font-size: 14px;
+}
+.amounts div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--tt-space-12);
+}
+.amounts dt {
+  overflow-wrap: anywhere;
+}
+.amounts dd {
+  margin: 0;
+  text-align: end;
+  flex-shrink: 0;
+}
+.total {
+  border-top: 1px solid var(--tt-border-default);
+  padding-top: var(--tt-space-12);
+  font-weight: 600;
 }

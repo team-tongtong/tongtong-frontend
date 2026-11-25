@@ -1,8 +1,8 @@
 import { FilterChip } from './FilterChip'
 import styles from './FilterChip.module.css'
 
-const statuses = ['전체', '모집중', '조리중', '배달 완료', '취소'] as const
-export type OrderStatusFilterValue = (typeof statuses)[number]
+import { statuses, type OrderStatusFilterValue } from './orderStatuses'
+export type { OrderStatusFilterValue } from './orderStatuses'
 
 type OrderStatusFilterProps = {
   value: OrderStatusFilterValue

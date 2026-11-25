@@ -2,6 +2,7 @@
   {
     "id": "sample-1",
     "deliveryFeePerPerson": 675,
+    "deliveryFeeTotal": 2700,
     "name": "맥도날드 안산고잔DT점",
     "image": "mcdonalds",
     "method": "각자 담기",
@@ -13,10 +14,12 @@
     "avatars": ["rabbit", "paw"],
     "menus": [
       {
+        "id": "bulgogi-set",
         "name": "불고기버거 세트",
         "price": 8000
       },
       {
+        "id": "shrimp-beef-large-set",
         "name": "슈비버거 라지 세트",
         "price": 10800
       }
@@ -24,6 +27,8 @@
   },
   {
     "id": "sample-2",
+    "deliveryFeeTotal": 2000,
+    "portionFeePerPerson": 500,
     "name": "두찜 - 까만찜닭",
     "image": "ddukzzim",
     "method": "내 몫 담기",
@@ -35,10 +40,12 @@
     "avatars": ["rabbit", "paw", "rabbit"],
     "menus": [
       {
+        "id": "rice",
         "name": "공깃밥",
         "price": 1000
       },
       {
+        "id": "hearty-set",
         "name": "든든세트",
         "price": 9000
       }
@@ -62,10 +69,12 @@
     "avatars": ["rabbit", "paw", "rabbit"],
     "menus": [
       {
+        "id": "tteokbokki",
         "name": "떡볶이",
         "price": 4000
       },
       {
+        "id": "cheese-gimbap",
         "name": "치즈김밥",
         "price": 3500
       }
@@ -84,10 +93,12 @@
     "avatars": ["rabbit", "paw", "rabbit"],
     "menus": [
       {
+        "id": "rice-balls",
         "name": "주먹김밥",
         "price": 2000
       },
       {
+        "id": "steamed-eggs",
         "name": "계란찜",
         "price": 2000
       }
