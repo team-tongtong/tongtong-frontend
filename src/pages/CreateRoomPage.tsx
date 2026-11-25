@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import chevron from '@/assets/recruitment/chevron.svg'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
 import { orderMethodLabels } from '@/components/group-order/orderMethod'
@@ -9,7 +9,8 @@ import { RecruitmentConditionsCard } from '@/components/order/RecruitmentConditi
 import { PaymentMethodsCard } from '@/components/order/PaymentMethodsCard'
 import { RecruitmentProgress } from '@/components/recruitment/RecruitmentProgress'
 import styles from './CreateRoomPage.module.css'
-import { CreateRoomMenu, type RoomMenuSelection } from './CreateRoomMenu'
+import { CreateRoomMenu } from './CreateRoomMenu'
+import type { RoomMenuSelection } from './roomMenuSelection'
 
 const methods = [
   { value: '내 몫 담기', description: '같은 메뉴를 나눠 담아 내 몫만 받아요.' },
@@ -38,7 +39,10 @@ export function CreateRoomPage() {
   const navigate = useNavigate()
   const [step, setStep] = useState<1 | 2>(1)
   const [method, setMethod] = useState<keyof typeof orderMethodLabels>()
-  const [menu, setMenu] = useState<RoomMenuSelection>()
+  const { state } = useLocation()
+  const [menu, setMenu] = useState<RoomMenuSelection | undefined>(
+    state?.selectedMenu,
+  )
   const [people, setPeople] = useState(4)
   const [minutes, setMinutes] = useState(10)
   const [paymentMethod, setPaymentMethod] = useState<string>()

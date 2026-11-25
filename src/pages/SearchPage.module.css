@@ -14,9 +14,8 @@
   font-weight: 600;
 }
 .page ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--tt-space-6);
+  display: grid;
+  gap: var(--tt-space-12);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -28,4 +27,14 @@
   margin: 0;
   font-size: 14px;
   color: var(--tt-text-secondary);
+}
+
+.page .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tt-space-6);
+}
+.page > p {
+  margin-top: var(--tt-space-40);
+  overflow-wrap: anywhere;
 }

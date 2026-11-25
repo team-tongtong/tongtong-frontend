@@ -2,16 +2,8 @@ import { useQuery } from '@tanstack/react-query'
 import addMenu from '@/assets/recruitment/add-menu.svg'
 import { SelectedMenuCard } from '@/components/order/SelectedMenuCard'
 import { sampleGroupOrdersQuery } from './sampleGroupOrders'
+import { selectRoomMenu, type RoomMenuSelection } from './roomMenuSelection'
 import styles from './CreateRoomPage.module.css'
-
-export type RoomMenuSelection = {
-  storeId: string
-  storeName: string
-  name: string
-  price: number
-  minimumOrderAmount?: number | null
-  quantity: number
-}
 
 type Props = {
   selected?: RoomMenuSelection
@@ -23,16 +15,10 @@ export function CreateRoomMenu({ selected, onChange }: Props) {
   const options = (query.data ?? []).map((room) => ({
     id: room.id,
     name: room.name,
-    menus: room.menus.map((menu) => ({
-      ...menu,
-      storeId: room.id,
-      storeName: room.name,
-      minimumOrderAmount: room.minimumOrderAmount,
-      quantity: 1,
-    })),
+    menus: room.menus.map((menu) => selectRoomMenu(room, menu)),
   }))
   const keyOf = (item: RoomMenuSelection) =>
-    JSON.stringify([item.storeId, item.name])
+    JSON.stringify([item.storeId, item.menuId])
   const picker = (
     <label className={selected ? styles.changeMenu : styles.addMenu}>
       {!selected && <img src={addMenu} alt="" />}
@@ -54,7 +40,7 @@ export function CreateRoomMenu({ selected, onChange }: Props) {
         {options.map((store) => (
           <optgroup key={store.id} label={store.name}>
             {store.menus.map((menu) => (
-              <option key={menu.name} value={keyOf(menu)}>
+              <option key={menu.menuId} value={keyOf(menu)}>
                 {menu.name} · {menu.price.toLocaleString('ko-KR')}원
               </option>
             ))}
