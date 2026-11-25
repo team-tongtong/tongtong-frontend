@@ -2,6 +2,7 @@ import { Outlet, Route, Routes } from 'react-router'
 import { BottomNavigation } from '@/components/layout/BottomNavigation'
 import { MobileLayout } from '@/components/layout/MobileLayout'
 import { GroupOrderDetailPage } from '@/pages/GroupOrderDetailPage'
+import { MyPage } from '@/pages/MyPage'
 import { HomePage } from '@/pages/HomePage'
 import { CreateRoomPage } from '@/pages/CreateRoomPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
@@ -27,14 +28,7 @@ export function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/orders" element={<OrdersPage orders={orders} />} />
-          <Route
-            path="/mypage"
-            element={
-              <main>
-                <h1>마이페이지</h1>
-              </main>
-            }
-          />
+          <Route path="/mypage" element={<MyPage />} />
         </Route>
         <Route
           path="/orders/:orderId"

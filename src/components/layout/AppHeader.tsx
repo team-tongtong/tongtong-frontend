@@ -2,7 +2,7 @@ import styles from './AppHeader.module.css'
 
 type AppHeaderProps = {
   title: string
-  onBack: () => void
+  onBack?: () => void
   backLabel?: string
 }
 
@@ -13,9 +13,11 @@ export function AppHeader({
 }: AppHeaderProps) {
   return (
     <header className={styles.header}>
-      <button type="button" aria-label={backLabel} onClick={onBack}>
-        <span aria-hidden="true">‹</span>
-      </button>
+      {onBack && (
+        <button type="button" aria-label={backLabel} onClick={onBack}>
+          <span aria-hidden="true">‹</span>
+        </button>
+      )}
       <h1>{title}</h1>
     </header>
   )
