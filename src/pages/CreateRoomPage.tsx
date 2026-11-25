@@ -65,7 +65,9 @@ export function CreateRoomPage() {
     }
     return (
       <>
-        <AppHeader title="메뉴 검색" onBack={returnToRoom} />
+        {!new URLSearchParams(search).has('q') && (
+          <AppHeader title="메뉴 검색" onBack={returnToRoom} />
+        )}
         <SearchPage
           initialMenus={menus}
           onSelectMenu={(selection) => {

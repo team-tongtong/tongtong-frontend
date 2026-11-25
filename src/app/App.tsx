@@ -1,4 +1,4 @@
-import { Outlet, Route, Routes } from 'react-router'
+import { Outlet, Route, Routes, useLocation } from 'react-router'
 import { BottomNavigation } from '@/components/layout/BottomNavigation'
 import { MobileLayout } from '@/components/layout/MobileLayout'
 import { GroupOrderDetailPage } from '@/pages/GroupOrderDetailPage'
@@ -14,6 +14,9 @@ import { SearchPage } from '@/pages/SearchPage'
 const orders = import.meta.env.DEV ? sampleOrderHistory : []
 
 export function App() {
+  const { pathname, search } = useLocation()
+  const showingSearchResults =
+    pathname === '/search' && new URLSearchParams(search).has('q')
   return (
     <MobileLayout>
       <Routes>
@@ -21,7 +24,7 @@ export function App() {
           element={
             <>
               <Outlet />
-              <BottomNavigation />
+              {!showingSearchResults && <BottomNavigation />}
             </>
           }
         >

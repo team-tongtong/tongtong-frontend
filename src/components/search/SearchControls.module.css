@@ -9,6 +9,9 @@
   color: var(--tt-text-primary);
   box-shadow: 0 2px 20px rgb(0 0 0 / 10%);
 }
+.form input:focus-visible {
+  outline: none;
+}
 .form button,
 .chip button {
   display: inline-grid;
@@ -47,4 +50,18 @@
   flex: none;
   width: 27px;
   height: 32px;
+}
+
+.form .clear {
+  inset: 0 0 0 auto;
+  width: 42px;
+}
+.clear img {
+  box-sizing: content-box;
+  padding: 2px;
+  background: var(--tt-surface-subtle);
+  border-radius: 50%;
+}
+.form input::-webkit-search-cancel-button {
+  appearance: none;
 }
