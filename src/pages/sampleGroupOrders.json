@@ -2,6 +2,7 @@
   {
     "id": "sample-1",
     "deliveryFeePerPerson": 675,
+    "deliveryFeeTotal": 2700,
     "name": "맥도날드 안산고잔DT점",
     "image": "mcdonalds",
     "method": "각자 담기",
@@ -26,6 +27,8 @@
   },
   {
     "id": "sample-2",
+    "deliveryFeeTotal": 2000,
+    "portionFeePerPerson": 500,
     "name": "두찜 - 까만찜닭",
     "image": "ddukzzim",
     "method": "내 몫 담기",

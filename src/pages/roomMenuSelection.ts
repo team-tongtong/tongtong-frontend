@@ -11,6 +11,8 @@ export function selectRoomMenu(
     name: menu.name,
     price: menu.price,
     minimumOrderAmount: room.minimumOrderAmount,
+    deliveryFeeTotal: room.deliveryFeeTotal,
+    portionFeePerPerson: room.portionFeePerPerson,
     quantity: 1,
   }
 }
