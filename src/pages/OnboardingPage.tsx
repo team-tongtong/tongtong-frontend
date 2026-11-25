@@ -41,11 +41,14 @@ export function OnboardingPage({ onComplete }: { onComplete: () => void }) {
   const navigate = useNavigate()
   const slide = slides[step]
   return (
-    <main className={styles.page} data-step={step + 1}>
+    <main
+      className={slide ? styles.page : `${styles.page} ${styles.readyPage}`}
+      data-step={step + 1}
+    >
       {slide ? (
         <>
           <div className={styles.art}>
-            <img src={slide.image} alt="" />
+            <img src={slide.image} width={390} height={580} alt="" />
           </div>
           <h1 className={styles.caption} aria-live="polite">
             {slide.title}
@@ -88,8 +91,10 @@ export function OnboardingPage({ onComplete }: { onComplete: () => void }) {
       <div className={styles.action}>
         <PrimaryButton
           onClick={() => {
-            if (slide) setStep(step + 1)
-            else {
+            if (slide) {
+              setStep(step + 1)
+              window.scrollTo(0, 0)
+            } else {
               onComplete()
               navigate('/', { replace: true })
             }
