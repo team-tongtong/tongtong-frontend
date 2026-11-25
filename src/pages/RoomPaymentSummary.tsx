@@ -10,16 +10,26 @@ function share(amount: number | undefined, people: number) {
   return amount != null && amount % people === 0 ? amount / people : undefined
 }
 
+function amountForMenu(item: RoomMenuSelection, people: number) {
+  const amount = share(item.price * item.quantity, people)
+  return amount == null ? '정산 전' : won(amount)
+}
+
 export function RoomPaymentSummary({
-  menu,
+  menus,
   people,
   shared,
 }: {
-  menu: RoomMenuSelection
+  menus: RoomMenuSelection[]
   people: number
   shared: boolean
 }) {
-  const subtotal = menu.price * menu.quantity
+  const menu = menus[0]
+  if (!menu) return null
+  const subtotal = menus.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  )
   const food = shared ? share(subtotal, people) : subtotal
   const delivery = share(menu.deliveryFeeTotal, people)
   const portion = shared ? menu.portionFeePerPerson : 0
@@ -31,14 +41,16 @@ export function RoomPaymentSummary({
     <section className={styles.panel} aria-labelledby="payment-summary-title">
       <h2 id="payment-summary-title">내 결제 금액</h2>
       <dl className={styles.amounts}>
-        <div>
-          <dt>
-            {menu.name}
-            {menu.quantity > 1 && ` × ${menu.quantity}`}
-            {shared && ` (${won(subtotal)} / ${people}명)`}
-          </dt>
-          <dd>{food == null ? '정산 전' : won(food)}</dd>
-        </div>
+        {menus.map((item) => (
+          <div key={item.menuId}>
+            <dt>
+              {item.name}
+              {item.quantity > 1 && ` × ${item.quantity}`}
+              {shared && ` (${won(item.price * item.quantity)} / ${people}명)`}
+            </dt>
+            <dd>{amountForMenu(item, shared ? people : 1)}</dd>
+          </div>
+        ))}
         <div>
           <dt>
             배달비

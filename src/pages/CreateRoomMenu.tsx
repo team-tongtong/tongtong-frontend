@@ -5,32 +5,32 @@ import styles from './CreateRoomPage.module.css'
 
 type Props = {
   onOpenSearch: () => void
-  selected?: RoomMenuSelection
-  onChange: (menu?: RoomMenuSelection) => void
+  selected: RoomMenuSelection[]
+  onChange: (menus: RoomMenuSelection[]) => void
 }
 
 export function CreateRoomMenu({ selected, onChange, onOpenSearch }: Props) {
   const picker = (
     <button
       type="button"
-      className={selected ? styles.changeMenu : styles.addMenu}
-      aria-label={selected ? '메뉴 변경' : '메뉴 담기'}
+      className={selected.length ? styles.changeMenu : styles.addMenu}
+      aria-label={selected.length ? '메뉴 변경' : '메뉴 담기'}
       onClick={onOpenSearch}
     >
-      {!selected && <img src={addMenu} alt="" />}
-      {selected ? '변경' : '메뉴 담기'}
+      {!selected.length && <img src={addMenu} alt="" />}
+      {selected.length ? '변경' : '메뉴 담기'}
     </button>
   )
-  return selected ? (
+  return selected.length ? (
     <SelectedMenuCard
-      name={selected.name}
-      storeName={selected.storeName}
-      unitPrice={selected.price}
-      quantity={selected.quantity}
-      subtotal={selected.price * selected.quantity}
+      menus={selected}
       changeControl={picker}
-      onQuantityChange={(quantity) =>
-        onChange(quantity > 0 ? { ...selected, quantity } : undefined)
+      onQuantityChange={(id, quantity) =>
+        onChange(
+          selected
+            .map((menu) => (menu.menuId === id ? { ...menu, quantity } : menu))
+            .filter((menu) => menu.quantity > 0),
+        )
       }
     />
   ) : (
