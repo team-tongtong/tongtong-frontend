@@ -6,6 +6,7 @@ import { HomePage } from '@/pages/HomePage'
 import { CreateRoomPage } from '@/pages/CreateRoomPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { OrdersPage } from '@/pages/OrdersPage'
+import { sampleOrderHistory } from '@/pages/sampleOrderHistory'
 import { SearchPage } from '@/pages/SearchPage'
 
 export function App() {
@@ -22,7 +23,14 @@ export function App() {
         >
           <Route path="/" element={<HomePage />} />
           <Route path="/search" element={<SearchPage />} />
-          <Route path="/orders" element={<OrdersPage />} />
+          <Route
+            path="/orders"
+            element={
+              <OrdersPage
+                orders={import.meta.env.DEV ? sampleOrderHistory : undefined}
+              />
+            }
+          />
           <Route
             path="/mypage"
             element={

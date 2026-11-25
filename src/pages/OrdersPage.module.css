@@ -12,3 +12,21 @@
   font: 600 20px/1.4 var(--tt-font-family);
   letter-spacing: -0.025em;
 }
+.list {
+  list-style: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--tt-space-20);
+  padding: var(--tt-space-20) var(--tt-page-gutter);
+  margin: 0;
+}
+.empty,
+.notice {
+  text-align: center;
+  color: var(--tt-text-secondary);
+  font-size: 14px;
+  padding: var(--tt-space-20);
+}
+.empty {
+  margin: var(--tt-space-48) 0;
+}
