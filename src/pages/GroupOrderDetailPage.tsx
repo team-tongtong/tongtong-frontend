@@ -13,6 +13,8 @@ import {
   sampleGroupOrdersQuery,
   type GroupOrderDetail,
 } from './sampleGroupOrders'
+import { deliveryShare } from './participationAmounts'
+import { ParticipationConfirmation } from './ParticipationConfirmation'
 import styles from './GroupOrderDetailPage.module.css'
 
 const won = (amount: number) => amount.toLocaleString('ko-KR') + '원'
@@ -24,13 +26,18 @@ export function GroupOrderDetailPage() {
   const query = useQuery(sampleGroupOrdersQuery)
   const room = query.data?.find((item) => item.id === roomId)
 
+  const confirming =
+    new URLSearchParams(location.search).get('step') === 'confirm' &&
+    location.state?.confirmRoom === roomId &&
+    !!room
+
   return (
     <main className={styles.page}>
       <AppHeader
         title="공동 주문 상세"
-        backLabel="홈으로 돌아가기"
+        backLabel={confirming ? '공동 주문 상세로 돌아가기' : '홈으로 돌아가기'}
         onBack={() =>
-          location.state?.fromHome
+          confirming || location.state?.fromHome
             ? navigate(-1)
             : navigate('/', { replace: true })
         }
@@ -46,7 +53,7 @@ export function GroupOrderDetailPage() {
             </button>
           </section>
         ) : room ? (
-          <RoomDetails key={room.id} room={room} />
+          <RoomDetails key={room.id} room={room} confirming={confirming} />
         ) : (
           <section className={styles.feedback}>
             <p>모집방을 찾을 수 없어요.</p>
@@ -101,20 +108,42 @@ function Recruitment({ room }: { room: GroupOrderDetail }) {
   )
 }
 
-function RoomDetails({ room }: { room: GroupOrderDetail }) {
+function RoomDetails({
+  room,
+  confirming,
+}: {
+  room: GroupOrderDetail
+  confirming: boolean
+}) {
+  const navigate = useNavigate()
+  const { state } = useLocation()
+  const delivery = deliveryShare(room)
   const shared = room.method === '내 몫 담기'
-  const [quantities, setQuantities] = useState<Record<string, number>>({})
+  const [quantities, setQuantities] = useState<Record<string, number>>(
+    state?.confirmRoom === room.id ? state.quantities : {},
+  )
   const [editing, setEditing] = useState(false)
   const [notice, setNotice] = useState('')
   const menus = room.menus.map((menu) => ({
     ...menu,
-    quantity: quantities[menu.name] ?? 0,
+    quantity: quantities[menu.id] ?? 0,
   }))
   const selected = menus.filter((menu) => menu.quantity > 0)
   const total = selected.reduce(
     (sum, menu) => sum + menu.price * menu.quantity,
     0,
   )
+
+  if (confirming) {
+    return (
+      <ParticipationConfirmation
+        room={room}
+        selected={selected}
+        personalSubtotal={total}
+        delivery={delivery}
+      />
+    )
+  }
 
   return (
     <div className={styles.content}>
@@ -136,7 +165,7 @@ function RoomDetails({ room }: { room: GroupOrderDetail }) {
           <>
             <h2>{shared ? '개별 주문 메뉴' : '내 메뉴'}</h2>
             {menus.map((menu) => (
-              <div key={menu.name} className={styles.row}>
+              <div key={menu.id} className={styles.row}>
                 <div>
                   <strong>{menu.name}</strong>
                   <p>{won(menu.price)}</p>
@@ -148,7 +177,7 @@ function RoomDetails({ room }: { room: GroupOrderDetail }) {
                   onChange={(value) =>
                     setQuantities((current) => ({
                       ...current,
-                      [menu.name]: value,
+                      [menu.id]: value,
                     }))
                   }
                 />
@@ -167,7 +196,7 @@ function RoomDetails({ room }: { room: GroupOrderDetail }) {
               </button>
             </div>
             {selected.map((menu) => (
-              <div key={menu.name} className={styles.row}>
+              <div key={menu.id} className={styles.row}>
                 <span>
                   {menu.name} · {menu.quantity}개
                 </span>
@@ -204,18 +233,14 @@ function RoomDetails({ room }: { room: GroupOrderDetail }) {
           <>
             <div className={styles.deliveryFee}>
               <strong>배달비</strong>
-              <span>
-                {room.deliveryFeePerPerson == null
-                  ? '확인 전'
-                  : won(room.deliveryFeePerPerson)}
-              </span>
+              <span>{delivery == null ? '확인 전' : won(delivery)}</span>
             </div>
             <div className={styles.total}>
               <span>총 금액</span>
               <strong>
-                {room.deliveryFeePerPerson == null
+                {delivery == null
                   ? '배달비 확인 후 안내'
-                  : won(total + room.deliveryFeePerPerson)}
+                  : won(total + delivery)}
               </strong>
             </div>
           </>
@@ -244,11 +269,13 @@ function RoomDetails({ room }: { room: GroupOrderDetail }) {
         <PrimaryButton
           disabled={editing || room.participants >= room.capacity}
           onClick={() => {
-            setNotice(
-              !shared && !selected.length
-                ? '참여하려면 먼저 개인 메뉴를 담아주세요.'
-                : '참여 확정 기능은 준비 중이에요.',
-            )
+            if (!shared && !selected.length) {
+              setNotice('참여하려면 먼저 개인 메뉴를 담아주세요.')
+              return
+            }
+            navigate('?step=confirm', {
+              state: { ...state, confirmRoom: room.id, quantities },
+            })
           }}
         >
           참여하기

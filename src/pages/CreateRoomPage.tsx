@@ -6,6 +6,7 @@ import { orderMethodLabels } from '@/components/group-order/orderMethod'
 import { AppHeader } from '@/components/layout/AppHeader'
 import { ChoiceCard } from '@/components/recruitment/ChoiceCard'
 import { RecruitmentConditionsCard } from '@/components/order/RecruitmentConditionsCard'
+import { paymentMethods } from '@/components/order/paymentMethods'
 import { PaymentMethodsCard } from '@/components/order/PaymentMethodsCard'
 import { RecruitmentProgress } from '@/components/recruitment/RecruitmentProgress'
 import styles from './CreateRoomPage.module.css'
@@ -17,13 +18,6 @@ import type { RoomMenuSelection } from './roomMenuSelection'
 const methods = [
   { value: '내 몫 담기', description: '같은 메뉴를 나눠 담아 내 몫만 받아요.' },
   { value: '각자 담기', description: '각자 고른 메뉴를 담고 배달비를 나눠요.' },
-] as const
-
-const paymentMethods = [
-  '신용, 체크카드',
-  '토스페이',
-  '카카오페이',
-  '네이버페이',
 ] as const
 
 const spots = [
