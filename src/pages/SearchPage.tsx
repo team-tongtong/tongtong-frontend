@@ -6,14 +6,18 @@ import { SearchTermChip } from '@/components/search/SearchTermChip'
 import { RestaurantListItem } from '@/components/search/RestaurantListItem'
 import { MenuListItem } from '@/components/search/MenuListItem'
 import { sampleGroupOrdersQuery } from './sampleGroupOrders'
-import { selectRoomMenu } from './roomMenuSelection'
+import { selectRoomMenu, type RoomMenuSelection } from './roomMenuSelection'
 import styles from './SearchPage.module.css'
 
 function normalize(term: string) {
   return term.normalize('NFC').toLowerCase().replace(/\s+/g, '')
 }
 
-export function SearchPage() {
+export function SearchPage({
+  onSelectMenu,
+}: {
+  onSelectMenu?: (menu: RoomMenuSelection) => void
+}) {
   const [value, setValue] = useState('')
   const [terms, setTerms] = useState<string[]>([])
   const [submitted, setSubmitted] = useState('')
@@ -111,11 +115,11 @@ export function SearchPage() {
                       name={menu.name}
                       description={store.name}
                       price={menu.price}
-                      onAdd={() =>
-                        navigate('/rooms/new', {
-                          state: { selectedMenu: selectRoomMenu(store, menu) },
-                        })
-                      }
+                      onAdd={() => {
+                        const selectedMenu = selectRoomMenu(store, menu)
+                        if (onSelectMenu) onSelectMenu(selectedMenu)
+                        else navigate('/rooms/new', { state: { selectedMenu } })
+                      }}
                     />
                   </li>
                 ))}

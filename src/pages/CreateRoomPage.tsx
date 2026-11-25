@@ -9,6 +9,7 @@ import { RecruitmentConditionsCard } from '@/components/order/RecruitmentConditi
 import { PaymentMethodsCard } from '@/components/order/PaymentMethodsCard'
 import { RecruitmentProgress } from '@/components/recruitment/RecruitmentProgress'
 import styles from './CreateRoomPage.module.css'
+import { SearchPage } from './SearchPage'
 import { RoomPaymentSummary } from './RoomPaymentSummary'
 import { CreateRoomMenu } from './CreateRoomMenu'
 import type { RoomMenuSelection } from './roomMenuSelection'
@@ -40,7 +41,7 @@ export function CreateRoomPage() {
   const navigate = useNavigate()
   const [step, setStep] = useState<1 | 2>(1)
   const [method, setMethod] = useState<keyof typeof orderMethodLabels>()
-  const { state } = useLocation()
+  const { state, search } = useLocation()
   const [menu, setMenu] = useState<RoomMenuSelection | undefined>(
     state?.selectedMenu,
   )
@@ -60,6 +61,24 @@ export function CreateRoomPage() {
     else navigate('/', { replace: true })
   }
 
+  if (new URLSearchParams(search).get('menu') === 'search') {
+    function returnToRoom() {
+      if (state?.fromRoomForm) navigate(-1)
+      else navigate('/rooms/new', { replace: true })
+    }
+    return (
+      <>
+        <AppHeader title="메뉴 검색" onBack={returnToRoom} />
+        <SearchPage
+          onSelectMenu={(selection) => {
+            setMenu(selection)
+            returnToRoom()
+          }}
+        />
+      </>
+    )
+  }
+
   return (
     <main>
       <AppHeader title="모집방 만들기" onBack={goBack} />
@@ -74,6 +93,11 @@ export function CreateRoomPage() {
               <p>우리 동네에서 가볍게 함께 주문해요.</p>
             </div>
             <CreateRoomMenu
+              onOpenSearch={() =>
+                navigate('?menu=search', {
+                  state: { ...state, fromRoomForm: true },
+                })
+              }
               selected={menu}
               onChange={(selection) => {
                 setMenu(selection)

@@ -50,7 +50,10 @@
 .addMenu,
 .changeMenu {
   display: inline-flex;
-  position: relative;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
   align-items: center;
   gap: 3px;
 }
@@ -61,22 +64,10 @@
   background: var(--tt-background-canvas);
 }
 .changeMenu {
+  padding: 0;
+  background: transparent;
   color: var(--tt-text-secondary);
   font-size: 12px;
-}
-.addMenu select,
-.changeMenu select {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-}
-.addMenu:has(:focus-visible),
-.changeMenu:has(:focus-visible) {
-  outline: 3px solid var(--tt-text-accent);
-  outline-offset: 3px;
 }
 .methodPanel {
   padding-block: 18px;
