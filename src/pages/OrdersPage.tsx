@@ -1,13 +1,12 @@
 import { useState } from 'react'
-import {
-  OrderStatusFilter,
-  type OrderStatusFilterValue,
-} from '@/components/filter/OrderStatusFilter'
+import { useSearchParams, useNavigate } from 'react-router'
+import { OrderStatusFilter } from '@/components/filter/OrderStatusFilter'
 import {
   OrderHistoryCard,
   type OrderHistoryItem,
 } from '@/components/order/OrderHistoryCard'
 import { PickupCodeDialog } from '@/components/pickup/PickupDialog'
+import { readOrderStatus } from '@/components/filter/orderStatuses'
 import styles from './OrdersPage.module.css'
 
 type OrdersPageProps = {
@@ -21,7 +20,9 @@ export function OrdersPage({
   onSubmitPickupCode,
   onViewOrder,
 }: OrdersPageProps) {
-  const [status, setStatus] = useState<OrderStatusFilterValue>('전체')
+  const [params, setParams] = useSearchParams()
+  const navigate = useNavigate()
+  const status = readOrderStatus(params.get('status'))
   const [pickupOrderId, setPickupOrderId] = useState<string | null>(null)
   const [notice, setNotice] = useState('')
   const visibleOrders =
@@ -42,7 +43,15 @@ export function OrdersPage({
         <OrderStatusFilter
           value={status}
           onChange={(next) => {
-            setStatus(next)
+            setParams(
+              (previous) => {
+                const updated = new URLSearchParams(previous)
+                if (next === '전체') updated.delete('status')
+                else updated.set('status', next)
+                return updated
+              },
+              { replace: true },
+            )
             setPickupOrderId(null)
             setNotice('')
           }}
@@ -54,7 +63,14 @@ export function OrdersPage({
             <li key={order.id}>
               <OrderHistoryCard
                 order={order}
-                onView={onViewOrder && (() => onViewOrder(order))}
+                onView={onViewOrder ? () => onViewOrder(order) : undefined}
+                onViewDetail={() => {
+                  if (onViewOrder) onViewOrder(order)
+                  else
+                    navigate('/orders/' + encodeURIComponent(order.id), {
+                      state: { fromOrders: true },
+                    })
+                }}
                 onEnterCode={() => {
                   setPickupOrderId(order.id)
                   setNotice('')

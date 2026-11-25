@@ -14,11 +14,18 @@ export type OrderHistoryItem = {
 type Props = {
   order: OrderHistoryItem
   onEnterCode: () => void
+  onViewDetail?: () => void
   onView?: () => void
 }
 
-export function OrderHistoryCard({ order, onEnterCode, onView }: Props) {
+export function OrderHistoryCard({
+  order,
+  onEnterCode,
+  onView,
+  onViewDetail,
+}: Props) {
   const showDelivery = order.status === '모집완료' || order.status === '조리중'
+  const viewAction = showDelivery ? onView : (onViewDetail ?? onView)
   const pickupEnabled = order.canEnterPickupCode && order.status !== '취소'
   return (
     <article className={styles.card}>
@@ -36,7 +43,7 @@ export function OrderHistoryCard({ order, onEnterCode, onView }: Props) {
         </div>
       </div>
       <div className={styles.actions}>
-        <button type="button" disabled={!onView} onClick={onView}>
+        <button type="button" disabled={!viewAction} onClick={viewAction}>
           {showDelivery ? '배달 현황 보기' : '주문 상세 보기'}
         </button>
         {order.status !== '취소' && (

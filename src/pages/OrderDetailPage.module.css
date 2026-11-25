@@ -1,0 +1,148 @@
+.page {
+  min-height: 100dvh;
+  background: var(--tt-accent-blue-soft)
+    url('../assets/order/order-landscape.png') no-repeat center bottom / 100%
+    auto;
+  padding-bottom: max(35%, 135px);
+}
+.header {
+  padding: env(safe-area-inset-top) 0 14px;
+  background: white;
+  border-bottom: 1px solid var(--tt-border-default);
+}
+.back {
+  display: block;
+  margin-left: 12px;
+  width: 44px;
+  height: 52px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+  font: 30px/1 var(--tt-font-family);
+}
+.time {
+  display: table;
+  margin-left: 20px;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: var(--tt-brand-lime);
+  font: 500 12px/14px var(--tt-font-family);
+}
+.header h1 {
+  margin: 8px 20px 16px;
+  font-size: 18px;
+  line-height: 24px;
+}
+.header p {
+  margin-inline: 20px;
+}
+.progress {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: 0;
+}
+.progress li {
+  flex: 1;
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  font-size: 12px;
+  line-height: 16px;
+}
+.progress li::before {
+  content: '';
+  margin: 4px 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--tt-border-default);
+}
+.progress li:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: calc(50% + 12px);
+  top: 9px;
+  width: calc(100% - 22px);
+  height: 2px;
+  background: var(--tt-border-default);
+}
+.progress li[aria-current]::before {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  background: var(--tt-action-primary);
+}
+.progress li[aria-current] span {
+  position: relative;
+  margin-top: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  background: var(--tt-brand-lime);
+}
+.progress li[aria-current] span::before {
+  content: '';
+  position: absolute;
+  left: calc(50% - 6px);
+  top: -6px;
+  border: 6px solid transparent;
+  border-top: 0;
+  border-bottom-color: var(--tt-brand-lime);
+}
+.body {
+  padding: 16px 20px 0;
+}
+.cat {
+  position: relative;
+  display: block;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto -33px;
+  pointer-events: none;
+}
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 22px 20px 20px;
+  display: grid;
+  gap: 10px;
+  color: var(--tt-text-secondary);
+  font: 500 14px/20px var(--tt-font-family);
+  letter-spacing: -0.025em;
+}
+.card h2 {
+  font-size: 16px;
+  line-height: 22px;
+  margin: 0;
+  color: var(--tt-text-primary);
+}
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+}
+.row > :first-child {
+  flex: none;
+}
+.row > :last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+.card ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.cancel {
+  margin-top: 7px;
+  height: 45px;
+  border: 0;
+  border-radius: 80px;
+  font: 600 14px var(--tt-font-family);
+  color: white;
+  background: var(--tt-action-primary);
+}
