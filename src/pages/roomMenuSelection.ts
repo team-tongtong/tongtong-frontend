@@ -7,7 +7,7 @@ export function selectRoomMenu(
   return {
     menuId: menu.id,
     storeId: room.id,
-    storeName: room.name,
+    storeName: room.storeDetails?.name ?? room.name,
     name: menu.name,
     price: menu.price,
     minimumOrderAmount: room.minimumOrderAmount,

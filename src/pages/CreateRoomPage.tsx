@@ -36,9 +36,11 @@ export function CreateRoomPage() {
   const [step, setStep] = useState<1 | 2>(1)
   const [method, setMethod] = useState<keyof typeof orderMethodLabels>()
   const { state, search } = useLocation()
-  const [menu, setMenu] = useState<RoomMenuSelection | undefined>(
-    state?.selectedMenu,
+  const [menus, setMenus] = useState<RoomMenuSelection[]>(
+    () =>
+      state?.selectedMenus ?? (state?.selectedMenu ? [state.selectedMenu] : []),
   )
+  const menu = menus[0]
   const [people, setPeople] = useState(4)
   const [minutes, setMinutes] = useState(10)
   const [paymentMethod, setPaymentMethod] = useState<string>()
@@ -52,21 +54,25 @@ export function CreateRoomPage() {
     setNotice('')
     if (choosingSpot) setChoosingSpot(false)
     else if (step === 2) setStep(1)
+    else if (window.history.state?.idx > 0) navigate(-1)
     else navigate('/', { replace: true })
   }
 
   if (new URLSearchParams(search).get('menu') === 'search') {
     function returnToRoom() {
-      if (state?.fromRoomForm) navigate(-1)
+      if (state?.fromRoomForm) navigate(state.openedStore ? -2 : -1)
       else navigate('/rooms/new', { replace: true })
     }
     return (
       <>
-        <AppHeader title="메뉴 검색" onBack={returnToRoom} />
+        {!new URLSearchParams(search).has('q') && (
+          <AppHeader title="메뉴 검색" onBack={returnToRoom} />
+        )}
         <SearchPage
+          initialMenus={menus}
           onSelectMenu={(selection) => {
-            setMenu(selection)
-            returnToRoom()
+            setMenus(selection)
+            navigate('/rooms/new', { state: { selectedMenus: selection } })
           }}
         />
       </>
@@ -87,15 +93,17 @@ export function CreateRoomPage() {
               <p>우리 동네에서 가볍게 함께 주문해요.</p>
             </div>
             <CreateRoomMenu
-              onOpenSearch={() =>
-                navigate('?menu=search', {
-                  state: { ...state, fromRoomForm: true },
+              onOpenSearch={() => {
+                const params = new URLSearchParams({ menu: 'search' })
+                if (menu) params.set('store', menu.storeId)
+                navigate('?' + params, {
+                  state: { selectedMenus: menus, fromRoomForm: true },
                 })
-              }
-              selected={menu}
+              }}
+              selected={menus}
               onChange={(selection) => {
-                setMenu(selection)
-                if (!selection) setMethod(undefined)
+                setMenus(selection)
+                if (!selection.length) setMethod(undefined)
               }}
             />
             {menu && (
@@ -200,7 +208,7 @@ export function CreateRoomPage() {
             </section>
             {menu && (
               <RoomPaymentSummary
-                menu={menu}
+                menus={menus}
                 people={people}
                 shared={method === '내 몫 담기'}
               />

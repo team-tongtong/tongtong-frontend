@@ -14,9 +14,24 @@ export type PickupSpot = (typeof pickupSpots)[number]
 const logos = { mcdonalds, ddukzzim, sinjeon, yeopgi }
 const avatars = { rabbit, paw }
 
-type OrderMenu = { id: string; name: string; price: number }
+type OrderMenu = {
+  id: string
+  name: string
+  price: number
+  description?: string
+  photo?: string
+}
 
 type SampleGroupOrder = Omit<GroupOrderSummary, 'image' | 'avatars'> & {
+  storeDetails?: {
+    name: string
+    hero: string
+    rating: number
+    reviewCount: number
+    lastOrder: string
+    deliveryMinutes: number
+    reviews: { stars: number; text: string }[]
+  }
   menus: OrderMenu[]
   minimumOrderAmount?: number | null
   deliveryFeeTotal?: number

@@ -1,20 +1,22 @@
-import type { Ref } from 'react'
+import { useState, type Ref } from 'react'
+import clearIcon from '@/assets/search/clear.svg'
 import searchIcon from '@/assets/search/search.svg'
 import styles from './SearchControls.module.css'
 
 type SearchInputProps = {
-  value: string
-  onChange: (value: string) => void
+  initialValue: string
+  onClear?: () => void
   onSubmit: (term: string) => void
   inputRef?: Ref<HTMLInputElement>
 }
 
 export function SearchInput({
-  value,
-  onChange,
+  initialValue,
+  onClear,
   onSubmit,
   inputRef,
 }: SearchInputProps) {
+  const [value, setValue] = useState(initialValue)
   return (
     <form
       className={styles.form}
@@ -32,11 +34,22 @@ export function SearchInput({
         aria-label="검색어"
         enterKeyHint="search"
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) => setValue(event.target.value)}
       />
-      <button type="submit" aria-label="검색하기">
-        <img src={searchIcon} alt="" />
-      </button>
+      {onClear ? (
+        <button
+          type="button"
+          className={styles.clear}
+          aria-label="검색어 지우기"
+          onClick={onClear}
+        >
+          <img src={clearIcon} alt="" />
+        </button>
+      ) : (
+        <button type="submit" aria-label="검색하기">
+          <img src={searchIcon} alt="" />
+        </button>
+      )}
     </form>
   )
 }

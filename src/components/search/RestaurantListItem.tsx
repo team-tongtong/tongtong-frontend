@@ -25,15 +25,18 @@ export function RestaurantListItem({
       <img className={styles.logo} src={image} alt="" />
       <span className={styles.copy}>
         <strong className={styles.storeName}>{name}</strong>
-        {rating != null && (
+        {(rating != null || minimumOrder != null) && (
           <span className={styles.meta}>
-            <img src={star} alt="평점" /> {rating.toFixed(1)}
-            {reviewCount != null && ` (${reviewCount.toLocaleString('ko-KR')})`}
-          </span>
-        )}
-        {minimumOrder != null && (
-          <span className={styles.meta}>
-            최소주문 {minimumOrder.toLocaleString('ko-KR')}원
+            {rating != null && (
+              <>
+                <img src={star} alt="평점" /> {rating.toFixed(1)}
+                {reviewCount != null &&
+                  ` (${reviewCount.toLocaleString('ko-KR')})`}
+              </>
+            )}
+            {rating != null && minimumOrder != null && ' | '}
+            {minimumOrder != null &&
+              `최소주문 ${minimumOrder.toLocaleString('ko-KR')}원`}
           </span>
         )}
         {deliveryInfo && (

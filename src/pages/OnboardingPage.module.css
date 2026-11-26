@@ -1,0 +1,123 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: max(620px, 100dvh);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: max(clamp(20px, 6.4dvh, 54px), env(safe-area-inset-bottom));
+  background: var(--tt-background-onboarding);
+  color: var(--tt-text-strong);
+  text-align: center;
+}
+.readyPage {
+  height: max(620px, 100dvh);
+}
+.page[data-step='2'],
+.page[data-step='4'] {
+  background: var(--tt-background-onboarding-muted);
+}
+.art {
+  margin-top: auto;
+}
+.art img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.caption {
+  margin: clamp(16px, 3.8dvh, 32px) 12px 0;
+  font-size: clamp(20px, 6.15vw, 24px);
+  font-weight: 600;
+  line-height: 1.34;
+  white-space: pre-line;
+}
+.page[data-step='1'] .caption {
+  margin-top: calc(clamp(16px, 3.8dvh, 32px) + 5px);
+}
+.progress {
+  display: flex;
+  gap: 6px;
+  margin: clamp(18px, 4.03dvh, 34px) auto 20px;
+}
+.page[data-step='1'] .progress {
+  margin-top: calc(clamp(18px, 4.03dvh, 34px) - 5px);
+}
+.progress span {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--tt-radius-pill);
+  background: rgb(255 94 45 / 30%);
+}
+.progress span[data-current='true'] {
+  width: 22px;
+  background: var(--tt-action-primary);
+}
+.action {
+  margin-inline: var(--tt-page-gutter);
+}
+.action button {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.ready {
+  flex: 1;
+  display: grid;
+  min-height: 0;
+  grid-template-rows: 110fr auto 13fr auto 28fr minmax(0, 246fr) 30fr auto 59fr;
+  justify-items: center;
+}
+.ready h1 {
+  grid-row: 2;
+  margin: 0;
+  font-size: clamp(23px, 7.7vw, 30px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+.ready p {
+  grid-row: 4;
+  margin: 0;
+  transform: translateX(-7px);
+  font-size: 18px;
+  line-height: 1.44;
+  color: #888a7a;
+}
+.mascot {
+  grid-row: 6;
+  align-self: center;
+  width: min(63.08%, 246px);
+  height: 100%;
+  object-fit: contain;
+}
+.ready ul {
+  grid-row: 8;
+  justify-self: stretch;
+  display: grid;
+  gap: clamp(12px, 2.26dvh, 19px);
+  margin: 0 12px 0 max(16px, calc(50% - 120px));
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.ready li {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+}
+.ready li img {
+  width: 42px;
+  height: 42px;
+  flex: none;
+}
+.ready strong,
+.ready small {
+  display: block;
+  line-height: 1.44;
+}
+.ready strong {
+  font-size: 15px;
+  font-weight: 500;
+}
+.ready small {
+  font-size: 12px;
+  color: #888a7a;
+}

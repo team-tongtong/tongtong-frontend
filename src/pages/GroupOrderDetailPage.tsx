@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { AppHeader } from '@/components/layout/AppHeader'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
-import { QuantityCounter } from '@/components/quantity/QuantityCounter'
+import { StoreDetail } from './StoreDetail'
+import { selectRoomMenu } from './roomMenuSelection'
 import { LoadingSpinner } from '@/components/loading/LoadingSpinner'
 import blackJjimdak from '@/assets/order/black-jjimdak.png'
 import pickupMap from '@/assets/order/pickup-map.png'
@@ -116,13 +117,21 @@ function RoomDetails({
   confirming: boolean
 }) {
   const navigate = useNavigate()
-  const { state } = useLocation()
+  const { state, search } = useLocation()
   const delivery = deliveryShare(room)
   const shared = room.method === '내 몫 담기'
   const [quantities, setQuantities] = useState<Record<string, number>>(
     state?.confirmRoom === room.id ? state.quantities : {},
   )
-  const [editing, setEditing] = useState(false)
+  const editing = new URLSearchParams(search).get('step') === 'menus'
+  function openStore() {
+    setNotice('')
+    navigate('?step=menus', { state: { ...state, fromRoom: true } })
+  }
+  function closeStore() {
+    if (state?.fromRoom) navigate(-1)
+    else navigate({ search: '' }, { replace: true, state })
+  }
   const [notice, setNotice] = useState('')
   const menus = room.menus.map((menu) => ({
     ...menu,
@@ -133,6 +142,28 @@ function RoomDetails({
     (sum, menu) => sum + menu.price * menu.quantity,
     0,
   )
+
+  if (editing)
+    return (
+      <StoreDetail
+        store={room}
+        action="메뉴 담기"
+        initialMenus={selected.map((menu) => ({
+          ...selectRoomMenu(room, menu),
+          quantity: menu.quantity,
+        }))}
+        allowEmpty={selected.length > 0}
+        onBack={closeStore}
+        onConfirm={(items) => {
+          setQuantities(
+            Object.fromEntries(
+              items.map((item) => [item.menuId, item.quantity]),
+            ),
+          )
+          closeStore()
+        }}
+      />
+    )
 
   if (confirming) {
     return (
@@ -161,37 +192,11 @@ function RoomDetails({
         </section>
       )}
       <section className={styles.menu} aria-label="개인 메뉴">
-        {editing ? (
-          <>
-            <h2>{shared ? '개별 주문 메뉴' : '내 메뉴'}</h2>
-            {menus.map((menu) => (
-              <div key={menu.id} className={styles.row}>
-                <div>
-                  <strong>{menu.name}</strong>
-                  <p>{won(menu.price)}</p>
-                </div>
-                <QuantityCounter
-                  label={`${menu.name} 수량`}
-                  value={menu.quantity}
-                  unit="개"
-                  onChange={(value) =>
-                    setQuantities((current) => ({
-                      ...current,
-                      [menu.id]: value,
-                    }))
-                  }
-                />
-              </div>
-            ))}
-          </>
-        ) : selected.length ? (
+        {selected.length ? (
           <>
             <div className={styles.row}>
               <h2>{shared ? '개별 주문 메뉴' : '내 메뉴'}</h2>
-              <button
-                className={styles.menuButton}
-                onClick={() => setEditing(true)}
-              >
+              <button className={styles.menuButton} onClick={openStore}>
                 변경
               </button>
             </div>
@@ -220,10 +225,7 @@ function RoomDetails({
             <button
               className={styles.menuButton}
               type="button"
-              onClick={() => {
-                setNotice('')
-                setEditing(true)
-              }}
+              onClick={openStore}
             >
               <span aria-hidden="true">＋</span> 메뉴 담기
             </button>
@@ -245,15 +247,6 @@ function RoomDetails({
             </div>
           </>
         )}
-        {editing && (
-          <button
-            type="button"
-            className={styles.menuButton}
-            onClick={() => setEditing(false)}
-          >
-            완료
-          </button>
-        )}
       </section>
       <section className={styles.pickup}>
         <h2>통통 스팟 안내</h2>
@@ -267,7 +260,7 @@ function RoomDetails({
       </section>
       <footer className={styles.footer}>
         <PrimaryButton
-          disabled={editing || room.participants >= room.capacity}
+          disabled={room.participants >= room.capacity}
           onClick={() => {
             if (!shared && !selected.length) {
               setNotice('참여하려면 먼저 개인 메뉴를 담아주세요.')

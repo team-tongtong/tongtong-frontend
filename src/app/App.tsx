@@ -1,7 +1,10 @@
-import { Outlet, Route, Routes } from 'react-router'
+import { useState } from 'react'
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router'
 import { BottomNavigation } from '@/components/layout/BottomNavigation'
 import { MobileLayout } from '@/components/layout/MobileLayout'
 import { GroupOrderDetailPage } from '@/pages/GroupOrderDetailPage'
+import { MyPage } from '@/pages/MyPage'
+import { OnboardingPage } from '@/pages/OnboardingPage'
 import { HomePage } from '@/pages/HomePage'
 import { CreateRoomPage } from '@/pages/CreateRoomPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
@@ -12,29 +15,51 @@ import { SearchPage } from '@/pages/SearchPage'
 
 const orders = import.meta.env.DEV ? sampleOrderHistory : []
 
+const onboardingKey = 'tongtong.onboardingCompleted'
+
 export function App() {
+  const [onboarded, setOnboarded] = useState(() => {
+    try {
+      return localStorage.getItem(onboardingKey) === 'true'
+    } catch {
+      return false
+    }
+  })
+  function finishOnboarding() {
+    setOnboarded(true)
+    try {
+      localStorage.setItem(onboardingKey, 'true')
+    } catch {
+      // Keep the completion state for this visit if storage is unavailable.
+    }
+  }
+  const { pathname, search } = useLocation()
+  const showingSearchResults =
+    pathname === '/search' && new URLSearchParams(search).has('q')
   return (
     <MobileLayout>
       <Routes>
         <Route
+          path="/onboarding"
+          element={<OnboardingPage onComplete={finishOnboarding} />}
+        />
+        <Route
           element={
             <>
               <Outlet />
-              <BottomNavigation />
+              {!showingSearchResults && <BottomNavigation />}
             </>
           }
         >
-          <Route path="/" element={<HomePage />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/orders" element={<OrdersPage orders={orders} />} />
           <Route
-            path="/mypage"
+            path="/"
             element={
-              <main>
-                <h1>마이페이지</h1>
-              </main>
+              onboarded ? <HomePage /> : <Navigate to="/onboarding" replace />
             }
           />
+          <Route path="/search" element={<SearchPage />} />
+          <Route path="/orders" element={<OrdersPage orders={orders} />} />
+          <Route path="/mypage" element={<MyPage />} />
         </Route>
         <Route
           path="/orders/:orderId"
