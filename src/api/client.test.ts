@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ApiError, apiRequest } from './client'
+import { apiRequest } from './client'
 
 function mockResponse(body: unknown, status = 200) {
   return vi.stubGlobal(
@@ -16,7 +16,7 @@ afterEach(() => {
 describe('백엔드 응답 처리', () => {
   it('성공 응답에서 data를 반환하고 JSON 헤더를 전달한다', async () => {
     vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080/')
-    mockResponse({ success: true, code: 200, message: '성공', data: { id: 1 } })
+    mockResponse({ code: 'SUCCESS', message: '성공', data: { id: 1 } }, 201)
     await expect(
       apiRequest('/api/v1/users', {
         method: 'POST',
@@ -33,27 +33,41 @@ describe('백엔드 응답 처리', () => {
     )
   })
 
-  it.each([400, 200])(
-    'HTTP %s에서도 실패 응답이면 오류로 처리한다',
-    async (status) => {
-      vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
-      mockResponse(
-        {
-          success: false,
-          code: 400,
-          message: '입력값을 확인해 주세요.',
-          data: null,
-        },
-        status,
-      )
-      await expect(apiRequest('/api/v1/users')).rejects.toMatchObject({
-        name: 'ApiError',
-        status,
-        code: 400,
-        message: '입력값을 확인해 주세요.',
-      })
-    },
-  )
+  it('모집방 목록 조회에 성공하면 빈 목록도 그대로 반환한다', async () => {
+    vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
+    mockResponse({
+      code: 'SUCCESS',
+      message: '요청에 성공했습니다.',
+      data: { rooms: [] },
+    })
+    await expect(apiRequest('/api/v1/rooms')).resolves.toEqual({ rooms: [] })
+  })
+
+  it('없는 모집방의 오류 코드와 메시지를 보존한다', async () => {
+    vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
+    mockResponse(
+      {
+        code: 'ROOM_NOT_FOUND',
+        message: '모집방을 찾을 수 없어요.',
+        data: null,
+      },
+      404,
+    )
+    await expect(apiRequest('/api/v1/rooms/0')).rejects.toMatchObject({
+      name: 'ApiError',
+      status: 404,
+      code: 'ROOM_NOT_FOUND',
+      message: '모집방을 찾을 수 없어요.',
+    })
+  })
+
+  it('성공 응답에 data가 빠지면 형식 오류를 전달한다', async () => {
+    vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
+    mockResponse({ code: 'SUCCESS', message: '성공' })
+    await expect(apiRequest('/api/v1/rooms')).rejects.toThrow(
+      '서버 응답 형식을 확인할 수 없습니다.',
+    )
+  })
 
   it('프록시의 HTML 오류 응답도 ApiError로 전달한다', async () => {
     vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
@@ -65,12 +79,15 @@ describe('백엔드 응답 처리', () => {
           new Response('<html>Bad gateway</html>', { status: 502 }),
         ),
     )
-    await expect(apiRequest('/api/v1/users')).rejects.toBeInstanceOf(ApiError)
+    await expect(apiRequest('/api/v1/users')).rejects.toMatchObject({
+      name: 'ApiError',
+      status: 502,
+    })
   })
 
   it('FormData의 Content-Type은 브라우저가 설정하도록 둔다', async () => {
     vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
-    mockResponse({ success: true, code: 200, message: '성공', data: null })
+    mockResponse({ code: 'SUCCESS', message: '성공', data: null })
     await apiRequest('/api/v1/users', { method: 'POST', body: new FormData() })
     const options = vi.mocked(fetch).mock.calls[0]?.[1]
     expect(new Headers(options?.headers).has('Content-Type')).toBe(false)

@@ -1,7 +1,9 @@
 /** Backend: global/common/ApiResponse.java */
-export type ApiResponse<T> =
-  | { success: true; code: number; message: string; data: T }
-  | { success: false; code: number; message: string; data: null }
+export interface ApiResponse<T> {
+  code: string
+  message: string
+  data: T
+}
 
 /** Backend offset pagination. page starts at 0. */
 export interface PageResponse<T> {

@@ -2,9 +2,9 @@ import type { ApiResponse } from '@/types/api'
 
 export class ApiError extends Error {
   readonly status: number
-  readonly code: number
+  readonly code?: string
 
-  constructor(message: string, status: number, code = status) {
+  constructor(message: string, status: number, code?: string) {
     super(message)
     this.name = 'ApiError'
     this.status = status
@@ -19,18 +19,10 @@ export class NetworkError extends TypeError {
   }
 }
 
-function isApiResponse(value: unknown): value is ApiResponse<unknown> {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'success' in value &&
-    typeof value.success === 'boolean' &&
-    'code' in value &&
-    typeof value.code === 'number' &&
-    'message' in value &&
-    typeof value.message === 'string' &&
-    'data' in value
-  )
+function isResponseObject(
+  value: unknown,
+): value is Partial<Record<keyof ApiResponse<unknown>, unknown>> {
+  return typeof value === 'object' && value !== null
 }
 
 /** path includes /api/v1; authentication will follow the backend contract. */
@@ -61,11 +53,15 @@ export async function apiRequest<T>(
     if (error instanceof TypeError) throw new NetworkError(error)
     throw error
   }
-  if (!isApiResponse(payload)) {
+  const body = isResponseObject(payload) ? payload : {}
+  const code = typeof body.code === 'string' ? body.code : undefined
+  const message = typeof body.message === 'string' ? body.message : undefined
+
+  if (!response.ok) {
+    throw new ApiError(message ?? '요청에 실패했습니다.', response.status, code)
+  }
+  if (code === undefined || message === undefined || !('data' in body)) {
     throw new ApiError('서버 응답 형식을 확인할 수 없습니다.', response.status)
   }
-  if (!response.ok || !payload.success) {
-    throw new ApiError(payload.message, response.status, payload.code)
-  }
-  return payload.data as T
+  return body.data as T
 }
