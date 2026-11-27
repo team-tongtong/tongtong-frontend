@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
 import spotMap from '@/assets/order/pickup-map.png'
 import { PortionUnavailableDialog } from './PortionUnavailableDialog'
@@ -33,18 +33,34 @@ function focusHeading(element: HTMLHeadingElement | null) {
   element?.focus()
 }
 
+type RoomMenuDraft = {
+  menus: RoomMenuSelection[]
+  individualMenus: RoomMenuSelection[]
+  method?: keyof typeof orderMethodLabels
+}
+
 export function CreateRoomPage() {
   const navigate = useNavigate()
   const [step, setStep] = useState<1 | 2>(1)
-  const [method, setMethod] = useState<keyof typeof orderMethodLabels>()
-  const { state, search } = useLocation()
-  const [menus, setMenus] = useState<RoomMenuSelection[]>(
+  const { state, search, key } = useLocation()
+  const [menuDraft, setMenuDraft] = useState<RoomMenuDraft>(
     () =>
-      state?.selectedMenus ?? (state?.selectedMenu ? [state.selectedMenu] : []),
+      window.history.state?.roomMenuDraft ??
+      state?.roomMenuDraft ?? {
+        menus:
+          state?.selectedMenus ??
+          (state?.selectedMenu ? [state.selectedMenu] : []),
+        individualMenus: [],
+      },
   )
-  const [individualMenus, setIndividualMenus] = useState<RoomMenuSelection[]>(
-    [],
-  )
+  const { menus, individualMenus, method } = menuDraft
+  // 돌아온 폼의 기록에 확정값을 저장해 새로고침과 새 모집방 진입을 구분한다.
+  useLayoutEffect(() => {
+    window.history.replaceState(
+      { ...window.history.state, roomMenuDraft: menuDraft },
+      '',
+    )
+  }, [key, menuDraft])
   const [showPortionNotice, setShowPortionNotice] = useState(false)
   const menu = menus[0]
   const shared = method === '내 몫 담기'
@@ -66,10 +82,19 @@ export function CreateRoomPage() {
   }
 
   function updateMenus(selection: RoomMenuSelection[]) {
-    if (selection[0]?.storeId !== menu?.storeId) setIndividualMenus([])
-    setMenus(selection)
-    if (!selection.length || (shared && !canShareMenus(selection)))
-      setMethod(undefined)
+    setMenuDraft({
+      menus: selection,
+      individualMenus:
+        selection[0]?.storeId === menu?.storeId ? individualMenus : [],
+      method:
+        !selection.length || (shared && !canShareMenus(selection))
+          ? undefined
+          : method,
+    })
+  }
+
+  function setIndividualMenus(selection: RoomMenuSelection[]) {
+    setMenuDraft((current) => ({ ...current, individualMenus: selection }))
   }
 
   function chooseMethod(value: keyof typeof orderMethodLabels) {
@@ -77,7 +102,7 @@ export function CreateRoomPage() {
       setShowPortionNotice(true)
       return
     }
-    setMethod(value)
+    setMenuDraft((current) => ({ ...current, method: value }))
   }
 
   function openPicker(mode: 'initial' | 'shared' | 'individual') {
@@ -85,7 +110,7 @@ export function CreateRoomPage() {
     if (menu) params.set('store', menu.storeId)
     navigate('?' + params, {
       state: {
-        selectedMenus: menus,
+        roomMenuDraft: menuDraft,
         fromRoomForm: true,
         roomFormIndex: window.history.state?.idx,
       },
