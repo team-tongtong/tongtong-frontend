@@ -142,7 +142,7 @@ export function CreateRoomPage() {
   }
 
   return (
-    <main>
+    <main className={styles.page}>
       <AppHeader title="모집방 만들기" onBack={goBack} />
       <RecruitmentProgress step={step} />
       <div className={styles.body}>

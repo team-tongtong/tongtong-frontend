@@ -1,0 +1,15 @@
+.button {
+  position: absolute;
+  /* Center the 44px touch target on the 42px search row. */
+  top: calc(env(safe-area-inset-top) + var(--tt-space-20) - 1px);
+  inset-inline-start: calc(var(--tt-page-gutter) - 8px);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}

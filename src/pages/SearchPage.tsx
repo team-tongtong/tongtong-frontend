@@ -1,7 +1,7 @@
+import { BackButton } from '@/components/layout/BackButton'
 import { useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
-import back from '@/assets/search/back.svg'
 import { FilterChip } from '@/components/filter/FilterChip'
 import { StoreDetail } from './StoreDetail'
 import { SearchInput } from '@/components/search/SearchInput'
@@ -139,16 +139,7 @@ export function SearchPage({
         className={handleBack ? styles.searchHeader : undefined}
         data-results={!!submitted}
       >
-        {handleBack && (
-          <button
-            className={styles.back}
-            type="button"
-            aria-label="뒤로가기"
-            onClick={handleBack}
-          >
-            <img src={back} alt="" />
-          </button>
-        )}
+        {handleBack && <BackButton onClick={handleBack} />}
         <SearchInput
           key={submitted}
           initialValue={submitted}

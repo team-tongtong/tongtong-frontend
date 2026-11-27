@@ -1,3 +1,4 @@
+import { BackButton } from '@/components/layout/BackButton'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { AppHeader } from '@/components/layout/AppHeader'
 import type { OrderHistoryItem } from '@/components/order/OrderHistoryCard'
@@ -47,13 +48,7 @@ export function OrderDetailPage({
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <button
-          className={styles.back}
-          aria-label="주문 내역으로 돌아가기"
-          onClick={back}
-        >
-          ‹
-        </button>
+        <BackButton label="주문 내역으로 돌아가기" onClick={back} />
         <span className={styles.time}>{order.timeLabel}</span>
         <h1>{order.storeName}</h1>
         {current === '취소' ? (

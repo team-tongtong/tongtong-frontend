@@ -20,19 +20,10 @@
   font-size: 20px;
   font-weight: 600;
 }
-.header button {
-  position: absolute;
-  inset-inline-start: calc(var(--tt-page-gutter) - 8px);
-  bottom: 5px;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  background: transparent;
-  border: none;
-  width: 44px;
-  height: 44px;
-  color: inherit;
+.header[data-has-back='true'] {
+  height: auto;
+  padding-top: calc(env(safe-area-inset-top) + var(--tt-space-20));
 }
-.header button span {
-  font: 32px/1 var(--tt-font-family);
+.header[data-has-back='true'] h1 {
+  line-height: 42px;
 }
