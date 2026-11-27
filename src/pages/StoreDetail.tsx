@@ -32,6 +32,7 @@ type Props = {
   onConfirm: (menus: RoomMenuSelection[]) => void
   menuMode?: 'shared' | 'individual'
   allowEmpty?: boolean
+  roomAmountRemaining?: number
 }
 
 export function StoreDetail({
@@ -42,6 +43,7 @@ export function StoreDetail({
   onConfirm,
   allowEmpty,
   menuMode,
+  roomAmountRemaining,
 }: Props) {
   const sharedPicker = menuMode === 'shared'
   const dialog = useRef<HTMLDialogElement>(null)
@@ -70,7 +72,13 @@ export function StoreDetail({
     (sum, item) => sum + item.price * item.quantity,
     0,
   )
-  const remaining = (store.minimumOrderAmount ?? 0) - total
+  const remaining =
+    (roomAmountRemaining ?? store.minimumOrderAmount ?? 0) - total
+  const shortageHint =
+    remaining > 0 ? `부족한 ${won(remaining)}, 함께 채워볼까요?` : undefined
+  let menuHint = '더 먹고 싶은 메뉴를 추가해보세요'
+  if (sharedPicker) menuHint = '함께 나눌 메뉴는 1개만 선택할 수 있어요'
+  if (roomAmountRemaining != null && shortageHint) menuHint = shortageHint
   return createPortal(
     <dialog
       className={styles.page}
@@ -199,17 +207,11 @@ export function StoreDetail({
         <div aria-live="polite">
           <strong>{won(total)}</strong>
           {action === '메뉴 담기' ? (
-            <small>
-              {sharedPicker
-                ? '함께 나눌 메뉴는 1개만 선택할 수 있어요'
-                : '더 먹고 싶은 메뉴를 추가해보세요'}
-            </small>
+            <small>{menuHint}</small>
           ) : (
             store.minimumOrderAmount != null && (
               <small className={styles.minimumOrderHint}>
-                {remaining > 0
-                  ? '부족한 ' + won(remaining) + ', 함께 채워볼까요?'
-                  : '최소주문금액을 다 채웠어요!'}
+                {shortageHint ?? '최소주문금액을 다 채웠어요!'}
               </small>
             )
           )}

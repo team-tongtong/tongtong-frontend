@@ -76,6 +76,7 @@ export function GroupOrderDetailPage() {
 }
 
 function Recruitment({ room, image }: { room: RoomDetail; image?: string }) {
+  const remaining = room.minOrderAmount - room.currentFoodTotal
   return (
     <section className={styles.card}>
       <div className={styles.store}>
@@ -111,6 +112,18 @@ function Recruitment({ room, image }: { room: RoomDetail; image?: string }) {
             </span>
           ))}
         </div>
+        {room.track === 'INDIVIDUAL' && (
+          <div className={styles.foodTotal}>
+            <div className={styles.row}>
+              <span>현재 음식값 합계</span>
+              <strong>{won(room.currentFoodTotal)}</strong>
+            </div>
+            <p>
+              최소주문금액 {won(room.minOrderAmount)} ·{' '}
+              {remaining > 0 ? `${won(remaining)} 부족` : '달성'}
+            </p>
+          </div>
+        )}
       </div>
     </section>
   )
@@ -217,6 +230,9 @@ function RoomDetails({
       <StoreDetail
         store={store}
         action="메뉴 담기"
+        roomAmountRemaining={
+          shared ? undefined : room.minOrderAmount - room.currentFoodTotal
+        }
         initialMenus={selected.map((menu) => ({
           ...selectRoomMenu(store, menu),
           quantity: menu.quantity,
