@@ -6,7 +6,6 @@
   overflow-wrap: anywhere;
 }
 .heading,
-.row,
 .subtotal {
   display: flex;
   align-items: center;
@@ -15,6 +14,15 @@
 }
 .heading {
   margin-bottom: var(--tt-space-10);
+}
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--tt-space-8);
+}
+.row + .row {
+  margin-block-start: var(--tt-space-12);
 }
 .card .heading h2 {
   margin: 0;
@@ -26,19 +34,18 @@
   font-size: 12px;
   text-align: end;
 }
-.menu {
-  display: grid;
-  min-width: 0;
-}
-.menu strong {
+.menuName {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
   font: 600 16px/1.4 var(--tt-font-family);
   letter-spacing: -0.025em;
 }
-.menu span,
-.menu small {
+.storeName {
+  margin: 0;
+}
+.price,
+.storeName {
   color: var(--tt-text-secondary);
   font-size: 13px;
   line-height: 20px;
