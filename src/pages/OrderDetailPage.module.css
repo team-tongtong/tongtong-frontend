@@ -6,20 +6,10 @@
   padding-bottom: max(35%, 135px);
 }
 .header {
-  padding: env(safe-area-inset-top) 0 14px;
+  position: relative;
+  padding: calc(env(safe-area-inset-top) + var(--tt-space-20) + 42px) 0 14px;
   background: white;
   border-bottom: 1px solid var(--tt-border-default);
-}
-.back {
-  display: block;
-  margin-left: 12px;
-  width: 44px;
-  height: 52px;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  color: inherit;
-  font: 30px/1 var(--tt-font-family);
 }
 .time {
   display: table;

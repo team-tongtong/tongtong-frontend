@@ -1,3 +1,4 @@
+import { BackButton } from './BackButton'
 import styles from './AppHeader.module.css'
 
 type AppHeaderProps = {
@@ -6,18 +7,10 @@ type AppHeaderProps = {
   backLabel?: string
 }
 
-export function AppHeader({
-  title,
-  onBack,
-  backLabel = '뒤로가기',
-}: AppHeaderProps) {
+export function AppHeader({ title, onBack, backLabel }: AppHeaderProps) {
   return (
-    <header className={styles.header}>
-      {onBack && (
-        <button type="button" aria-label={backLabel} onClick={onBack}>
-          <span aria-hidden="true">‹</span>
-        </button>
-      )}
+    <header className={styles.header} data-has-back={!!onBack}>
+      {onBack && <BackButton onClick={onBack} label={backLabel} />}
       <h1>{title}</h1>
     </header>
   )

@@ -1,9 +1,9 @@
+import { BackButton } from '@/components/layout/BackButton'
 import { useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
 import { QuantityCounter } from '@/components/quantity/QuantityCounter'
 import { MenuListItem } from '@/components/search/MenuListItem'
-import back from '@/assets/store/back.svg'
 import clock from '@/assets/store/clock.svg'
 import cart from '@/assets/store/cart.svg'
 import pin from '@/assets/store/pin.svg'
@@ -95,14 +95,7 @@ export function StoreDetail({
             </span>
           )}
         </div>
-        <button
-          type="button"
-          className={styles.back}
-          aria-label="뒤로가기"
-          onClick={onBack}
-        >
-          <img src={back} alt="" />
-        </button>
+        <BackButton onClick={onBack} onPhoto />
       </header>
       {(details ||
         store.minimumOrderAmount != null ||

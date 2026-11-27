@@ -4,6 +4,7 @@ import { PrimaryButton } from '@/components/button/PrimaryButton'
 import cart from '@/assets/onboarding/cart.webp'
 import community from '@/assets/onboarding/community.webp'
 import communityBack from '@/assets/onboarding/community-back.webp'
+import communityMembers from '@/assets/onboarding/community-members.webp'
 import delivery from '@/assets/onboarding/delivery.webp'
 import pickup from '@/assets/onboarding/pickup.webp'
 import mascot from '@/assets/onboarding/mascot.webp'
@@ -16,7 +17,9 @@ const slides = [
   { image: cart, height: 448, title: '혼자 먹는 한 끼,\n가격이 부담됐나요?' },
   {
     image: community,
+    imageClass: styles.communityCard,
     background: communityBack,
+    members: communityMembers,
     title: 'TONG TONG에서 찾은\n가까운 이웃과 주문만 함께',
   },
   { image: delivery, title: '먹고 싶은 메뉴를 원하는 만큼\n배달비는 나눠서' },
@@ -52,14 +55,24 @@ export function OnboardingPage({ onComplete }: { onComplete: () => void }) {
         <>
           <div className={styles.art}>
             {slide.background && (
-              <img src={slide.background} width={390} height={580} alt="" />
+              <img
+                className={styles.communityBack}
+                src={slide.background}
+                width={390}
+                height={580}
+                alt=""
+              />
             )}
             <img
+              className={slide.imageClass}
               src={slide.image}
               width={390}
               height={slide.height ?? 580}
               alt=""
             />
+            {slide.members && (
+              <img src={slide.members} width={390} height={580} alt="" />
+            )}
           </div>
           <h1 className={styles.caption} aria-live="polite">
             {slide.title}

@@ -1,7 +1,7 @@
+import { BackButton } from '@/components/layout/BackButton'
 import { useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
-import back from '@/assets/search/back.svg'
 import { FilterChip } from '@/components/filter/FilterChip'
 import { StoreDetail } from './StoreDetail'
 import { SearchInput } from '@/components/search/SearchInput'
@@ -33,10 +33,12 @@ function readTerms(fallback: string[]): string[] {
 }
 
 export function SearchPage({
+  onBack,
   onSelectMenu,
   initialMenus,
   menuMode,
 }: {
+  onBack?: () => void
   onSelectMenu?: (menus: RoomMenuSelection[]) => void
   initialMenus?: RoomMenuSelection[]
   menuMode?: 'shared' | 'individual'
@@ -130,19 +132,14 @@ export function SearchPage({
     )
 
   const restaurants = searchStores(stores, submitted, sort)
+  const handleBack = submitted ? backToSearch : onBack
   return (
-    <main className={styles.page} aria-label="검색">
-      <div className={submitted ? styles.resultHeader : undefined}>
-        {submitted && (
-          <button
-            className={styles.back}
-            type="button"
-            aria-label="뒤로가기"
-            onClick={backToSearch}
-          >
-            <img src={back} alt="" />
-          </button>
-        )}
+    <main className={styles.page} aria-label="검색" data-standalone={!onBack}>
+      <div
+        className={handleBack ? styles.searchHeader : undefined}
+        data-results={!!submitted}
+      >
+        {handleBack && <BackButton onClick={handleBack} />}
         <SearchInput
           key={submitted}
           initialValue={submitted}
