@@ -14,9 +14,8 @@
   font-weight: 600;
 }
 .page ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--tt-space-6);
+  display: grid;
+  gap: var(--tt-space-12);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -28,4 +27,86 @@
   margin: 0;
   font-size: 14px;
   color: var(--tt-text-secondary);
+}
+
+.page .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tt-space-6);
+}
+.page > p {
+  margin-top: var(--tt-space-40);
+  overflow-wrap: anywhere;
+}
+
+.page .popular {
+  margin-top: 24px;
+  border-top: 1px solid var(--tt-border-divider);
+  padding-top: 24px;
+}
+.popular ol {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template: repeat(5, auto) / 3fr 2fr;
+  gap: 18px 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.popular button,
+.back {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.popular button {
+  gap: 10px;
+  font: 400 14px/20px var(--tt-font-family);
+  letter-spacing: -0.025em;
+  text-align: start;
+}
+.popular strong {
+  font-weight: 600;
+}
+.resultHeader {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 17px;
+  align-items: center;
+  margin-inline: var(--tt-page-gutter);
+}
+.resultHeader input {
+  font-size: 16px;
+}
+.back {
+  justify-content: center;
+  height: 42px;
+}
+.filters {
+  display: flex;
+  gap: 8px;
+  margin: 29px calc(-1 * var(--tt-page-gutter)) 10px 0;
+  padding: 16px var(--tt-page-gutter) 0 0;
+  background: linear-gradient(
+      var(--tt-border-divider),
+      var(--tt-border-divider)
+    )
+    left top / calc(100% - var(--tt-page-gutter)) 1px no-repeat;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.filters button {
+  height: 34px;
+  padding-inline: 16px;
+}
+.page .results {
+  gap: 0;
+}
+.results li {
+  padding-block: 5px;
+  border-bottom: 1px solid var(--tt-border-divider);
 }

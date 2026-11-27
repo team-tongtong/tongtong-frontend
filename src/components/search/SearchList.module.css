@@ -83,3 +83,14 @@
   background: var(--tt-action-primary);
   cursor: pointer;
 }
+.photo button:disabled {
+  background: var(--tt-neutral-300);
+  cursor: default;
+}
+.menu:has(button:disabled) {
+  opacity: 0.55;
+}
+.photo button[aria-pressed='true'] {
+  color: white;
+  font-weight: 600;
+}

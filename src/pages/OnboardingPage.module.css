@@ -1,0 +1,176 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+  padding-bottom: max(min(6.4dvh, 54px), env(safe-area-inset-bottom));
+  --caption-gap: min(3.8dvh, 32px);
+  --progress-gap: min(4.03dvh, 34px);
+  background: var(--tt-background-onboarding);
+  color: var(--tt-text-strong);
+  text-align: center;
+}
+.page[data-step='2'],
+.page[data-step='4'] {
+  background: var(--tt-background-onboarding-muted);
+}
+.art {
+  flex: 1;
+  min-height: 0;
+}
+.art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+.page[data-step='2'] .art {
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+}
+.page[data-step='2'] .art img {
+  grid-area: 1 / 1;
+  object-position: left bottom;
+}
+.page[data-step='2'] .art img:last-child {
+  /* The lime card's right edge sits at 96% of the Figma frame width. */
+  object-position: 96% bottom;
+}
+.caption {
+  margin: var(--caption-gap) 12px 0;
+  transform: translateY(1px);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+  white-space: pre-line;
+}
+/* Give the artwork its intrinsic size before distributing extra height to gaps. */
+.page:is([data-step='1'], [data-step='2']) {
+  display: grid;
+  grid-template-rows:
+    minmax(0, var(--top-space)) minmax(0, auto) minmax(4px, var(--after-art))
+    auto
+    minmax(6px, var(--before-progress)) auto auto;
+}
+.page[data-step='1'] {
+  --top-space: 120fr;
+  --after-art: 49fr;
+  --before-progress: 29fr;
+}
+.page[data-step='2'] {
+  --top-space: 0fr;
+  --after-art: 32fr;
+  --before-progress: 34fr;
+}
+.page:is([data-step='1'], [data-step='2']) .art {
+  grid-row: 2;
+}
+.page:is([data-step='1'], [data-step='2']) .caption {
+  grid-row: 4;
+  margin-block: 0;
+}
+.page[data-step='1'] .caption {
+  transform: translate(0.5px, 1px);
+}
+.page[data-step='2'] .caption,
+.page[data-step='4'] .caption {
+  /* In these two frames only the first line is centered 3px farther left. */
+  text-indent: -6px;
+}
+.progress {
+  display: flex;
+  gap: 6px;
+  margin: var(--progress-gap) auto min(2.37dvh, 20px);
+}
+.page:is([data-step='1'], [data-step='2']) .progress {
+  grid-row: 6;
+  margin-top: 0;
+}
+.page:is([data-step='1'], [data-step='2']) .action {
+  grid-row: 7;
+}
+.progress span {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--tt-radius-pill);
+  background: rgb(255 94 45 / 30%);
+}
+.progress span[data-current='true'] {
+  width: 22px;
+  background: var(--tt-action-primary);
+}
+.action {
+  margin-inline: var(--tt-page-gutter);
+}
+.action button {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.ready {
+  flex: 1;
+  display: grid;
+  min-height: 0;
+  grid-template-rows: 110fr auto 13fr auto 28fr minmax(0, 246fr) 30fr auto 59fr;
+  justify-items: center;
+}
+.ready h1 {
+  grid-row: 2;
+  margin: 0;
+  font-size: min(7.7vw, 30px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+.ready p {
+  grid-row: 4;
+  margin: 0;
+  transform: translateX(-7px);
+  font-size: 18px;
+  line-height: 1.44;
+  color: #888a7a;
+}
+.mascot {
+  grid-row: 6;
+  align-self: center;
+  width: 246px;
+  height: 100%;
+  object-fit: contain;
+}
+.ready ul {
+  grid-row: 8;
+  justify-self: stretch;
+  display: grid;
+  gap: min(2.26dvh, 19px);
+  margin: 0 12px 0 max(16px, calc(50% - 120px));
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.ready li {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+}
+.ready li img {
+  width: 42px;
+  height: 42px;
+  flex: none;
+}
+.ready strong,
+.ready small {
+  display: block;
+  line-height: 1.44;
+}
+.ready strong {
+  font-size: 15px;
+  font-weight: 500;
+  transform: translateY(0.5px);
+}
+.ready small {
+  font-size: 12px;
+  color: #888a7a;
+  transform: translateY(2px);
+}

@@ -6,6 +6,8 @@ type MenuListItemProps = {
   name: string
   description: string
   price: number
+  disabled?: boolean
+  selected?: boolean
   onAdd: () => void
 }
 
@@ -15,6 +17,8 @@ export function MenuListItem({
   description,
   price,
   onAdd,
+  disabled,
+  selected,
 }: MenuListItemProps) {
   return (
     <div className={styles.menu}>
@@ -25,8 +29,14 @@ export function MenuListItem({
       </div>
       <div className={styles.photo}>
         <img className={styles.food} src={image} alt="" />
-        <button type="button" aria-label={`${name} 추가`} onClick={onAdd}>
-          <img src={add} alt="" />
+        <button
+          type="button"
+          disabled={disabled}
+          aria-pressed={selected}
+          aria-label={`${name} ${selected ? '선택 해제' : '추가'}`}
+          onClick={onAdd}
+        >
+          {selected ? '✓' : <img src={add} alt="" />}
         </button>
       </div>
     </div>

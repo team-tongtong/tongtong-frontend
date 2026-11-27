@@ -33,10 +33,9 @@ describe('전역 API 에러 처리', () => {
   it.each([
     [502, '<html>Bad gateway</html>'],
     [
-      200,
+      500,
       JSON.stringify({
-        success: false,
-        code: 500,
+        code: 'INTERNAL_SERVER_ERROR',
         message: '서버 오류',
         data: null,
       }),
@@ -63,10 +62,8 @@ describe('전역 API 에러 처리', () => {
     'HTTP %i는 화면에서 처리할 수 있도록 오류를 전달한다',
     async (status) => {
       const body = {
-        success: false,
-        code: status,
+        code: 'TEST_ERROR',
         message: '요청 실패',
-        data: null,
       }
       vi.stubGlobal(
         'fetch',
@@ -78,7 +75,11 @@ describe('전역 API 에러 처리', () => {
           queryKey: ['rooms'],
           queryFn: () => apiRequest('/api/v1/rooms'),
         }),
-      ).rejects.toMatchObject({ status, message: '요청 실패' })
+      ).rejects.toMatchObject({
+        status,
+        code: 'TEST_ERROR',
+        message: '요청 실패',
+      })
       expect(notify).not.toHaveBeenCalled()
     },
   )

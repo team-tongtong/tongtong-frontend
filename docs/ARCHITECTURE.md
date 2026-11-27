@@ -15,13 +15,13 @@ src/
 
 ## API 계약
 
-백엔드 `develop`의 `a30f907` 커밋을 기준으로 확인했습니다.
+공통 응답은 배포 서버의 모집방 조회 응답을 기준으로 합니다.
 
-- `ApiResponse<T>`: `success`, `code`(숫자 HTTP 상태 코드), `message`, `data`
+- `ApiResponse<T>`: `code`(문자열 응답 코드), `message`, `data`
 - `PageResponse<T>`: `content`, `page`, `size`, `totalElements`, `totalPages`, `hasNext`
 - `page`는 0부터 시작합니다.
-- API 경로 컨벤션은 `/api/v1/...`입니다. 도메인 API는 아직 없습니다.
-- 성공 시 HTTP 클라이언트는 `data`를 반환합니다. HTTP 실패 또는 `success: false`는 `ApiError`로 전달합니다.
+- API 경로 컨벤션은 `/api/v1/...`입니다.
+- 성공 시 HTTP 클라이언트는 `data`를 반환합니다. HTTP 실패 시 상태 코드와 본문에서 확인한 서버 코드·메시지를 `ApiError`로 전달합니다.
 - 공통 응답 구조를 검증하며 개별 `data` 구조는 도메인 계약으로 정의합니다.
 - HTML 등 비정상 응답은 `ApiError`로 처리합니다. 전송 중 발생한 네트워크 오류는 원인을 보존한 `NetworkError`로 전달하고, 취소 사유는 그대로 전달합니다.
 - 현재 계약은 JSON 응답입니다. 204 응답·파일 다운로드가 추가되면 별도 처리를 명시적으로 추가합니다.

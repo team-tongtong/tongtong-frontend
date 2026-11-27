@@ -47,7 +47,7 @@ React · TypeScript(strict) · Vite · React Router · TanStack Query · CSS Mod
 
 `VITE_` 변수는 클라이언트 번들에 공개됩니다. 비밀키를 넣지 않습니다. 환경변수를 변경하면 개발 서버를 재시작하고, 배포 시에는 다시 빌드합니다.
 
-백엔드의 공통 응답 `{ success, code, message, data }`와 페이지 응답(0부터 시작하는 `page`)을 적용했습니다. 실제 기능 API와 인증 계약은 아직 구현하지 않았습니다. 예시 경로는 호출 방법을 보여주며 현재 제공되는 엔드포인트를 뜻하지 않습니다.
+백엔드의 공통 응답 `{ code, message, data }`와 페이지 응답(0부터 시작하는 `page`)을 적용했습니다. 실제 기능 API와 인증 계약은 아직 구현하지 않았습니다. 예시 경로는 호출 방법을 보여주며 현재 제공되는 엔드포인트를 뜻하지 않습니다.
 
 ```ts
 import { apiRequest } from '@/api/client'
