@@ -159,7 +159,6 @@ export function CreateRoomPage() {
               <p>우리 동네에서 가볍게 함께 주문해요.</p>
             </div>
             <CreateRoomMenu
-              title={shared ? '함께 나눌 메뉴' : '선택한 메뉴'}
               maxQuantity={shared ? 1 : undefined}
               onOpenSearch={() => openPicker(shared ? 'shared' : 'initial')}
               selected={menus}

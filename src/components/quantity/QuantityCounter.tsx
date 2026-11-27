@@ -3,7 +3,7 @@ import minus from '@/assets/recruitment/minus.svg'
 import plus from '@/assets/recruitment/plus.svg'
 
 type QuantityCounterProps = {
-  variant?: 'menu' | 'recruitment'
+  variant?: 'menu' | 'recruitment' | 'individual'
   label: string
   value: number
   unit?: string
@@ -34,7 +34,7 @@ export function QuantityCounter({
         disabled={value <= min}
         onClick={() => onChange(value - 1)}
       >
-        {variant === 'recruitment' ? <img src={minus} alt="" /> : '−'}
+        {variant === 'menu' ? '−' : <img src={minus} alt="" />}
       </button>
       <span aria-live="polite" aria-atomic="true">
         {value}
@@ -46,7 +46,7 @@ export function QuantityCounter({
         disabled={max !== undefined && value >= max}
         onClick={() => onChange(value + 1)}
       >
-        {variant === 'recruitment' ? <img src={plus} alt="" /> : '+'}
+        {variant === 'menu' ? '+' : <img src={plus} alt="" />}
       </button>
     </div>
   )

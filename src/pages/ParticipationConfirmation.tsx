@@ -63,16 +63,7 @@ export function ParticipationConfirmation({
       </section>
       <section className={styles.menu} aria-label="주문 내역">
         <h2>주문 내역</h2>
-        {shared && (
-          <>
-            <strong>함께 나눌 메뉴</strong>
-            <div className={styles.row}>
-              <span>{room.sharedMenu?.name} · 1인분</span>
-              <span>{amount(sharedPrice)}</span>
-            </div>
-            {selected.length > 0 && <strong>개별 주문 메뉴</strong>}
-          </>
-        )}
+        {shared && selected.length > 0 && <strong>개별 주문 메뉴</strong>}
         {selected.map((menu) => (
           <div className={styles.row} key={menu.id}>
             <span>
@@ -81,15 +72,32 @@ export function ParticipationConfirmation({
             <span>{amount(menu.price * menu.quantity)}</span>
           </div>
         ))}
+        {shared && (
+          <>
+            <strong>함께 나눌 메뉴</strong>
+            <div className={styles.row}>
+              <span>{room.sharedMenu?.name} · 1인분</span>
+              <span>{amount(sharedPrice)}</span>
+            </div>
+          </>
+        )}
         <div className={styles.row}>
           <span>배달비 부담액</span>
           <span>{amount(delivery)}</span>
         </div>
         {shared && (
-          <div className={styles.row}>
-            <span>소분 수수료</span>
-            <span>{amount(portion)}</span>
-          </div>
+          <>
+            <div className={styles.row}>
+              <span>소분 수수료</span>
+              <span>{amount(portion)}</span>
+            </div>
+            {portion != null && (
+              <p className={styles.portionNote}>
+                *수수료 {amount(portion)}은 개별 용기 제공 및 소분 작업
+                비용입니다.
+              </p>
+            )}
+          </>
         )}
         <div className={styles.total}>
           <span>내 결제 금액</span>

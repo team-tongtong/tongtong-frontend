@@ -38,6 +38,16 @@
   height: 30px;
 }
 
+.counter[data-variant='individual'] {
+  min-width: 116px;
+  gap: 10px;
+  font: 600 12px/1.5 var(--tt-font-family);
+}
+.counter[data-variant='individual'] span {
+  min-width: 40px;
+  text-align: center;
+}
+
 .counter button:disabled img {
   opacity: 0.45;
 }
