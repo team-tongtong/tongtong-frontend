@@ -77,6 +77,7 @@ export function orderDetailQuery(orderId: string) {
       apiRequest<OrderDetail>(`/api/v1/orders/${encodeURIComponent(orderId)}`, {
         signal,
       }),
+    refetchInterval: 20_000,
   })
 }
 
