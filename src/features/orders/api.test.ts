@@ -42,28 +42,31 @@ describe('주문 내역 상태 필터', () => {
     )
   })
 
-  it('취소 탭은 방 상태로 서버 목록을 제한하지 않고 내 취소 주문을 찾는다', async () => {
+  it('취소 탭은 status=CANCELED로 조회하고 개인 취소와 방 전체 취소를 모두 표시한다', async () => {
     vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
+    const orderInCanceledRoom: OrderSummary = {
+      ...canceledOrder,
+      orderId: 3,
+      roomId: 4,
+      status: 'CANCELED',
+      orderStatus: 'JOINED',
+    }
+    const orders = [canceledOrder, orderInCanceledRoom]
     const fetchMock = vi.fn().mockResolvedValue(
       Response.json({
         code: 'SUCCESS',
         message: '성공',
-        data: {
-          orders: [
-            canceledOrder,
-            { ...canceledOrder, orderId: 3, orderStatus: 'JOINED' },
-          ],
-        },
+        data: { orders },
       }),
     )
     vi.stubGlobal('fetch', fetchMock)
     const options = orderListQuery('취소')
     const data = await new QueryClient().fetchQuery(options)
     expect(fetchMock).toHaveBeenCalledWith(
-      'http://localhost:8080/api/v1/orders',
+      'http://localhost:8080/api/v1/orders?status=CANCELED',
       expect.anything(),
     )
-    expect(options.select?.(data)).toEqual([canceledOrder])
+    expect(options.select?.(data)).toEqual(orders)
   })
 
   it('취소는 내 주문 번호로 PATCH하고 서버의 거절 메시지를 전달한다', async () => {

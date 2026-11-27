@@ -9,8 +9,7 @@ export const statusByTab = {
   모집중: 'RECRUITING',
   조리중: 'RECRUIT_COMPLETED',
   '배달 완료': 'ARRIVED',
-  // 모집 중인 방에서도 내 주문만 취소할 수 있으므로 전체 응답에서 판별한다.
-  취소: undefined,
+  취소: 'CANCELED',
 } as const satisfies Record<
   OrderStatusFilterValue,
   RoomDetail['status'] | undefined
