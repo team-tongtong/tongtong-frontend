@@ -1,18 +1,5 @@
 import type { GroupOrderDetail } from './sampleGroupOrders'
 
-export const popularTerms = [
-  '교촌치킨',
-  'BBQ',
-  'bhc',
-  '엽기떡볶이',
-  '지코바 숯불치킨',
-  '족발',
-  '맥도날드',
-  '신전 떡볶이',
-  '두찜',
-  '버거킹',
-]
-
 export const sortOptions = [
   '기본순',
   '주문 많은 순',
