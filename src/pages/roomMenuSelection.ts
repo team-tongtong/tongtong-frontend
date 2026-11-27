@@ -1,9 +1,57 @@
-import type { GroupOrderDetail } from './sampleGroupOrders'
+import type { StoreDetailResponse } from '@/features/stores/api'
 
-export function selectRoomMenu(
-  room: GroupOrderDetail,
-  menu: GroupOrderDetail['menus'][number],
-) {
+type StoreMenu = {
+  id: number | string
+  name: string
+  price: number
+  portionable?: boolean
+  description?: string
+  photo?: string
+  imageUrl?: string
+}
+
+export type MenuStore = {
+  id: number | string
+  name: string
+  image: string
+  minimumOrderAmount?: number | null
+  deliveryFeeTotal?: number
+  portionFeePerPerson?: number
+  menus: StoreMenu[]
+  storeDetails?: {
+    name: string
+    hero?: string
+    rating: number
+    reviewCount: number
+    lastOrder: string
+    deliveryMinutes: number
+    reviews: { stars: number; text: string }[]
+  }
+}
+
+export function toMenuStore(store: StoreDetailResponse): MenuStore {
+  return {
+    id: store.storeId,
+    name: store.name,
+    image: store.imageUrl,
+    minimumOrderAmount: store.minOrderAmount,
+    deliveryFeeTotal: store.deliveryFee,
+    storeDetails: {
+      name: store.name,
+      rating: store.rating,
+      reviewCount: store.reviewCount,
+      lastOrder: store.lastOrderTime,
+      deliveryMinutes: store.deliveryMinutes,
+      reviews: store.reviews.map((review) => ({
+        stars: review.rating,
+        text: review.content,
+      })),
+    },
+    menus: store.menus.map(({ menuId, ...menu }) => ({ id: menuId, ...menu })),
+  }
+}
+
+export function selectRoomMenu(room: MenuStore, menu: StoreMenu) {
   return {
     menuId: menu.id,
     storeId: room.id,

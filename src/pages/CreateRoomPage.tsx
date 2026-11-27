@@ -107,7 +107,7 @@ export function CreateRoomPage() {
 
   function openPicker(mode: 'initial' | 'shared' | 'individual') {
     const params = new URLSearchParams({ menu: 'search', pick: mode })
-    if (menu) params.set('store', menu.storeId)
+    if (menu) params.set('store', String(menu.storeId))
     navigate('?' + params, {
       state: {
         roomMenuDraft: menuDraft,

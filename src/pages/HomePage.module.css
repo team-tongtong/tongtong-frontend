@@ -151,10 +151,6 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior-y: contain;
-  scrollbar-width: none;
-}
-.scrollArea::-webkit-scrollbar {
-  display: none;
 }
 .home[data-expanded='false'] .panel,
 .home[data-expanded='false'] .scrollArea {

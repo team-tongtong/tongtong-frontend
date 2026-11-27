@@ -92,7 +92,6 @@
     )
     left top / calc(100% - var(--tt-page-gutter)) 1px no-repeat;
   overflow-x: auto;
-  scrollbar-width: none;
 }
 .filters button {
   height: 34px;

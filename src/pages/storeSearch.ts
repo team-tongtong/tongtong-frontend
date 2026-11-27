@@ -1,108 +1,62 @@
-import type { GroupOrderDetail } from './sampleGroupOrders'
+import { useQueries, useQuery } from '@tanstack/react-query'
+import {
+  storeDetailQuery,
+  storeListQuery,
+  type StoreSummary,
+} from '@/features/stores/api'
 
 export const sortOptions = [
   '기본순',
   '주문 많은 순',
   '별점 높은 순',
   '가까운 순',
-  '찜 많은 순',
 ] as const
-export type SearchSort = (typeof sortOptions)[number]
-
-type SearchInfo = {
-  category: string
-  distance: number
-  orders: number
-  favorites: number
-  rating: number
-  reviewCount: number
-  minutes: number
-  minimum: number
-  fee: number
-}
-
-// Search fixtures stay separate from recruitment-room and payment data.
-const sampleStoreInfo: Record<string, SearchInfo | undefined> = {
-  'sample-1': {
-    category: '햄버거',
-    distance: 1600,
-    orders: 320,
-    favorites: 82,
-    rating: 4.2,
-    reviewCount: 504,
-    minutes: 20,
-    minimum: 14000,
-    fee: 2700,
-  },
-  'sample-2': {
-    category: '찜닭',
-    distance: 1300,
-    orders: 260,
-    favorites: 95,
-    rating: 4.9,
-    reviewCount: 749,
-    minutes: 32,
-    minimum: 25000,
-    fee: 2000,
-  },
-  'sample-3': {
-    category: '분식',
-    distance: 650,
-    orders: 180,
-    favorites: 75,
-    rating: 4.8,
-    reviewCount: 184,
-    minutes: 25,
-    minimum: 12000,
-    fee: 1500,
-  },
-  'sample-4': {
-    category: '분식',
-    distance: 950,
-    orders: 240,
-    favorites: 68,
-    rating: 4.9,
-    reviewCount: 259,
-    minutes: 30,
-    minimum: 14000,
-    fee: 2000,
-  },
-}
+type SearchSort = (typeof sortOptions)[number]
 
 function normalize(term: string) {
   return term.normalize('NFC').toLowerCase().replace(/\s+/g, '')
 }
 
-export function searchStores(
-  stores: GroupOrderDetail[],
-  term: string,
-  sort: SearchSort,
-) {
+export function useStoreSearch(term: string, sort: SearchSort) {
+  const list = useQuery({ ...storeListQuery, enabled: !!term })
+  const stores = term ? (list.data?.stores ?? []) : []
   const keyword = normalize(term)
-  const results = stores
-    .map((store) => ({ store, info: sampleStoreInfo[store.id] }))
-    .filter(({ store, info }) =>
-      [
-        store.name,
-        store.storeDetails?.name,
-        info?.category,
-        ...store.menus.map((menu) => menu.name),
-      ].some((value) => value && normalize(value).includes(keyword)),
-    )
-  if (sort === '기본순') return results
+  const matches = (value: string) => normalize(value).includes(keyword)
+  const storeIds = new Set(
+    stores
+      .filter((store) => matches(store.name) || matches(store.category))
+      .map((store) => store.storeId),
+  )
+  // The list omits menus. Only unmatched stores need a detail lookup.
+  const details = useQueries({
+    queries: stores
+      .filter((store) => !storeIds.has(store.storeId))
+      .map((store) => storeDetailQuery(String(store.storeId))),
+  })
+  for (const { data } of details) {
+    if (data?.menus.some((menu) => matches(menu.name)))
+      storeIds.add(data.storeId)
+  }
+  const results = stores.filter((store) => storeIds.has(store.storeId))
+  const failures = details.filter((query) => query.isError && !query.data)
+  return {
+    results: sortStores(results, sort),
+    isLoading: list.isPending || details.some((query) => query.isPending),
+    isListError: list.isError && !list.data,
+    isMenuError: failures.length > 0,
+    retry: () => {
+      if (list.isError) void list.refetch()
+      for (const query of failures) void query.refetch()
+    },
+  }
+}
 
-  const field = {
-    '주문 많은 순': 'orders',
-    '별점 높은 순': 'rating',
-    '가까운 순': 'distance',
-    '찜 많은 순': 'favorites',
-  } as const
-  const key = field[sort]
-  return results.sort((a, b) => {
-    if (!a.info || !b.info) return Number(!!b.info) - Number(!!a.info)
-    return sort === '가까운 순'
-      ? a.info[key] - b.info[key]
-      : b.info[key] - a.info[key]
+export function sortStores(stores: StoreSummary[], sort: SearchSort) {
+  if (sort === '기본순') return stores
+  return [...stores].sort((a, b) => {
+    if (sort === '가까운 순') return a.distanceMeters - b.distanceMeters
+    if (sort === '별점 높은 순') return b.rating - a.rating
+    return b.orderCount - a.orderCount
   })
 }
 

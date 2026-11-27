@@ -9,8 +9,11 @@ import cart from '@/assets/store/cart.svg'
 import pin from '@/assets/store/pin.svg'
 import star from '@/assets/store/star.svg'
 import emptyStar from '@/assets/store/empty-star.svg'
-import { selectRoomMenu, type RoomMenuSelection } from './roomMenuSelection'
-import type { GroupOrderDetail } from './sampleGroupOrders'
+import {
+  selectRoomMenu,
+  type RoomMenuSelection,
+  type MenuStore,
+} from './roomMenuSelection'
 import styles from './StoreDetail.module.css'
 
 const photos = import.meta.glob<string>('../assets/store/*.png', {
@@ -22,7 +25,7 @@ const photo = (key: string | undefined) =>
 const won = (amount: number) => amount.toLocaleString('ko-KR') + '원'
 
 type Props = {
-  store: GroupOrderDetail
+  store: MenuStore
   action: '메뉴 담기' | '모집방 만들기'
   initialMenus?: readonly RoomMenuSelection[]
   onBack: () => void
@@ -105,7 +108,7 @@ export function StoreDetail({
             {details && (
               <p>
                 <img src={clock} alt="" />
-                <strong>영업중</strong> · {details.lastOrder}에 라스트오더
+                라스트오더 {details.lastOrder}
               </p>
             )}
             {store.minimumOrderAmount != null && (
@@ -128,6 +131,7 @@ export function StoreDetail({
       {details && (
         <section className={styles.section}>
           <h2>리뷰</h2>
+          {!details.reviews.length && <p>등록된 리뷰가 없어요.</p>}
           <ul className={styles.reviews}>
             {details.reviews.map((review, i) => (
               <li key={i}>
@@ -140,7 +144,7 @@ export function StoreDetail({
                     />
                   ))}
                 </div>
-                {review.text}
+                <span className={styles.reviewText}>{review.text}</span>
               </li>
             ))}
           </ul>
@@ -148,6 +152,7 @@ export function StoreDetail({
       )}
       <section className={styles.section}>
         <h2>{sharedPicker ? '함께 나눌 메뉴' : '메뉴'}</h2>
+        {!store.menus.length && <p>등록된 메뉴가 없어요.</p>}
         <ul className={styles.menus}>
           {store.menus.map((menu) => (
             <li key={menu.id}>
@@ -155,7 +160,7 @@ export function StoreDetail({
                 name={menu.name}
                 price={menu.price}
                 description={menu.description ?? ''}
-                image={photo(menu.photo) ?? store.image}
+                image={menu.imageUrl || photo(menu.photo) || store.image}
                 selected={sharedPicker ? !!quantities[menu.id] : undefined}
                 disabled={
                   sharedPicker &&
@@ -201,7 +206,7 @@ export function StoreDetail({
             </small>
           ) : (
             store.minimumOrderAmount != null && (
-              <small>
+              <small className={styles.minimumOrderHint}>
                 {remaining > 0
                   ? '부족한 ' + won(remaining) + ', 함께 채워볼까요?'
                   : '최소주문금액을 다 채웠어요!'}

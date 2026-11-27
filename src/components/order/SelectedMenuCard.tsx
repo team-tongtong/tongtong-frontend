@@ -8,7 +8,10 @@ type SelectedMenuCardProps = {
   title?: string
   maxQuantity?: number
   changeControl: ReactNode
-  onQuantityChange: (menuId: string, quantity: number) => void
+  onQuantityChange: (
+    menuId: RoomMenuSelection['menuId'],
+    quantity: number,
+  ) => void
 }
 
 export function SelectedMenuCard({
