@@ -32,6 +32,7 @@ export function RecruitmentConditionsCard({
           description="나를 포함한 전체 인원이에요"
           unit="명"
           min={2}
+          max={6}
           value={people}
           onChange={onPeopleChange}
         />
@@ -39,7 +40,8 @@ export function RecruitmentConditionsCard({
           label="모집 시간"
           description="최대 60분까지 가능해요"
           unit="분"
-          min={1}
+          min={10}
+          step={10}
           max={60}
           value={minutes}
           onChange={onMinutesChange}

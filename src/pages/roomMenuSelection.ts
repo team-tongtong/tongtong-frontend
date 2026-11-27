@@ -1,7 +1,7 @@
 import type { StoreDetailResponse } from '@/features/stores/api'
 
 type StoreMenu = {
-  id: number | string
+  id: number
   name: string
   price: number
   portionable?: boolean
@@ -11,7 +11,7 @@ type StoreMenu = {
 }
 
 export type MenuStore = {
-  id: number | string
+  id: number
   name: string
   image: string
   minimumOrderAmount?: number | null

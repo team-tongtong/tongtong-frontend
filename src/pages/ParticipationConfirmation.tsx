@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
 import { PaymentMethodsCard } from '@/components/order/PaymentMethodsCard'
-import { paymentMethods } from '@/components/order/paymentMethods'
+import type { PaymentMethod } from '@/components/order/paymentMethods'
 import type { RoomDetail } from '@/features/rooms/api'
 import type { MenuStore } from './roomMenuSelection'
 import { RecruitDeadline } from '@/components/group-order/RecruitDeadline'
@@ -12,6 +12,10 @@ type Props = {
   selected: (MenuStore['menus'][number] & { quantity: number })[]
   personalSubtotal: number
   delivery?: number
+  submitting: boolean
+  disabled: boolean
+  error?: string
+  onConfirm: (payment: PaymentMethod) => void
 }
 
 function amount(value: number | undefined | null) {
@@ -23,9 +27,12 @@ export function ParticipationConfirmation({
   selected,
   personalSubtotal,
   delivery,
+  submitting,
+  disabled,
+  error,
+  onConfirm,
 }: Props) {
-  const [payment, setPayment] = useState<string>()
-  const [notice, setNotice] = useState('')
+  const [payment, setPayment] = useState<PaymentMethod>()
   const shared = room.track === 'PORTION'
   const sharedPrice = shared ? room.sharedMenu?.portionPrice : 0
   const portion = shared ? room.portionFee : 0
@@ -77,7 +84,9 @@ export function ParticipationConfirmation({
           <>
             <strong>함께 나눌 메뉴</strong>
             <div className={styles.row}>
-              <span>{room.sharedMenu?.name} · 1인분</span>
+              <span>
+                {room.sharedMenu?.name} · 1/{room.maxParticipants} 나눔
+              </span>
               <span>{amount(sharedPrice)}</span>
             </div>
           </>
@@ -112,18 +121,18 @@ export function ParticipationConfirmation({
         </div>
       </section>
       <PaymentMethodsCard
-        methods={paymentMethods}
+        disabled={submitting}
         selected={payment}
         onChange={setPayment}
       />
       <footer className={styles.footer}>
         <PrimaryButton
-          disabled={!payment}
-          onClick={() => setNotice('참여 확정 기능은 준비 중이에요.')}
+          disabled={!payment || submitting || disabled}
+          onClick={() => payment && onConfirm(payment)}
         >
-          참여 확정하기
+          {submitting ? '참여 처리 중…' : '참여 확정하기'}
         </PrimaryButton>
-        <p role="status">{notice}</p>
+        {error && <p role="alert">{error}</p>}
       </footer>
     </div>
   )

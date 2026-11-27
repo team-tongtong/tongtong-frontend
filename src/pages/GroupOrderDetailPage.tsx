@@ -1,6 +1,6 @@
 import { trackLabels } from '@/components/group-order/orderMethod'
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { AppHeader } from '@/components/layout/AppHeader'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
@@ -10,11 +10,15 @@ import { toMenuStore, selectRoomMenu } from './roomMenuSelection'
 import { LoadingSpinner } from '@/components/loading/LoadingSpinner'
 import participantIcon from '@/assets/order/participant.svg'
 import {
+  joinRoom,
+  refreshRoomsAndOrders,
   roomDetailQuery,
   spotListQuery,
   type RoomDetail,
 } from '@/features/rooms/api'
 import { storeDetailQuery } from '@/features/stores/api'
+import type { PaymentMethod } from '@/components/order/paymentMethods'
+import { useToast } from '@/components/toast/useToast'
 import { ApiError } from '@/api/client'
 import { RecruitDeadline } from '@/components/group-order/RecruitDeadline'
 import { ParticipationConfirmation } from './ParticipationConfirmation'
@@ -154,6 +158,42 @@ function RoomDetails({
     0,
   )
 
+  const client = useQueryClient()
+  const showToast = useToast()
+  const joinKey = ['rooms', 'join', room.roomId]
+  const participation = useMutation({
+    mutationKey: joinKey,
+    networkMode: 'always',
+    mutationFn: (paymentMethod: PaymentMethod) =>
+      joinRoom(room.roomId, {
+        paymentMethod,
+        items: selected.map(({ id, quantity }) => ({ menuId: id, quantity })),
+      }),
+    onSuccess: () => refreshRoomsAndOrders(client),
+    onError: (error) => {
+      if (error instanceof ApiError && error.status === 409) {
+        showToast(error.message, 'error')
+        refreshRoomsAndOrders(client)
+      }
+    },
+  })
+
+  function confirmParticipation(payment: PaymentMethod) {
+    if (
+      unavailable ||
+      (!shared && !selected.length) ||
+      client.isMutating({ mutationKey: joinKey })
+    )
+      return
+    participation.mutate(payment, {
+      onSuccess: ({ orderId }) =>
+        navigate('/orders/' + orderId, { replace: true }),
+      onError: (error) => {
+        if (error instanceof ApiError && error.status === 409) navigate(-1)
+      },
+    })
+  }
+
   const sharedImage = store?.menus.find(
     (menu) => menu.id === room.sharedMenu?.menuId,
   )?.imageUrl
@@ -191,6 +231,16 @@ function RoomDetails({
         selected={selected}
         personalSubtotal={total}
         delivery={delivery}
+        submitting={participation.isPending}
+        disabled={!shared && !selected.length}
+        error={
+          participation.error instanceof ApiError
+            ? participation.error.message
+            : participation.isError
+              ? '참여 결과를 확인하지 못했어요. 주문 내역을 확인해 주세요.'
+              : undefined
+        }
+        onConfirm={confirmParticipation}
       />
     )
   }
@@ -316,6 +366,7 @@ function RoomDetails({
               setNotice('참여하려면 먼저 개인 메뉴를 담아주세요.')
               return
             }
+            participation.reset()
             navigate('?step=confirm', {
               state: { ...state, confirmRoom: String(room.roomId), quantities },
             })

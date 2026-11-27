@@ -8,6 +8,7 @@ type QuantityCounterProps = {
   value: number
   unit?: string
   min?: number
+  step?: number
   max?: number
   onChange: (value: number) => void
 }
@@ -18,6 +19,7 @@ export function QuantityCounter({
   value,
   unit,
   min = 0,
+  step = 1,
   max,
   onChange,
 }: QuantityCounterProps) {
@@ -32,7 +34,7 @@ export function QuantityCounter({
         type="button"
         aria-label={`${label} 줄이기`}
         disabled={value <= min}
-        onClick={() => onChange(value - 1)}
+        onClick={() => onChange(Math.max(min, value - step))}
       >
         {variant === 'menu' ? '−' : <img src={minus} alt="" />}
       </button>
@@ -44,7 +46,7 @@ export function QuantityCounter({
         type="button"
         aria-label={`${label} 늘리기`}
         disabled={max !== undefined && value >= max}
-        onClick={() => onChange(value + 1)}
+        onClick={() => onChange(Math.min(max ?? Infinity, value + step))}
       >
         {variant === 'menu' ? '+' : <img src={plus} alt="" />}
       </button>

@@ -5,4 +5,7 @@ export const paymentMethodLabels = {
   NAVER_PAY: '네이버페이',
 } as const
 
-export const paymentMethods = Object.values(paymentMethodLabels)
+export type PaymentMethod = keyof typeof paymentMethodLabels
+export const paymentMethods = Object.keys(
+  paymentMethodLabels,
+) as PaymentMethod[]

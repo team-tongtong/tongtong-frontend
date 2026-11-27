@@ -1,4 +1,5 @@
-import { queryOptions } from '@tanstack/react-query'
+import type { PaymentMethod } from '@/components/order/paymentMethods'
+import { queryOptions, type QueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/api/client'
 
 interface Spot {
@@ -62,4 +63,39 @@ export function roomDetailQuery(roomId: string) {
       }),
     refetchInterval: 60_000,
   })
+}
+
+type MenuItem = { menuId: number; quantity: number }
+
+interface JoinRoomRequest {
+  items: readonly MenuItem[]
+  paymentMethod: PaymentMethod
+}
+
+interface CreateRoomRequest extends JoinRoomRequest {
+  storeId: number
+  track: RoomDetail['track']
+  sharedMenu: { menuId: number } | null
+  spotId: number
+  maxParticipants: number
+  recruitMinutes: number
+}
+
+export function createRoom(request: CreateRoomRequest) {
+  return apiRequest<{ roomId: number; orderId: number }>('/api/v1/rooms', {
+    method: 'POST',
+    body: JSON.stringify(request),
+  })
+}
+
+export function joinRoom(roomId: number, request: JoinRoomRequest) {
+  return apiRequest<{ orderId: number }>(`/api/v1/rooms/${roomId}/orders`, {
+    method: 'POST',
+    body: JSON.stringify(request),
+  })
+}
+
+export function refreshRoomsAndOrders(client: QueryClient) {
+  void client.invalidateQueries({ queryKey: ['rooms'] })
+  void client.invalidateQueries({ queryKey: ['orders'] })
 }
