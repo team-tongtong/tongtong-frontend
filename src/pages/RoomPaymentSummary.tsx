@@ -47,15 +47,7 @@ export function RoomPaymentSummary({
           </div>
         ))}
         <div>
-          <dt>
-            {shared ? '함께 나눌 메뉴 · ' + menu.name + ' + 배달비' : '배달비'}
-            {shared && delivery != null && (
-              <small className={styles.formula}>
-                {won(menu.price)} ÷ {people}명 + {won(delivery)} ÷ {people}명
-                (각각 원 단위 내림)
-              </small>
-            )}
-          </dt>
+          <dt>{shared ? menu.name : '배달비'}</dt>
           <dd>{share ? won(share.perPerson) : '배달비 확인 전'}</dd>
         </div>
         {!!share?.coveredByTongtong && (

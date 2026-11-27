@@ -135,11 +135,6 @@
   padding-top: var(--tt-space-12);
   font-weight: 600;
 }
-.formula {
-  display: block;
-  margin-top: 4px;
-  color: var(--tt-text-secondary);
-}
 .spotMap {
   display: block;
   width: 100%;

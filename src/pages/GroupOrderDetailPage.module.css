@@ -146,12 +146,6 @@
   border-top: 0;
   border-bottom-color: var(--tt-brand-lime);
 }
-.step:first-child b {
-  left: 10px;
-}
-.step:last-child b {
-  left: -10px;
-}
 .shared,
 .row {
   display: flex;

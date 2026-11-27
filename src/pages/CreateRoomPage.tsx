@@ -207,14 +207,18 @@ export function CreateRoomPage() {
       <AppHeader title="모집방 만들기" onBack={goBack} />
       <RecruitmentProgress step={step} />
       <div className={styles.body}>
+        {!choosingSpot && (
+          <div className={styles.intro} key={step}>
+            <h2 ref={focusHeading} tabIndex={-1}>
+              {step === 1
+                ? '메뉴와 주문 방식을 선택해주세요'
+                : '통통 스팟과 결제 수단을 선택해주세요'}
+            </h2>
+            <p>우리 동네에서 가볍게 함께 주문해요.</p>
+          </div>
+        )}
         {step === 1 ? (
           <>
-            <div className={styles.intro}>
-              <h2 ref={focusHeading} tabIndex={-1}>
-                메뉴와 주문 방식을 선택해주세요
-              </h2>
-              <p>우리 동네에서 가볍게 함께 주문해요.</p>
-            </div>
             <CreateRoomMenu
               maxQuantity={shared ? 1 : undefined}
               onOpenSearch={() => openPicker(shared ? 'shared' : 'initial')}
@@ -329,7 +333,7 @@ export function CreateRoomPage() {
         ) : (
           <>
             <section className={styles.panel} aria-labelledby="pickup-title">
-              <h2 id="pickup-title" ref={focusHeading} tabIndex={-1}>
+              <h2 id="pickup-title">
                 {spot ? '선택한 통통 스팟' : '픽업 장소 선택'}
               </h2>
               {spot?.mapImageUrl && (
