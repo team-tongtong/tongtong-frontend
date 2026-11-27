@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
+import { QuantityCounter } from '@/components/quantity/QuantityCounter'
 import { MenuListItem } from '@/components/search/MenuListItem'
 import back from '@/assets/store/back.svg'
 import clock from '@/assets/store/clock.svg'
@@ -26,6 +27,7 @@ type Props = {
   initialMenus?: readonly RoomMenuSelection[]
   onBack: () => void
   onConfirm: (menus: RoomMenuSelection[]) => void
+  menuMode?: 'shared' | 'individual'
   allowEmpty?: boolean
 }
 
@@ -36,7 +38,9 @@ export function StoreDetail({
   onBack,
   onConfirm,
   allowEmpty,
+  menuMode,
 }: Props) {
+  const sharedPicker = menuMode === 'shared'
   const dialog = useRef<HTMLDialogElement>(null)
   const [quantities, setQuantities] = useState<Record<string, number>>(() =>
     Object.fromEntries(
@@ -146,7 +150,7 @@ export function StoreDetail({
         </section>
       )}
       <section className={styles.section}>
-        <h2>메뉴</h2>
+        <h2>{sharedPicker ? '함께 나눌 메뉴' : '메뉴'}</h2>
         <ul className={styles.menus}>
           {store.menus.map((menu) => (
             <li key={menu.id}>
@@ -155,13 +159,36 @@ export function StoreDetail({
                 price={menu.price}
                 description={menu.description ?? ''}
                 image={photo(menu.photo) ?? store.image}
+                selected={sharedPicker ? !!quantities[menu.id] : undefined}
+                disabled={
+                  sharedPicker &&
+                  (!menu.portionable ||
+                    (selected.length > 0 && !quantities[menu.id]))
+                }
                 onAdd={() =>
-                  setQuantities((current) => ({
-                    ...current,
-                    [menu.id]: (current[menu.id] ?? 0) + 1,
-                  }))
+                  setQuantities((current) => {
+                    if (sharedPicker)
+                      return current[menu.id] ? {} : { [menu.id]: 1 }
+                    return {
+                      ...current,
+                      [menu.id]: (current[menu.id] ?? 0) + 1,
+                    }
+                  })
                 }
               />
+              {menuMode === 'individual' && !!quantities[menu.id] && (
+                <QuantityCounter
+                  label={menu.name + ' 수량'}
+                  value={quantities[menu.id] ?? 0}
+                  unit="개"
+                  onChange={(quantity) =>
+                    setQuantities((current) => ({
+                      ...current,
+                      [menu.id]: quantity,
+                    }))
+                  }
+                />
+              )}
             </li>
           ))}
         </ul>
@@ -170,7 +197,11 @@ export function StoreDetail({
         <div aria-live="polite">
           <strong>{won(total)}</strong>
           {action === '메뉴 담기' ? (
-            <small>더 먹고 싶은 메뉴를 추가해보세요</small>
+            <small>
+              {sharedPicker
+                ? '함께 나눌 메뉴는 1개만 선택할 수 있어요'
+                : '더 먹고 싶은 메뉴를 추가해보세요'}
+            </small>
           ) : (
             store.minimumOrderAmount != null && (
               <small>

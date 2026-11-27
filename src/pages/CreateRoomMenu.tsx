@@ -5,11 +5,21 @@ import styles from './CreateRoomPage.module.css'
 
 type Props = {
   onOpenSearch: () => void
+  title?: string
+  emptyLabel?: string
+  maxQuantity?: number
   selected: RoomMenuSelection[]
   onChange: (menus: RoomMenuSelection[]) => void
 }
 
-export function CreateRoomMenu({ selected, onChange, onOpenSearch }: Props) {
+export function CreateRoomMenu({
+  selected,
+  onChange,
+  onOpenSearch,
+  title = '선택한 메뉴',
+  emptyLabel = '원하는 메뉴를 담아주세요',
+  maxQuantity,
+}: Props) {
   const picker = (
     <button
       type="button"
@@ -24,6 +34,8 @@ export function CreateRoomMenu({ selected, onChange, onOpenSearch }: Props) {
   return selected.length ? (
     <SelectedMenuCard
       menus={selected}
+      title={title}
+      maxQuantity={maxQuantity}
       changeControl={picker}
       onQuantityChange={(id, quantity) =>
         onChange(
@@ -34,8 +46,8 @@ export function CreateRoomMenu({ selected, onChange, onOpenSearch }: Props) {
       }
     />
   ) : (
-    <section aria-label="메뉴 선택" className={styles.emptyMenu}>
-      <p>원하는 메뉴를 담아주세요</p>
+    <section aria-label={title} className={styles.emptyMenu}>
+      <p>{emptyLabel}</p>
       {picker}
     </section>
   )

@@ -19,6 +19,7 @@ type OrderMenu = {
   name: string
   price: number
   description?: string
+  portionable?: boolean
   photo?: string
 }
 

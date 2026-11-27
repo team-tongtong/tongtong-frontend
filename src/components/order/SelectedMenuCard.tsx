@@ -5,19 +5,23 @@ import styles from './OrderCards.module.css'
 
 type SelectedMenuCardProps = {
   menus: readonly RoomMenuSelection[]
+  title?: string
+  maxQuantity?: number
   changeControl: ReactNode
   onQuantityChange: (menuId: string, quantity: number) => void
 }
 
 export function SelectedMenuCard({
   menus,
+  title = '선택한 메뉴',
+  maxQuantity,
   changeControl,
   onQuantityChange,
 }: SelectedMenuCardProps) {
   return (
-    <section aria-label="선택한 메뉴" className={styles.card}>
+    <section aria-label={title} className={styles.card}>
       <div className={styles.heading}>
-        <h2>선택한 메뉴</h2>
+        <h2>{title}</h2>
         {changeControl}
       </div>
       {menus.map(({ name, storeName, price, quantity, menuId }) => (
@@ -31,6 +35,7 @@ export function SelectedMenuCard({
             label={name + ' 수량'}
             value={quantity}
             unit="개"
+            max={maxQuantity}
             onChange={(value) => onQuantityChange(menuId, value)}
           />
         </div>

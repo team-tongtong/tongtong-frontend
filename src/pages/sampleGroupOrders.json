@@ -15,6 +15,7 @@
     "menus": [
       {
         "id": "snack-wrap",
+        "portionable": false,
         "name": "상하이 치킨 스낵랩",
         "price": 4400,
         "description": "상하이 치킨 스낵랩",
@@ -22,6 +23,7 @@
       },
       {
         "id": "shanghai-set",
+        "portionable": false,
         "name": "맥스파이시 상하이버거 라지 세트",
         "price": 10000,
         "description": "맥스파이시 상하이버거 + 후렌치 후라이 + 콜라",
@@ -29,6 +31,7 @@
       },
       {
         "id": "crispy-set",
+        "portionable": false,
         "name": "맥크리스피 고추장 버터 세트",
         "price": 12100,
         "description": "맥크리스피 고추장 버터 + 후렌치 후라이 + 콜라",
@@ -36,6 +39,7 @@
       },
       {
         "id": "shrimp-beef-large-set",
+        "portionable": false,
         "name": "슈비버거 라지 세트",
         "price": 10800,
         "description": "슈비버거 + 후렌치후라이 + 콜라",
@@ -43,6 +47,7 @@
       },
       {
         "id": "1955-set",
+        "portionable": false,
         "name": "1955버거 라지 세트",
         "price": 10700,
         "description": "1955버거 + 후렌치후라이 + 콜라",
@@ -50,6 +55,7 @@
       },
       {
         "id": "bulgogi-set",
+        "portionable": false,
         "name": "불고기버거 세트",
         "price": 8000
       }
@@ -90,6 +96,7 @@
     "menus": [
       {
         "id": "black-jjimdak",
+        "portionable": true,
         "name": "두찜 까만찜닭",
         "price": 27800,
         "description": "달콤 짭조름한 간장소스로 만든 찜닭",
@@ -97,6 +104,7 @@
       },
       {
         "id": "beef-jjimdak",
+        "portionable": true,
         "name": "두찜 실비한우곱찜닭",
         "price": 34800,
         "description": "통통한 한우대창에 매운 김치 다대기 듬뿍",
@@ -104,6 +112,7 @@
       },
       {
         "id": "rose-jjimdak",
+        "portionable": true,
         "name": "로제찜닭",
         "price": 30800,
         "description": "K로제의 원조 두찜만의 특제 로제소스",
@@ -111,6 +120,7 @@
       },
       {
         "id": "hearty-set",
+        "portionable": false,
         "name": "든든세트",
         "price": 9000,
         "description": "고기만두 2개 + 후라이드 옛날 통닭(반마리)",
@@ -118,6 +128,7 @@
       },
       {
         "id": "hot-rose",
+        "portionable": true,
         "name": "불닭로제찜닭",
         "price": 26800,
         "description": "불닭과 로제가 만나 부드럽고 강렬한 맛",
@@ -125,6 +136,7 @@
       },
       {
         "id": "rice",
+        "portionable": false,
         "name": "공깃밥",
         "price": 1000
       }
@@ -168,11 +180,13 @@
     "menus": [
       {
         "id": "tteokbokki",
+        "portionable": false,
         "name": "떡볶이",
         "price": 4000
       },
       {
         "id": "cheese-gimbap",
+        "portionable": false,
         "name": "치즈김밥",
         "price": 3500
       }
@@ -192,11 +206,13 @@
     "menus": [
       {
         "id": "rice-balls",
+        "portionable": false,
         "name": "주먹김밥",
         "price": 2000
       },
       {
         "id": "steamed-eggs",
+        "portionable": false,
         "name": "계란찜",
         "price": 2000
       }
