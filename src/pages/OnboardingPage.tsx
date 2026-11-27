@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
 import cart from '@/assets/onboarding/cart.webp'
@@ -40,69 +40,91 @@ export function OnboardingPage({ onComplete }: { onComplete: () => void }) {
   const [step, setStep] = useState(0)
   const navigate = useNavigate()
   const slide = slides[step]
+  const viewportRef = useRef<HTMLDivElement>(null)
+  const frameRef = useRef<HTMLElement>(null)
+
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current
+    const frame = frameRef.current
+    if (!viewport || !frame) return
+
+    const fitFrame = () => {
+      const scale = Math.min(
+        1,
+        viewport.clientWidth / frame.offsetWidth,
+        viewport.clientHeight / frame.offsetHeight,
+      )
+      frame.style.transform = `scale(${scale})`
+    }
+
+    fitFrame()
+    const observer = new ResizeObserver(fitFrame)
+    observer.observe(viewport)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <main
-      className={slide ? styles.page : `${styles.page} ${styles.readyPage}`}
-      data-step={step + 1}
-    >
-      {slide ? (
-        <>
-          <div className={styles.art}>
-            <img src={slide.image} width={390} height={580} alt="" />
+    <div className={styles.viewport} ref={viewportRef}>
+      <main className={styles.page} data-step={step + 1} ref={frameRef}>
+        {slide ? (
+          <>
+            <div className={styles.art}>
+              <img src={slide.image} width={390} height={580} alt="" />
+            </div>
+            <h1 className={styles.caption} aria-live="polite">
+              {slide.title}
+            </h1>
+            <div
+              className={styles.progress}
+              role="progressbar"
+              aria-label="온보딩 진행 단계"
+              aria-valuemin={1}
+              aria-valuemax={slides.length}
+              aria-valuenow={step + 1}
+            >
+              {slides.map((item, index) => (
+                <span key={item.image} data-current={step === index} />
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className={styles.ready}>
+            <h1>TONG TONG 할 준비됐나요?</h1>
+            <p>
+              혼자 주문하기 부담될 땐,
+              <br />
+              통통에서 함께해요
+            </p>
+            <img className={styles.mascot} src={mascot} alt="" />
+            <ul>
+              {features.map((feature) => (
+                <li key={feature.title}>
+                  <img src={feature.icon} alt="" />
+                  <div>
+                    <strong>{feature.title}</strong>
+                    <small>{feature.detail}</small>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
-          <h1 className={styles.caption} aria-live="polite">
-            {slide.title}
-          </h1>
-          <div
-            className={styles.progress}
-            role="progressbar"
-            aria-label="온보딩 진행 단계"
-            aria-valuemin={1}
-            aria-valuemax={slides.length}
-            aria-valuenow={step + 1}
+        )}
+        <div className={styles.action}>
+          <PrimaryButton
+            onClick={() => {
+              if (slide) {
+                setStep(step + 1)
+                window.scrollTo(0, 0)
+              } else {
+                onComplete()
+                navigate('/', { replace: true })
+              }
+            }}
           >
-            {slides.map((item, index) => (
-              <span key={item.image} data-current={step === index} />
-            ))}
-          </div>
-        </>
-      ) : (
-        <div className={styles.ready}>
-          <h1>TONG TONG 할 준비됐나요?</h1>
-          <p>
-            혼자 주문하기 부담될 땐,
-            <br />
-            통통에서 함께해요
-          </p>
-          <img className={styles.mascot} src={mascot} alt="" />
-          <ul>
-            {features.map((feature) => (
-              <li key={feature.title}>
-                <img src={feature.icon} alt="" />
-                <div>
-                  <strong>{feature.title}</strong>
-                  <small>{feature.detail}</small>
-                </div>
-              </li>
-            ))}
-          </ul>
+            {slide ? 'Next' : '시작하기'}
+          </PrimaryButton>
         </div>
-      )}
-      <div className={styles.action}>
-        <PrimaryButton
-          onClick={() => {
-            if (slide) {
-              setStep(step + 1)
-              window.scrollTo(0, 0)
-            } else {
-              onComplete()
-              navigate('/', { replace: true })
-            }
-          }}
-        >
-          {slide ? 'Next' : '시작하기'}
-        </PrimaryButton>
-      </div>
-    </main>
+      </main>
+    </div>
   )
 }
