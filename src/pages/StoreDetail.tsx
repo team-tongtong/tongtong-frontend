@@ -42,6 +42,7 @@ export function StoreDetail({
 }: Props) {
   const sharedPicker = menuMode === 'shared'
   const dialog = useRef<HTMLDialogElement>(null)
+  const storeName = useRef<HTMLHeadingElement>(null)
   const [quantities, setQuantities] = useState<Record<string, number>>(() =>
     Object.fromEntries(
       initialMenus
@@ -52,6 +53,7 @@ export function StoreDetail({
   useLayoutEffect(() => {
     const element = dialog.current!
     element.showModal()
+    storeName.current?.focus({ preventScroll: true })
     return () => element.close()
   }, [])
   const details = store.storeDetails
@@ -82,6 +84,17 @@ export function StoreDetail({
           src={photo(details?.hero) ?? store.image}
           alt=""
         />
+        <div className={styles.caption}>
+          <h1 id="store-name" tabIndex={-1} ref={storeName}>
+            {details?.name ?? store.name}
+          </h1>
+          {details && (
+            <span>
+              <img src={star} alt="평점" /> {details.rating} (
+              {details.reviewCount})
+            </span>
+          )}
+        </div>
         <button
           type="button"
           className={styles.back}
@@ -90,15 +103,6 @@ export function StoreDetail({
         >
           <img src={back} alt="" />
         </button>
-        <div className={styles.caption}>
-          <h1 id="store-name">{details?.name ?? store.name}</h1>
-          {details && (
-            <span>
-              <img src={star} alt="평점" /> {details.rating} (
-              {details.reviewCount})
-            </span>
-          )}
-        </div>
       </header>
       {(details ||
         store.minimumOrderAmount != null ||
