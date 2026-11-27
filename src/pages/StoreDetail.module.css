@@ -53,9 +53,6 @@
   font-size: 20px;
   font-weight: 500;
 }
-.caption h1:focus {
-  outline: none;
-}
 .caption span,
 .info p {
   display: flex;

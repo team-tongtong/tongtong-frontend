@@ -95,10 +95,12 @@ export function OrderDetailPage() {
           <div className={styles.row}>
             <span>주문 메뉴</span>
             <ul>
-              {order.items.map((m, i) => (
-                <li key={i}>
-                  {m.name}
-                  {m.shared && ' (1인분)'} · {m.quantity}개
+              {order.items.map((item, index) => (
+                <li key={index}>
+                  {item.name} ·{' '}
+                  {item.shared && order.maxParticipants > 0
+                    ? `1/${order.maxParticipants} 나눔`
+                    : `${item.quantity}개`}
                 </li>
               ))}
             </ul>

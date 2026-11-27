@@ -23,9 +23,6 @@
   font-weight: 600;
   letter-spacing: -0.025em;
 }
-.body h2:focus {
-  outline: 0;
-}
 .panel,
 .methodPanel {
   padding: var(--tt-space-20);

@@ -16,9 +16,6 @@
 .item:active {
   background: var(--tt-surface-selected);
 }
-.item:focus-visible {
-  outline-offset: -3px;
-}
 .logo {
   width: 68px;
   height: 68px;

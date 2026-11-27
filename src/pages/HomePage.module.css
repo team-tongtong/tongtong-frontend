@@ -137,9 +137,6 @@
   gap: 5px;
   padding: 10px var(--tt-page-gutter) 3px;
 }
-.handle:focus-visible {
-  outline-offset: -3px;
-}
 .scrollArea {
   flex: 1;
   min-height: 0;

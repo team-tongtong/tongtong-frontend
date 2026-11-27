@@ -84,16 +84,12 @@
   width: 68.75%;
   border-bottom: 1px solid var(--tt-border-default);
 }
-.field:focus-within .lines span {
-  border-color: var(--tt-text-secondary);
-}
 .field input {
   display: block;
   width: calc(110% - 0.5ch + 2px);
   height: 100%;
   margin: 0;
   border: 0;
-  outline: 0;
   padding: 0 0 0 calc(10cqi - 0.5ch);
   background: transparent;
   color: var(--tt-text-primary);
