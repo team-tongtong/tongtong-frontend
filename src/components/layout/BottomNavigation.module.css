@@ -21,10 +21,6 @@
   color: var(--tt-text-primary);
 }
 
-.item:focus-visible {
-  outline-offset: -4px;
-}
-
 .create {
   position: relative;
   width: 57px;

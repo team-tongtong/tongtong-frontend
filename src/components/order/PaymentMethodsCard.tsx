@@ -1,15 +1,20 @@
+import {
+  paymentMethods,
+  paymentMethodLabels,
+  type PaymentMethod,
+} from './paymentMethods'
 import { useId } from 'react'
 import { Radio } from '@/components/recruitment/ChoiceCard'
 import styles from './OrderCards.module.css'
 
 type PaymentMethodsCardProps = {
-  methods: readonly string[]
-  selected?: string
-  onChange: (method: string) => void
+  disabled?: boolean
+  selected?: PaymentMethod
+  onChange: (method: PaymentMethod) => void
 }
 
 export function PaymentMethodsCard({
-  methods,
+  disabled,
   selected,
   onChange,
 }: PaymentMethodsCardProps) {
@@ -20,15 +25,16 @@ export function PaymentMethodsCard({
         <h2 id={group}>결제 수단</h2>
       </div>
       <div role="radiogroup" aria-labelledby={group}>
-        {methods.map((method) => (
+        {paymentMethods.map((method) => (
           <label key={method} className={styles.payment}>
             <Radio
+              disabled={disabled}
               name={group}
               value={method}
               checked={selected === method}
               onChange={() => onChange(method)}
             />
-            <span>{method}</span>
+            <span>{paymentMethodLabels[method]}</span>
           </label>
         ))}
       </div>

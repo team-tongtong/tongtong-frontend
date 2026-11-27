@@ -1,0 +1,38 @@
+.button {
+  position: absolute;
+  /* Center the 44px touch target on the 42px search row. */
+  top: calc(env(safe-area-inset-top) + var(--tt-space-20) - 1px);
+  inset-inline-start: calc(var(--tt-page-gutter) - 8px);
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.button[data-on-photo] {
+  border-radius: 50%;
+  background: white;
+}
+.button[data-on-photo]::before {
+  content: '';
+  width: 28px;
+  height: 28px;
+  background: black;
+  mask: url('../../assets/store/back.svg') center / contain no-repeat;
+}
+@supports (backdrop-filter: invert(1)) or (-webkit-backdrop-filter: invert(1)) {
+  .button[data-on-photo] {
+    background: transparent;
+  }
+  .button[data-on-photo]::before {
+    background: transparent;
+    /* Render the covered photo pixels as a contrasting monochrome arrow. */
+    -webkit-backdrop-filter: blur(3px) grayscale(1) contrast(10000%) invert(1);
+    backdrop-filter: blur(3px) grayscale(1) contrast(10000%) invert(1);
+  }
+}

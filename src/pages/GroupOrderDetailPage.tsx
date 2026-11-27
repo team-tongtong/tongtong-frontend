@@ -1,21 +1,26 @@
-import { orderMethodLabels } from '@/components/group-order/orderMethod'
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { trackLabels } from '@/components/group-order/orderMethod'
+import { useLayoutEffect, useRef, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { AppHeader } from '@/components/layout/AppHeader'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
 import { QuantityCounter } from '@/components/quantity/QuantityCounter'
 import { StoreDetail } from './StoreDetail'
-import { selectRoomMenu } from './roomMenuSelection'
+import { toMenuStore, selectRoomMenu } from './roomMenuSelection'
 import { LoadingSpinner } from '@/components/loading/LoadingSpinner'
-import blackJjimdak from '@/assets/order/black-jjimdak.png'
-import pickupMap from '@/assets/order/pickup-map.png'
 import participantIcon from '@/assets/order/participant.svg'
 import {
-  sampleGroupOrdersQuery,
-  type GroupOrderDetail,
-} from './sampleGroupOrders'
-import { deliveryShare } from './participationAmounts'
+  joinRoom,
+  refreshRoomsAndOrders,
+  roomDetailQuery,
+  spotListQuery,
+  type RoomDetail,
+} from '@/features/rooms/api'
+import { storeDetailQuery } from '@/features/stores/api'
+import type { PaymentMethod } from '@/components/order/paymentMethods'
+import { useToast } from '@/components/toast/useToast'
+import { ApiError } from '@/api/client'
+import { RecruitDeadline } from '@/components/group-order/RecruitDeadline'
 import { ParticipationConfirmation } from './ParticipationConfirmation'
 import styles from './GroupOrderDetailPage.module.css'
 
@@ -25,8 +30,9 @@ export function GroupOrderDetailPage() {
   const { roomId } = useParams()
   const location = useLocation()
   const navigate = useNavigate()
-  const query = useQuery(sampleGroupOrdersQuery)
-  const room = query.data?.find((item) => item.id === roomId)
+  const query = useQuery(roomDetailQuery(roomId ?? ''))
+  const missing = query.error instanceof ApiError && query.error.status === 404
+  const room = missing ? undefined : query.data
 
   const confirming =
     new URLSearchParams(location.search).get('step') === 'confirm' &&
@@ -47,7 +53,7 @@ export function GroupOrderDetailPage() {
       <div className={styles.body}>
         {query.isPending ? (
           <LoadingSpinner label="모집방을 불러오는 중" />
-        ) : query.isError ? (
+        ) : query.isError && !room && !missing ? (
           <section className={styles.feedback}>
             <p role="alert">모집방 정보를 불러오지 못했어요.</p>
             <button type="button" onClick={() => void query.refetch()}>
@@ -55,7 +61,7 @@ export function GroupOrderDetailPage() {
             </button>
           </section>
         ) : room ? (
-          <RoomDetails key={room.id} room={room} confirming={confirming} />
+          <RoomDetails key={room.roomId} room={room} confirming={confirming} />
         ) : (
           <section className={styles.feedback}>
             <p>모집방을 찾을 수 없어요.</p>
@@ -69,42 +75,55 @@ export function GroupOrderDetailPage() {
   )
 }
 
-function Recruitment({ room }: { room: GroupOrderDetail }) {
+function Recruitment({ room, image }: { room: RoomDetail; image?: string }) {
+  const remaining = room.minOrderAmount - room.currentFoodTotal
   return (
     <section className={styles.card}>
       <div className={styles.store}>
-        <img src={room.image} alt="" />
+        {image && <img src={image} alt="" />}
         <div>
-          <h2>{room.name}</h2>
+          <h2>{room.storeName}</h2>
           <p>
-            <time dateTime={room.orderTime}>{room.orderTime}</time> 주문 예정
+            <RecruitDeadline value={room.recruitDeadline} />
           </p>
         </div>
-        <span className={styles.tag}>{orderMethodLabels[room.method]}</span>
+        <span className={styles.tag}>{trackLabels[room.track]}</span>
       </div>
       <div className={styles.recruitment}>
         <h2>모집 현황</h2>
         <div
           className={styles.track}
           role="img"
-          aria-label={`정원 ${room.capacity}명 중 ${room.participants}명 참여`}
+          aria-label={`정원 ${room.maxParticipants}명 중 ${room.currentParticipants}명 참여`}
         >
-          {Array.from({ length: room.capacity }, (_, i) => (
+          {Array.from({ length: room.maxParticipants }, (_, i) => (
             <span
               key={i}
               className={styles.step}
-              data-filled={i < room.participants}
+              data-filled={i < room.currentParticipants}
               aria-hidden="true"
             >
-              {i + 1 === room.participants && (
+              {i + 1 === room.currentParticipants && (
                 <>
                   <img src={participantIcon} alt="" />
-                  <b>{room.participants}명 참여</b>
+                  <b>{room.currentParticipants}명 참여</b>
                 </>
               )}
             </span>
           ))}
         </div>
+        {room.track === 'INDIVIDUAL' && (
+          <div className={styles.foodTotal}>
+            <div className={styles.row}>
+              <span>현재 음식값 합계</span>
+              <strong>{won(room.currentFoodTotal)}</strong>
+            </div>
+            <p>
+              최소주문금액 {won(room.minOrderAmount)} ·{' '}
+              {remaining > 0 ? `${won(remaining)} 부족` : '달성'}
+            </p>
+          </div>
+        )}
       </div>
     </section>
   )
@@ -114,15 +133,31 @@ function RoomDetails({
   room,
   confirming,
 }: {
-  room: GroupOrderDetail
+  room: RoomDetail
   confirming: boolean
 }) {
   const navigate = useNavigate()
   const { state, search } = useLocation()
-  const delivery = deliveryShare(room)
-  const shared = room.method === '내 몫 담기'
+  const completedOrderId = useRef<number | null>(null)
+  useLayoutEffect(() => {
+    if (search || completedOrderId.current === null) return
+    const orderId = completedOrderId.current
+    completedOrderId.current = null
+    // Replace the room entry so browser Back from the order also reaches home.
+    navigate('/orders/' + orderId, { replace: true, state: { fromHome: true } })
+  }, [search, navigate])
+  const storeQuery = useQuery(storeDetailQuery(String(room.storeId)))
+  const store = storeQuery.data && toMenuStore(storeQuery.data)
+  const spots = useQuery(spotListQuery)
+  const spot = spots.data?.spots.find((point) => point.name === room.spotName)
+  const delivery = room.deliveryFeeShare
+  const unavailable =
+    room.status !== 'RECRUITING' ||
+    room.joinedByMe ||
+    room.currentParticipants >= room.maxParticipants
+  const shared = room.track === 'PORTION'
   const [quantities, setQuantities] = useState<Record<string, number>>(
-    state?.confirmRoom === room.id ? state.quantities : {},
+    state?.confirmRoom === String(room.roomId) ? (state.quantities ?? {}) : {},
   )
   const editing = new URLSearchParams(search).get('step') === 'menus'
   function openStore() {
@@ -134,7 +169,7 @@ function RoomDetails({
     else navigate({ search: '' }, { replace: true, state })
   }
   const [notice, setNotice] = useState('')
-  const menus = room.menus.map((menu) => ({
+  const menus = (store?.menus ?? []).map((menu) => ({
     ...menu,
     quantity: quantities[menu.id] ?? 0,
   }))
@@ -144,13 +179,62 @@ function RoomDetails({
     0,
   )
 
-  if (editing)
+  const client = useQueryClient()
+  const showToast = useToast()
+  const joinKey = ['rooms', 'join', room.roomId]
+  const participation = useMutation({
+    mutationKey: joinKey,
+    networkMode: 'always',
+    mutationFn: (paymentMethod: PaymentMethod) =>
+      joinRoom(room.roomId, {
+        paymentMethod,
+        items: selected.map(({ id, quantity }) => ({ menuId: id, quantity })),
+      }),
+    onSuccess: () => refreshRoomsAndOrders(client),
+    onError: (error) => {
+      if (error instanceof ApiError && error.status === 409) {
+        showToast(error.message, 'error')
+        refreshRoomsAndOrders(client)
+      }
+    },
+  })
+
+  function confirmParticipation(payment: PaymentMethod) {
+    if (
+      unavailable ||
+      (!shared && !selected.length) ||
+      client.isMutating({ mutationKey: joinKey })
+    )
+      return
+    participation.mutate(payment, {
+      onSuccess: ({ orderId }) => {
+        if (state?.fromHome && confirming) {
+          completedOrderId.current = orderId
+          navigate(-1)
+        } else {
+          navigate('/orders/' + orderId, { replace: true })
+        }
+      },
+      onError: (error) => {
+        if (error instanceof ApiError && error.status === 409) navigate(-1)
+      },
+    })
+  }
+
+  const sharedImage = store?.menus.find(
+    (menu) => menu.id === room.sharedMenu?.menuId,
+  )?.imageUrl
+
+  if (editing && store)
     return (
       <StoreDetail
-        store={room}
+        store={store}
         action="메뉴 담기"
+        roomAmountRemaining={
+          shared ? undefined : room.minOrderAmount - room.currentFoodTotal
+        }
         initialMenus={selected.map((menu) => ({
-          ...selectRoomMenu(room, menu),
+          ...selectRoomMenu(store, menu),
           quantity: menu.quantity,
         }))}
         allowEmpty={selected.length > 0}
@@ -166,30 +250,44 @@ function RoomDetails({
       />
     )
 
-  if (confirming) {
+  if (
+    confirming &&
+    !unavailable &&
+    (store || !Object.values(quantities).some(Boolean))
+  ) {
     return (
       <ParticipationConfirmation
         room={room}
         selected={selected}
         personalSubtotal={total}
         delivery={delivery}
+        submitting={participation.isPending}
+        disabled={!shared && !selected.length}
+        error={
+          participation.error instanceof ApiError
+            ? participation.error.message
+            : participation.isError
+              ? '참여 결과를 확인하지 못했어요. 주문 내역을 확인해 주세요.'
+              : undefined
+        }
+        onConfirm={confirmParticipation}
       />
     )
   }
 
   return (
     <div className={styles.content}>
-      <Recruitment room={room} />
+      <Recruitment room={room} image={store?.image} />
       {shared && room.sharedMenu && (
         <section className={styles.shared}>
           <div>
             <h2>함께 나눌 메뉴</h2>
             <strong>{room.sharedMenu.name}</strong>
             <p>
-              {won(room.sharedMenu.pricePerPerson)} <small>/ 1명</small>
+              {won(room.sharedMenu.portionPrice)} <small>/ 1명</small>
             </p>
           </div>
-          {room.sharedMenu.image && <img src={blackJjimdak} alt="" />}
+          {sharedImage && <img src={sharedImage} alt="" />}
         </section>
       )}
       <section
@@ -245,9 +343,18 @@ function RoomDetails({
             <button
               className={styles.menuButton}
               type="button"
+              disabled={!store}
               onClick={openStore}
             >
               <span aria-hidden="true">＋</span> 메뉴 담기
+            </button>
+          </div>
+        )}
+        {storeQuery.isError && !store && (
+          <div role="alert">
+            가게 메뉴를 불러오지 못했어요.{' '}
+            <button type="button" onClick={() => void storeQuery.refetch()}>
+              다시 시도
             </button>
           </div>
         )}
@@ -270,28 +377,34 @@ function RoomDetails({
       </section>
       <section className={styles.pickup}>
         <h2>통통 스팟 안내</h2>
-        <img src={pickupMap} alt="통통 스팟 예시 지도" />
-        <strong>{room.pickupSpot}</strong>
-        <p>
-          지정 수령 구역에서 픽업 코드 입력 필수
-          <br />
-          주문 도착 후 15분 내 수령 필수 · 미수령 시 페널티 발생
-        </p>
+        {spot?.mapImageUrl && (
+          <img src={spot.mapImageUrl} alt={spot.name + ' 픽업 위치'} />
+        )}
+        <strong>{room.spotName}</strong>
+        {spot?.description && <p>{spot.description}</p>}
+        <p>지정 수령 구역에서 픽업 코드 입력 필수</p>
       </section>
       <footer className={styles.footer}>
         <PrimaryButton
-          disabled={room.participants >= room.capacity}
+          disabled={unavailable}
           onClick={() => {
             if (!shared && !selected.length) {
               setNotice('참여하려면 먼저 개인 메뉴를 담아주세요.')
               return
             }
+            participation.reset()
             navigate('?step=confirm', {
-              state: { ...state, confirmRoom: room.id, quantities },
+              state: { ...state, confirmRoom: String(room.roomId), quantities },
             })
           }}
         >
-          참여하기
+          {room.status !== 'RECRUITING'
+            ? '모집 종료'
+            : room.joinedByMe
+              ? '이미 참여한 방'
+              : room.currentParticipants >= room.maxParticipants
+                ? '정원 마감'
+                : '참여하기'}
         </PrimaryButton>
         <p role="status">{notice}</p>
       </footer>

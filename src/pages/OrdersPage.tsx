@@ -1,39 +1,56 @@
 import { useState } from 'react'
-import { useSearchParams, useNavigate } from 'react-router'
+import { useSearchParams } from 'react-router'
 import { OrderStatusFilter } from '@/components/filter/OrderStatusFilter'
+import { OrderHistoryCard } from '@/components/order/OrderHistoryCard'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  OrderHistoryCard,
-  type OrderHistoryItem,
-} from '@/components/order/OrderHistoryCard'
-import { PickupCodeDialog } from '@/components/pickup/PickupDialog'
+  applyPickupResult,
+  orderListQuery,
+  pickupOrder,
+} from '@/features/orders/api'
+import { ApiError } from '@/api/client'
+import { useToast } from '@/components/toast/useToast'
+import { LoadingSpinner } from '@/components/loading/LoadingSpinner'
+import {
+  PickupCodeDialog,
+  PickupSuccessDialog,
+} from '@/components/pickup/PickupDialog'
 import { readOrderStatus } from '@/components/filter/orderStatuses'
 import styles from './OrdersPage.module.css'
 
-type OrdersPageProps = {
-  orders?: readonly OrderHistoryItem[]
-  onSubmitPickupCode?: (orderId: string, code: string) => void
-  onViewOrder?: (order: OrderHistoryItem) => void
-}
-
-export function OrdersPage({
-  orders = [],
-  onSubmitPickupCode,
-  onViewOrder,
-}: OrdersPageProps) {
+export function OrdersPage() {
   const [params, setParams] = useSearchParams()
-  const navigate = useNavigate()
   const status = readOrderStatus(params.get('status'))
-  const [pickupOrderId, setPickupOrderId] = useState<string | null>(null)
-  const [notice, setNotice] = useState('')
-  const visibleOrders =
-    status === '전체'
-      ? orders
-      : orders.filter((order) => order.status === status)
-  const pickupOrder = visibleOrders.find(
+  const [pickupOrderId, setPickupOrderId] = useState<number | null>(null)
+  const client = useQueryClient()
+  const showToast = useToast()
+  const pickupKey = ['orders', 'pickup', pickupOrderId]
+  const pickup = useMutation({
+    mutationKey: pickupKey,
+    mutationFn: pickupOrder,
+    networkMode: 'always',
+    onSuccess: (result) => applyPickupResult(client, result),
+    onError: (error) => {
+      if (error instanceof ApiError && error.status === 409) {
+        showToast(error.message, 'error')
+      }
+    },
+    onSettled: (_result, error, { orderId }) => {
+      if (error instanceof ApiError && error.code === 'INVALID_PICKUP_CODE')
+        return
+      void client.invalidateQueries({ queryKey: ['orders', 'list'] })
+      void client.invalidateQueries({
+        queryKey: ['orders', 'detail', String(orderId)],
+      })
+    },
+  })
+  const query = useQuery(orderListQuery(status))
+  const visibleOrders = query.data ?? []
+  const selectedOrder = visibleOrders.find(
     (order) =>
-      order.id === pickupOrderId &&
-      order.canEnterPickupCode &&
-      order.status !== '취소',
+      order.orderId === pickupOrderId &&
+      order.status === 'ARRIVED' &&
+      order.orderStatus === 'JOINED',
   )
 
   return (
@@ -53,27 +70,30 @@ export function OrdersPage({
               { replace: true },
             )
             setPickupOrderId(null)
-            setNotice('')
+            pickup.reset()
           }}
         />
       </header>
-      {visibleOrders.length ? (
+      {query.isPending ? (
+        <div className={styles.empty}>
+          <LoadingSpinner label="주문 내역을 불러오는 중" />
+        </div>
+      ) : query.isError && !query.data ? (
+        <div className={styles.empty}>
+          <p role="alert">주문 내역을 불러오지 못했어요.</p>
+          <button type="button" onClick={() => void query.refetch()}>
+            다시 시도
+          </button>
+        </div>
+      ) : visibleOrders.length ? (
         <ul className={styles.list} aria-label="주문 목록">
           {visibleOrders.map((order) => (
-            <li key={order.id}>
+            <li key={order.orderId}>
               <OrderHistoryCard
                 order={order}
-                onView={onViewOrder ? () => onViewOrder(order) : undefined}
-                onViewDetail={() => {
-                  if (onViewOrder) onViewOrder(order)
-                  else
-                    navigate('/orders/' + encodeURIComponent(order.id), {
-                      state: { fromOrders: true },
-                    })
-                }}
                 onEnterCode={() => {
-                  setPickupOrderId(order.id)
-                  setNotice('')
+                  setPickupOrderId(order.orderId)
+                  pickup.reset()
                 }}
               />
             </li>
@@ -86,20 +106,30 @@ export function OrdersPage({
             : '해당 상태의 주문이 없어요.'}
         </p>
       )}
-      {notice && (
-        <p role="status" className={styles.notice}>
-          {notice}
-        </p>
-      )}
-      {pickupOrder && (
-        <PickupCodeDialog
-          onDismiss={() => setPickupOrderId(null)}
-          onSubmit={(code) => {
+      {pickup.isSuccess ? (
+        <PickupSuccessDialog
+          onDismiss={() => {
             setPickupOrderId(null)
-            if (onSubmitPickupCode) onSubmitPickupCode(pickupOrder.id, code)
-            else setNotice('픽업 코드 확인 기능은 준비 중이에요.')
+            pickup.reset()
           }}
         />
+      ) : (
+        selectedOrder && (
+          <PickupCodeDialog
+            pending={pickup.isPending}
+            error={
+              pickup.error &&
+              (pickup.error instanceof ApiError
+                ? pickup.error.message
+                : '픽업 코드를 확인하지 못했어요. 다시 시도해 주세요.')
+            }
+            onDismiss={() => setPickupOrderId(null)}
+            onSubmit={(code) => {
+              if (client.isMutating({ mutationKey: pickupKey })) return
+              pickup.mutate({ orderId: selectedOrder.orderId, code })
+            }}
+          />
+        )
       )}
     </main>
   )

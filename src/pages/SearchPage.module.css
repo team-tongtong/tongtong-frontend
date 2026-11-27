@@ -1,4 +1,5 @@
 .page {
+  position: relative;
   flex: 1;
   padding: calc(var(--tt-space-20) + env(safe-area-inset-top))
     var(--tt-page-gutter) var(--tt-space-24);
@@ -53,8 +54,7 @@
   margin: 0;
   list-style: none;
 }
-.popular button,
-.back {
+.popular button {
   display: flex;
   align-items: center;
   padding: 0;
@@ -72,19 +72,14 @@
 .popular strong {
   font-weight: 600;
 }
-.resultHeader {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  gap: 17px;
-  align-items: center;
+.searchHeader {
+  padding-inline-start: calc(28px + 17px);
+}
+.page[data-standalone='true'] .searchHeader[data-results='true'] {
   margin-inline: var(--tt-page-gutter);
 }
-.resultHeader input {
+.searchHeader[data-results='true'] input {
   font-size: 16px;
-}
-.back {
-  justify-content: center;
-  height: 42px;
 }
 .filters {
   display: flex;
@@ -97,7 +92,6 @@
     )
     left top / calc(100% - var(--tt-page-gutter)) 1px no-repeat;
   overflow-x: auto;
-  scrollbar-width: none;
 }
 .filters button {
   height: 34px;

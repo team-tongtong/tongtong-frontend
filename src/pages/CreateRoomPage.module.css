@@ -1,7 +1,17 @@
-.body {
+.page {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: calc(100dvh - 92px - env(safe-area-inset-top));
+  background: var(--tt-surface-default);
+}
+.page > header {
+  border-bottom: 0;
+}
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--tt-background-canvas);
   gap: var(--tt-space-20);
   padding: var(--tt-space-20) var(--tt-page-gutter)
     max(var(--tt-space-24), env(safe-area-inset-bottom));
@@ -12,9 +22,6 @@
   line-height: 1.4;
   font-weight: 600;
   letter-spacing: -0.025em;
-}
-.body h2:focus {
-  outline: 0;
 }
 .panel,
 .methodPanel {
@@ -127,11 +134,6 @@
   border-top: 1px solid var(--tt-border-default);
   padding-top: var(--tt-space-12);
   font-weight: 600;
-}
-.formula {
-  display: block;
-  margin-top: 4px;
-  color: var(--tt-text-secondary);
 }
 .spotMap {
   display: block;

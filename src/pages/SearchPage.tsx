@@ -1,20 +1,16 @@
+import { BackButton } from '@/components/layout/BackButton'
 import { useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useLocation, useNavigate, useSearchParams } from 'react-router'
-import back from '@/assets/search/back.svg'
 import { FilterChip } from '@/components/filter/FilterChip'
+import { getPopularKeywords } from '@/features/search/api'
 import { StoreDetail } from './StoreDetail'
 import { SearchInput } from '@/components/search/SearchInput'
 import { SearchTermChip } from '@/components/search/SearchTermChip'
 import { RestaurantListItem } from '@/components/search/RestaurantListItem'
-import { sampleGroupOrdersQuery } from './sampleGroupOrders'
-import type { RoomMenuSelection } from './roomMenuSelection'
-import {
-  formatDistance,
-  popularTerms,
-  searchStores,
-  sortOptions,
-} from './storeSearch'
+import { storeDetailQuery } from '@/features/stores/api'
+import { toMenuStore, type RoomMenuSelection } from './roomMenuSelection'
+import { formatDistance, useStoreSearch, sortOptions } from './storeSearch'
 import styles from './SearchPage.module.css'
 
 const historyKey = 'tongtong.recentSearchTerms'
@@ -32,11 +28,51 @@ function readTerms(fallback: string[]): string[] {
   return fallback
 }
 
+function PopularKeywords({ onSelect }: { onSelect: (term: string) => void }) {
+  const query = useQuery({
+    queryKey: ['search', 'popular-keywords'],
+    queryFn: ({ signal }) => getPopularKeywords(signal),
+  })
+
+  return (
+    <section className={styles.popular} aria-labelledby="popular-terms">
+      <h2 id="popular-terms">인기 검색어</h2>
+      {query.data?.keywords.length ? (
+        <ol>
+          {query.data.keywords.map(({ rank, keyword }) => (
+            <li key={keyword}>
+              <button type="button" onClick={() => onSelect(keyword)}>
+                <strong>{rank}</strong>
+                {keyword}
+              </button>
+            </li>
+          ))}
+        </ol>
+      ) : query.isError ? (
+        <>
+          <p role="alert">인기 검색어를 불러오지 못했어요.</p>
+          <button type="button" onClick={() => void query.refetch()}>
+            다시 시도
+          </button>
+        </>
+      ) : (
+        <p role="status">
+          {query.isPending
+            ? '인기 검색어를 불러오는 중이에요.'
+            : '아직 인기 검색어가 없어요.'}
+        </p>
+      )}
+    </section>
+  )
+}
+
 export function SearchPage({
+  onBack,
   onSelectMenu,
   initialMenus,
   menuMode,
 }: {
+  onBack?: () => void
   onSelectMenu?: (menus: RoomMenuSelection[]) => void
   initialMenus?: RoomMenuSelection[]
   menuMode?: 'shared' | 'individual'
@@ -52,11 +88,11 @@ export function SearchPage({
   const storeId = params.get('store')
   const sort =
     sortOptions.find((option) => option === state?.searchSort) ?? '기본순'
-  const query = useQuery({
-    ...sampleGroupOrdersQuery,
-    enabled: !!submitted || !!storeId,
+  const search = useStoreSearch(storeId ? '' : submitted, sort)
+  const detail = useQuery({
+    ...storeDetailQuery(storeId ?? ''),
+    enabled: !!storeId,
   })
-  const stores = query.data ?? []
 
   function saveTerms(next: string[]) {
     setTerms(next)
@@ -107,42 +143,53 @@ export function SearchPage({
     navigate('/rooms/new', { state: { selectedMenus: menus } })
   }
 
-  const detail = stores.find((store) => store.id === storeId)
-  if (detail)
+  function backFromStore() {
+    if (state?.openedStore || state?.fromRoomForm) navigate(-1)
+    else {
+      const next = new URLSearchParams(params)
+      next.delete('store')
+      setParams(next, { replace: true, state })
+    }
+  }
+
+  if (storeId) {
+    if (!detail.data)
+      return (
+        <main className={styles.page} aria-label="가게 상세">
+          <BackButton onClick={backFromStore} />
+          {detail.isError ? (
+            <section>
+              <p role="alert">가게 정보를 불러오지 못했어요.</p>
+              <button type="button" onClick={() => void detail.refetch()}>
+                다시 시도
+              </button>
+            </section>
+          ) : (
+            <p role="status">가게 정보를 불러오는 중이에요.</p>
+          )}
+        </main>
+      )
     return (
       <StoreDetail
-        key={detail.id}
-        store={detail}
+        key={storeId}
+        store={toMenuStore(detail.data)}
         action={onSelectMenu ? '메뉴 담기' : '모집방 만들기'}
         menuMode={menuMode}
         allowEmpty={menuMode === 'individual'}
         initialMenus={initialMenus ?? state?.selectedMenus}
         onConfirm={selectMenus}
-        onBack={() => {
-          if (state?.openedStore || state?.fromRoomForm) navigate(-1)
-          else {
-            const next = new URLSearchParams(params)
-            next.delete('store')
-            setParams(next, { replace: true, state })
-          }
-        }}
+        onBack={backFromStore}
       />
     )
-
-  const restaurants = searchStores(stores, submitted, sort)
+  }
+  const handleBack = submitted ? backToSearch : onBack
   return (
-    <main className={styles.page} aria-label="검색">
-      <div className={submitted ? styles.resultHeader : undefined}>
-        {submitted && (
-          <button
-            className={styles.back}
-            type="button"
-            aria-label="뒤로가기"
-            onClick={backToSearch}
-          >
-            <img src={back} alt="" />
-          </button>
-        )}
+    <main className={styles.page} aria-label="검색" data-standalone={!onBack}>
+      <div
+        className={handleBack ? styles.searchHeader : undefined}
+        data-results={!!submitted}
+      >
+        {handleBack && <BackButton onClick={handleBack} />}
         <SearchInput
           key={submitted}
           initialValue={submitted}
@@ -174,19 +221,7 @@ export function SearchPage({
               <p>최근 검색어가 없어요.</p>
             )}
           </section>
-          <section className={styles.popular} aria-labelledby="popular-terms">
-            <h2 id="popular-terms">인기 검색어</h2>
-            <ol>
-              {popularTerms.map((term, index) => (
-                <li key={term}>
-                  <button onClick={() => submit(term)}>
-                    <strong>{index + 1}</strong>
-                    {term}
-                  </button>
-                </li>
-              ))}
-            </ol>
-          </section>
+          <PopularKeywords onSelect={submit} />
         </>
       ) : (
         <>
@@ -210,36 +245,41 @@ export function SearchPage({
               </FilterChip>
             ))}
           </div>
-          {query.isPending ? (
-            <p role="status">검색 결과를 불러오는 중이에요.</p>
-          ) : query.isError ? (
+          {(search.isListError || search.isMenuError) && (
             <section>
-              <p role="alert">검색 결과를 불러오지 못했어요.</p>
-              <button onClick={() => void query.refetch()}>다시 시도</button>
+              <p role="alert">
+                {search.isListError
+                  ? '가게 목록을 불러오지 못했어요.'
+                  : '일부 가게의 메뉴를 불러오지 못했어요.'}
+              </p>
+              <button type="button" onClick={search.retry}>
+                다시 시도
+              </button>
             </section>
-          ) : restaurants.length ? (
+          )}
+          {search.isLoading && (
+            <p role="status">검색 결과를 불러오는 중이에요.</p>
+          )}
+          {search.results.length > 0 && (
             <ul className={styles.results} aria-label="매장 검색 결과">
-              {restaurants.map(({ store, info }) => (
-                <li key={store.id}>
+              {search.results.map((store) => (
+                <li key={store.storeId}>
                   <RestaurantListItem
-                    image={store.image}
-                    name={store.storeDetails?.name ?? store.name}
-                    rating={info?.rating ?? store.storeDetails?.rating}
-                    reviewCount={
-                      info?.reviewCount ?? store.storeDetails?.reviewCount
-                    }
-                    minimumOrder={info?.minimum ?? store.minimumOrderAmount}
-                    deliveryInfo={
-                      info &&
-                      [
-                        '약 ' + info.minutes + '분',
-                        '배달비 ' + info.fee.toLocaleString('ko-KR') + '원',
-                        formatDistance(info.distance),
-                      ].join(' | ')
-                    }
+                    image={store.imageUrl}
+                    name={store.name}
+                    rating={store.rating}
+                    reviewCount={store.reviewCount}
+                    minimumOrder={store.minOrderAmount}
+                    deliveryInfo={[
+                      '약 ' + store.deliveryMinutes + '분',
+                      '배달비 ' +
+                        store.deliveryFee.toLocaleString('ko-KR') +
+                        '원',
+                      formatDistance(store.distanceMeters),
+                    ].join(' | ')}
                     onSelect={() => {
                       const next = new URLSearchParams(params)
-                      next.set('store', store.id)
+                      next.set('store', String(store.storeId))
                       setParams(next, {
                         state: { ...state, openedStore: true },
                       })
@@ -248,9 +288,13 @@ export function SearchPage({
                 </li>
               ))}
             </ul>
-          ) : (
-            <p role="status">‘{submitted}’ 검색 결과가 없어요.</p>
           )}
+          {!search.results.length &&
+            !search.isLoading &&
+            !search.isMenuError &&
+            !search.isListError && (
+              <p role="status">‘{submitted}’ 검색 결과가 없어요.</p>
+            )}
         </>
       )}
     </main>

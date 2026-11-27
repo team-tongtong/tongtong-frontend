@@ -1,61 +1,49 @@
-import type { OrderStatusFilterValue } from '@/components/filter/OrderStatusFilter'
+import { Link } from 'react-router'
+import { displayStatus, type OrderSummary } from '@/features/orders/api'
 import styles from './OrderHistoryCard.module.css'
-
-export type OrderHistoryItem = {
-  id: string
-  storeName: string
-  storeImage?: string
-  timeLabel: string
-  pickupSpot: string
-  status: Exclude<OrderStatusFilterValue, '전체'> | '모집완료'
-  canEnterPickupCode: boolean
-}
-
-type Props = {
-  order: OrderHistoryItem
-  onEnterCode: () => void
-  onViewDetail?: () => void
-  onView?: () => void
-}
 
 export function OrderHistoryCard({
   order,
   onEnterCode,
-  onView,
-  onViewDetail,
-}: Props) {
-  const showDelivery = order.status === '모집완료' || order.status === '조리중'
-  const viewAction = showDelivery ? onView : (onViewDetail ?? onView)
-  const pickupEnabled = order.canEnterPickupCode && order.status !== '취소'
+}: {
+  order: OrderSummary
+  onEnterCode: () => void
+}) {
+  const status = displayStatus(order)
+  const pickupEnabled = status === '배달 완료' && order.orderStatus === 'JOINED'
   return (
     <article className={styles.card}>
       <div className={styles.summary}>
-        {order.storeImage && (
-          <img className={styles.logo} src={order.storeImage} alt="" />
+        {order.storeImageUrl && (
+          <img className={styles.logo} src={order.storeImageUrl} alt="" />
         )}
         <div className={styles.info}>
           <div className={styles.meta}>
-            <span className={styles.time}>{order.timeLabel}</span>
-            <span>{order.status}</span>
+            <time className={styles.time} dateTime={order.orderedAt}>
+              {order.orderedAt.slice(0, 10).replaceAll('-', '.')} 주문
+            </time>
+            <span>{status}</span>
           </div>
           <h2 title={order.storeName}>{order.storeName}</h2>
-          <p>{order.pickupSpot}</p>
+          <p>{order.spotName}</p>
         </div>
       </div>
       <div className={styles.actions}>
-        <button type="button" disabled={!viewAction} onClick={viewAction}>
-          {showDelivery ? '배달 현황 보기' : '주문 상세 보기'}
-        </button>
-        {order.status !== '취소' && (
+        <Link
+          to={`/orders/${order.orderId}`}
+          state={{ fromOrders: true }}
+          aria-label={`${order.storeName} 주문 상세 보기`}
+        >
+          {status === '조리중' ? '배달 현황 보기' : '주문 상세 보기'}
+        </Link>
+        {status !== '취소' && (
           <button
             className={styles.pickup}
             type="button"
             disabled={!pickupEnabled}
             onClick={onEnterCode}
           >
-            {order.status === '배달 완료' && !pickupEnabled
-              ? 'QR 코드 스캔하기'
-              : '코드 입력하기'}
+            {order.orderStatus === 'PICKED_UP' ? '픽업 완료' : '코드 입력하기'}
           </button>
         )}
       </div>

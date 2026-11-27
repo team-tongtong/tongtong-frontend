@@ -3,7 +3,7 @@ import styles from './Recruitment.module.css'
 
 type RadioProps = Pick<
   ComponentPropsWithoutRef<'input'>,
-  'name' | 'value' | 'checked' | 'onChange'
+  'name' | 'value' | 'checked' | 'onChange' | 'disabled'
 >
 
 export function Radio(props: RadioProps) {
