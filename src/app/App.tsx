@@ -10,10 +10,7 @@ import { CreateRoomPage } from '@/pages/CreateRoomPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { OrderDetailPage } from '@/pages/OrderDetailPage'
 import { OrdersPage } from '@/pages/OrdersPage'
-import { sampleOrderHistory } from '@/pages/sampleOrderHistory'
 import { SearchPage } from '@/pages/SearchPage'
-
-const orders = import.meta.env.DEV ? sampleOrderHistory : []
 
 const onboardingKey = 'tongtong.onboardingCompleted'
 
@@ -58,13 +55,10 @@ export function App() {
             }
           />
           <Route path="/search" element={<SearchPage />} />
-          <Route path="/orders" element={<OrdersPage orders={orders} />} />
+          <Route path="/orders" element={<OrdersPage />} />
           <Route path="/mypage" element={<MyPage />} />
         </Route>
-        <Route
-          path="/orders/:orderId"
-          element={<OrderDetailPage orders={orders} />}
-        />
+        <Route path="/orders/:orderId" element={<OrderDetailPage />} />
         <Route path="/rooms/new" element={<CreateRoomPage />} />
         <Route path="/rooms/:roomId" element={<GroupOrderDetailPage />} />
         <Route path="*" element={<NotFoundPage />} />

@@ -46,6 +46,8 @@
   gap: var(--tt-space-16);
   justify-content: space-between;
   padding-bottom: var(--tt-space-12);
+}
+li:not(:last-child) > .menu {
   background: url('../../assets/search/divider.svg') center bottom / 100% 1px
     no-repeat;
 }

@@ -3,7 +3,6 @@
 
 :root {
   overscroll-behavior-y: none;
-  scrollbar-gutter: stable both-edges;
   font-family: var(--tt-font-family);
   color: var(--tt-text-primary);
   background-color: var(--tt-background-canvas);
@@ -12,15 +11,12 @@
 
   --color-primary: var(--tt-text-accent);
 }
-/* On narrow screens a classic scrollbar would take space from the mobile canvas. */
-@media (max-width: 430px) {
-  :root {
-    scrollbar-gutter: auto;
-    scrollbar-width: none;
-  }
-}
 * {
   box-sizing: border-box;
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  display: none;
 }
 body {
   margin: 0;
@@ -35,13 +31,8 @@ textarea,
 select {
   font: inherit;
 }
-:focus-visible {
-  outline: 3px solid var(--color-primary);
-  outline-offset: 4px;
-}
-button:focus-visible {
-  outline: 1px solid var(--tt-text-primary);
-  outline-offset: -2px;
+:focus {
+  outline: none;
 }
 .message-page {
   margin-block: 80px;

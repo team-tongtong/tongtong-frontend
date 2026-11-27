@@ -1,6 +1,13 @@
 import { useLayoutEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router'
-import spotMap from '@/assets/order/pickup-map.png'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  createRoom,
+  refreshRoomsAndOrders,
+  spotListQuery,
+} from '@/features/rooms/api'
+import { ApiError } from '@/api/client'
+import { LoadingSpinner } from '@/components/loading/LoadingSpinner'
 import { PortionUnavailableDialog } from './PortionUnavailableDialog'
 import chevron from '@/assets/recruitment/chevron.svg'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
@@ -8,7 +15,7 @@ import { orderMethodLabels } from '@/components/group-order/orderMethod'
 import { AppHeader } from '@/components/layout/AppHeader'
 import { ChoiceCard } from '@/components/recruitment/ChoiceCard'
 import { RecruitmentConditionsCard } from '@/components/order/RecruitmentConditionsCard'
-import { paymentMethods } from '@/components/order/paymentMethods'
+import type { PaymentMethod } from '@/components/order/paymentMethods'
 import { PaymentMethodsCard } from '@/components/order/PaymentMethodsCard'
 import { RecruitmentProgress } from '@/components/recruitment/RecruitmentProgress'
 import styles from './CreateRoomPage.module.css'
@@ -21,13 +28,6 @@ const methods = [
   { value: '내 몫 담기', description: '같은 메뉴를 나눠 담아 내 몫만 받아요.' },
   { value: '각자 담기', description: '각자 고른 메뉴를 담고 배달비를 나눠요.' },
 ] as const
-
-const spots = [
-  { label: '한양대 ERICA 행복관 1층', description: '지정 수령 구역' },
-  { label: '학생회관 1층', description: '중앙 출입구 옆 수령 구역' },
-  { label: '중앙도서관 앞', description: '정문 오른쪽 수령 구역' },
-  { label: '한양대 ERICA 창의관 입구', description: '1층 로비 지정 수령 구역' },
-]
 
 function focusHeading(element: HTMLHeadingElement | null) {
   element?.focus()
@@ -66,15 +66,76 @@ export function CreateRoomPage() {
   const shared = method === '내 몫 담기'
   const [people, setPeople] = useState(4)
   const [minutes, setMinutes] = useState(10)
-  const [paymentMethod, setPaymentMethod] = useState<string>()
-  const [spot, setSpot] = useState('')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>()
+  const [spotId, setSpotId] = useState<number>()
   const [choosingSpot, setChoosingSpot] = useState(false)
-  const [draftSpot, setDraftSpot] = useState('')
+  const [draftSpotId, setDraftSpotId] = useState<number>()
+  const spotQuery = useQuery({ ...spotListQuery, enabled: step === 2 })
+  const spots = spotQuery.data?.spots ?? []
+  const spot = spots.find((point) => point.spotId === spotId)
+  const client = useQueryClient()
+  const createKey = ['rooms', 'create']
+  const creation = useMutation({
+    mutationKey: createKey,
+    mutationFn: createRoom,
+    networkMode: 'always',
+    onSuccess: () => refreshRoomsAndOrders(client),
+  })
 
   const [notice, setNotice] = useState('')
 
+  function submitRoom() {
+    if (
+      !menu ||
+      !method ||
+      !spot ||
+      !paymentMethod ||
+      client.isMutating({ mutationKey: createKey })
+    )
+      return
+    const personalMenus = shared ? individualMenus : menus
+    if (
+      !Number.isSafeInteger(menu.storeId) ||
+      !Number.isSafeInteger(menu.menuId) ||
+      personalMenus.some(
+        (item) =>
+          item.storeId !== menu.storeId || !Number.isSafeInteger(item.menuId),
+      )
+    ) {
+      setNotice('같은 가게의 메뉴를 다시 선택해 주세요.')
+      return
+    }
+    setNotice('')
+    creation.mutate(
+      {
+        storeId: menu.storeId,
+        track: shared ? 'PORTION' : 'INDIVIDUAL',
+        sharedMenu: shared ? { menuId: menu.menuId } : null,
+        items: personalMenus.map(({ menuId, quantity }) => ({
+          menuId,
+          quantity,
+        })),
+        spotId: spot.spotId,
+        maxParticipants: people,
+        recruitMinutes: minutes,
+        paymentMethod,
+      },
+      {
+        onSuccess: ({ roomId }) =>
+          navigate('/rooms/' + roomId, { replace: true }),
+        onError: (error) =>
+          setNotice(
+            error instanceof ApiError
+              ? error.message
+              : '모집방 생성 결과를 확인하지 못했어요. 주문 내역을 확인해 주세요.',
+          ),
+      },
+    )
+  }
+
   function goBack() {
     setNotice('')
+    if (creation.isPending) return
     if (choosingSpot) setChoosingSpot(false)
     else if (step === 2) setStep(1)
     else if (window.history.state?.idx > 0) navigate(-1)
@@ -107,7 +168,7 @@ export function CreateRoomPage() {
 
   function openPicker(mode: 'initial' | 'shared' | 'individual') {
     const params = new URLSearchParams({ menu: 'search', pick: mode })
-    if (menu) params.set('store', menu.storeId)
+    if (menu) params.set('store', String(menu.storeId))
     navigate('?' + params, {
       state: {
         roomMenuDraft: menuDraft,
@@ -146,14 +207,18 @@ export function CreateRoomPage() {
       <AppHeader title="모집방 만들기" onBack={goBack} />
       <RecruitmentProgress step={step} />
       <div className={styles.body}>
+        {!choosingSpot && (
+          <div className={styles.intro} key={step}>
+            <h2 ref={focusHeading} tabIndex={-1}>
+              {step === 1
+                ? '메뉴와 주문 방식을 선택해주세요'
+                : '통통 스팟과 결제 수단을 선택해주세요'}
+            </h2>
+            <p>우리 동네에서 가볍게 함께 주문해요.</p>
+          </div>
+        )}
         {step === 1 ? (
           <>
-            <div className={styles.intro}>
-              <h2 ref={focusHeading} tabIndex={-1}>
-                메뉴와 주문 방식을 선택해주세요
-              </h2>
-              <p>우리 동네에서 가볍게 함께 주문해요.</p>
-            </div>
             <CreateRoomMenu
               maxQuantity={shared ? 1 : undefined}
               onOpenSearch={() => openPicker(shared ? 'shared' : 'initial')}
@@ -219,29 +284,46 @@ export function CreateRoomPage() {
               <h2 id="spots-title" ref={focusHeading} tabIndex={-1}>
                 통통 스팟 리스트
               </h2>
+              {spotQuery.isPending && (
+                <LoadingSpinner label="스팟을 불러오는 중" />
+              )}
+              {spotQuery.isError && !spotQuery.data && (
+                <p role="alert">
+                  스팟을 불러오지 못했어요.{' '}
+                  <button
+                    type="button"
+                    onClick={() => void spotQuery.refetch()}
+                  >
+                    다시 시도
+                  </button>
+                </p>
+              )}
+              {spotQuery.isSuccess && !spots.length && (
+                <p>등록된 통통 스팟이 없어요.</p>
+              )}
               <div
                 className={styles.choices}
                 role="radiogroup"
                 aria-labelledby="spots-title"
               >
-                {spots.map(({ label, description }) => (
+                {spots.map(({ spotId, name, description }) => (
                   <ChoiceCard
-                    key={label}
+                    key={spotId}
                     variant="spot"
                     name="pickup-spot"
-                    value={label}
-                    label={label}
+                    value={spotId}
+                    label={name}
                     description={description}
-                    checked={draftSpot === label}
-                    onChange={() => setDraftSpot(label)}
+                    checked={draftSpotId === spotId}
+                    onChange={() => setDraftSpotId(spotId)}
                   />
                 ))}
               </div>
             </section>
             <PrimaryButton
-              disabled={!draftSpot}
+              disabled={!spots.some((point) => point.spotId === draftSpotId)}
               onClick={() => {
-                setSpot(draftSpot)
+                setSpotId(draftSpotId)
                 setChoosingSpot(false)
               }}
             >
@@ -251,30 +333,33 @@ export function CreateRoomPage() {
         ) : (
           <>
             <section className={styles.panel} aria-labelledby="pickup-title">
-              <h2 id="pickup-title" ref={focusHeading} tabIndex={-1}>
+              <h2 id="pickup-title">
                 {spot ? '선택한 통통 스팟' : '픽업 장소 선택'}
               </h2>
-              {spot && (
+              {spot?.mapImageUrl && (
                 <img
                   className={styles.spotMap}
-                  src={spotMap}
-                  alt="통통 스팟 예시 지도"
+                  src={spot.mapImageUrl}
+                  alt={spot.name + ' 픽업 위치'}
                 />
               )}
               <button
                 type="button"
-                aria-label={spot ? spot + ' · 스팟 변경' : '픽업 장소 선택'}
+                disabled={creation.isPending}
+                aria-label={
+                  spot ? spot.name + ' · 스팟 변경' : '픽업 장소 선택'
+                }
                 className={styles.pickup}
                 onClick={() => {
-                  setDraftSpot(spot)
+                  setDraftSpotId(spotId)
                   setChoosingSpot(true)
                 }}
               >
                 <span>
-                  {spot || '어디에서 받을까요?'}
+                  {spot?.name ?? '어디에서 받을까요?'}
                   <small>
                     {spot
-                      ? spots.find((item) => item.label === spot)?.description
+                      ? spot.description
                       : '등록된 통통 스팟에서 함께 받아요.'}
                   </small>
                 </span>
@@ -283,8 +368,6 @@ export function CreateRoomPage() {
               {spot && (
                 <p className={styles.spotInstructions}>
                   지정 수령 구역에서 픽업 코드 입력 필수
-                  <br />
-                  주문 도착 후 15분 내 수령 필수 · 미수령 시 페널티 발생
                 </p>
               )}
             </section>
@@ -297,16 +380,22 @@ export function CreateRoomPage() {
               />
             )}
             <PaymentMethodsCard
-              methods={paymentMethods}
+              disabled={creation.isPending}
               selected={paymentMethod}
               onChange={setPaymentMethod}
             />
             <div className={styles.next}>
               <PrimaryButton
-                disabled={!spot || !paymentMethod}
-                onClick={() => setNotice('모집방 생성 기능은 준비 중이에요.')}
+                disabled={
+                  !menu ||
+                  !method ||
+                  !spot ||
+                  !paymentMethod ||
+                  creation.isPending
+                }
+                onClick={submitRoom}
               >
-                모집방 만들기
+                {creation.isPending ? '모집방 만드는 중…' : '모집방 만들기'}
               </PrimaryButton>
               {notice && <p role="status">{notice}</p>}
             </div>

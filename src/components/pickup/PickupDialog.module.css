@@ -13,6 +13,11 @@
 .dialog::backdrop {
   background: rgb(0 0 0 / 48%);
 }
+.dialog:has(.form) {
+  /* Inset the code panel one more page gutter from each order card edge. */
+  width: calc(min(100%, var(--tt-mobile-width)) - 4 * var(--tt-page-gutter));
+  container-type: inline-size;
+}
 .panel {
   position: relative;
   display: flex;
@@ -33,8 +38,23 @@
   font-weight: 600;
   line-height: 1.2;
 }
+.panel:has(.form) {
+  /* One pixel in the 350px-wide Figma frame, scaled to the dialog width. */
+  --design-px: calc(100cqi / 350);
+  aspect-ratio: 350 / 457;
+  min-height: 0;
+  padding: calc(54 * var(--design-px)) calc(20 * var(--design-px))
+    calc(39 * var(--design-px));
+}
+.panel:has(.form) p {
+  font-size: calc(16 * var(--design-px));
+  line-height: calc(19 * var(--design-px));
+}
 .panel:has(.form) h2 {
-  font-size: 32px;
+  margin-top: calc(6 * var(--design-px));
+  padding-left: calc(12 * var(--design-px));
+  font-size: calc(32 * var(--design-px));
+  line-height: calc(38 * var(--design-px));
 }
 .panel :global(.tt-button-primary) {
   margin-top: auto;
@@ -61,6 +81,10 @@
   height: auto;
   margin-top: var(--tt-space-16);
 }
+.panel:has(.form) .close {
+  top: calc(20 * var(--design-px));
+  right: calc(20 * var(--design-px));
+}
 .form {
   display: flex;
   flex: 1;
@@ -69,7 +93,7 @@
 .field {
   position: relative;
   container-type: inline-size;
-  margin: auto -5px 0;
+  margin: auto calc(-5 * var(--design-px)) 0;
   height: 48px;
   overflow: clip;
 }
@@ -84,16 +108,12 @@
   width: 68.75%;
   border-bottom: 1px solid var(--tt-border-default);
 }
-.field:focus-within .lines span {
-  border-color: var(--tt-text-secondary);
-}
 .field input {
   display: block;
   width: calc(110% - 0.5ch + 2px);
   height: 100%;
   margin: 0;
   border: 0;
-  outline: 0;
   padding: 0 0 0 calc(10cqi - 0.5ch);
   background: transparent;
   color: var(--tt-text-primary);
@@ -102,5 +122,6 @@
   letter-spacing: calc(20cqi - 1ch);
 }
 .form :global(.tt-button-primary) {
-  margin-top: 81px;
+  margin-top: calc(81.5 * var(--design-px));
+  min-height: calc(52 * var(--design-px));
 }

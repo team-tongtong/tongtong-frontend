@@ -9,8 +9,11 @@ import cart from '@/assets/store/cart.svg'
 import pin from '@/assets/store/pin.svg'
 import star from '@/assets/store/star.svg'
 import emptyStar from '@/assets/store/empty-star.svg'
-import { selectRoomMenu, type RoomMenuSelection } from './roomMenuSelection'
-import type { GroupOrderDetail } from './sampleGroupOrders'
+import {
+  selectRoomMenu,
+  type RoomMenuSelection,
+  type MenuStore,
+} from './roomMenuSelection'
 import styles from './StoreDetail.module.css'
 
 const photos = import.meta.glob<string>('../assets/store/*.png', {
@@ -22,13 +25,14 @@ const photo = (key: string | undefined) =>
 const won = (amount: number) => amount.toLocaleString('ko-KR') + '원'
 
 type Props = {
-  store: GroupOrderDetail
+  store: MenuStore
   action: '메뉴 담기' | '모집방 만들기'
   initialMenus?: readonly RoomMenuSelection[]
   onBack: () => void
   onConfirm: (menus: RoomMenuSelection[]) => void
   menuMode?: 'shared' | 'individual'
   allowEmpty?: boolean
+  roomAmountRemaining?: number
 }
 
 export function StoreDetail({
@@ -39,6 +43,7 @@ export function StoreDetail({
   onConfirm,
   allowEmpty,
   menuMode,
+  roomAmountRemaining,
 }: Props) {
   const sharedPicker = menuMode === 'shared'
   const dialog = useRef<HTMLDialogElement>(null)
@@ -67,7 +72,13 @@ export function StoreDetail({
     (sum, item) => sum + item.price * item.quantity,
     0,
   )
-  const remaining = (store.minimumOrderAmount ?? 0) - total
+  const remaining =
+    (roomAmountRemaining ?? store.minimumOrderAmount ?? 0) - total
+  const shortageHint =
+    remaining > 0 ? `부족한 ${won(remaining)}, 함께 채워볼까요?` : undefined
+  let menuHint = '더 먹고 싶은 메뉴를 추가해보세요'
+  if (sharedPicker) menuHint = '함께 나눌 메뉴는 1개만 선택할 수 있어요'
+  if (roomAmountRemaining != null && shortageHint) menuHint = shortageHint
   return createPortal(
     <dialog
       className={styles.page}
@@ -105,7 +116,7 @@ export function StoreDetail({
             {details && (
               <p>
                 <img src={clock} alt="" />
-                <strong>영업중</strong> · {details.lastOrder}에 라스트오더
+                라스트오더 {details.lastOrder}
               </p>
             )}
             {store.minimumOrderAmount != null && (
@@ -128,6 +139,7 @@ export function StoreDetail({
       {details && (
         <section className={styles.section}>
           <h2>리뷰</h2>
+          {!details.reviews.length && <p>등록된 리뷰가 없어요.</p>}
           <ul className={styles.reviews}>
             {details.reviews.map((review, i) => (
               <li key={i}>
@@ -140,7 +152,7 @@ export function StoreDetail({
                     />
                   ))}
                 </div>
-                {review.text}
+                <span className={styles.reviewText}>{review.text}</span>
               </li>
             ))}
           </ul>
@@ -148,6 +160,7 @@ export function StoreDetail({
       )}
       <section className={styles.section}>
         <h2>{sharedPicker ? '함께 나눌 메뉴' : '메뉴'}</h2>
+        {!store.menus.length && <p>등록된 메뉴가 없어요.</p>}
         <ul className={styles.menus}>
           {store.menus.map((menu) => (
             <li key={menu.id}>
@@ -155,7 +168,7 @@ export function StoreDetail({
                 name={menu.name}
                 price={menu.price}
                 description={menu.description ?? ''}
-                image={photo(menu.photo) ?? store.image}
+                image={menu.imageUrl || photo(menu.photo) || store.image}
                 selected={sharedPicker ? !!quantities[menu.id] : undefined}
                 disabled={
                   sharedPicker &&
@@ -194,17 +207,11 @@ export function StoreDetail({
         <div aria-live="polite">
           <strong>{won(total)}</strong>
           {action === '메뉴 담기' ? (
-            <small>
-              {sharedPicker
-                ? '함께 나눌 메뉴는 1개만 선택할 수 있어요'
-                : '더 먹고 싶은 메뉴를 추가해보세요'}
-            </small>
+            <small>{menuHint}</small>
           ) : (
             store.minimumOrderAmount != null && (
-              <small>
-                {remaining > 0
-                  ? '부족한 ' + won(remaining) + ', 함께 채워볼까요?'
-                  : '최소주문금액을 다 채웠어요!'}
+              <small className={styles.minimumOrderHint}>
+                {shortageHint ?? '최소주문금액을 다 채웠어요!'}
               </small>
             )
           )}

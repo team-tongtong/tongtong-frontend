@@ -1,5 +1,4 @@
 import arrow from '@/assets/search/back.svg'
-import whiteArrow from '@/assets/store/back.svg'
 import styles from './BackButton.module.css'
 
 type BackButtonProps = {
@@ -17,10 +16,11 @@ export function BackButton({
     <button
       type="button"
       className={styles.button}
+      data-on-photo={onPhoto || undefined}
       aria-label={label}
       onClick={onClick}
     >
-      <img src={onPhoto ? whiteArrow : arrow} alt="" width={28} height={28} />
+      {!onPhoto && <img src={arrow} alt="" width={28} height={28} />}
     </button>
   )
 }
