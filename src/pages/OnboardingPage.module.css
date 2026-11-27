@@ -32,9 +32,11 @@
 }
 .page[data-step='2'] .art img {
   grid-area: 1 / 1;
+}
+.art .communityBack {
   object-position: left bottom;
 }
-.page[data-step='2'] .art img:last-child {
+.art .communityCard {
   /* The lime card's right edge sits at 96% of the Figma frame width. */
   object-position: 96% bottom;
 }
