@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { LoadingSpinner } from '@/components/loading/LoadingSpinner'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FilterChip } from '@/components/filter/FilterChip'
 import { GroupOrderListItem } from '@/components/group-order/GroupOrderListItem'
 import areaIcon from '@/assets/home/area.svg'
@@ -16,17 +16,57 @@ export function HomePage() {
   const [expanded, setExpanded] = useState(false)
   const [spot, setSpot] = useState<PickupSpot | null>(null)
   const list = useRef<HTMLDivElement>(null)
-  const swipe = useRef<{ x: number; y: number; atTop: boolean } | null>(null)
-  const wheel = useRef({
-    time: -Infinity,
-    distance: 0,
-    atTop: true,
-    handled: false,
-  })
+  const panel = useRef<HTMLElement>(null)
+  const handle = useRef<HTMLButtonElement>(null)
+  const swipe = useRef<{ x: number; y: number } | null>(null)
   const suppressClick = useRef(false)
+  const wheel = useRef({ time: -Infinity, distance: 0, opening: false })
+
+  useEffect(() => {
+    const element = panel.current
+    if (!element) return
+
+    function onWheel(event: WheelEvent) {
+      if (event.ctrlKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY))
+        return
+
+      const gesture = wheel.current
+      if (event.timeStamp - gesture.time > 160) {
+        gesture.distance = 0
+        gesture.opening = false
+      }
+      gesture.time = event.timeStamp
+      if (expanded && !gesture.opening) return
+      if (!expanded && event.deltaY <= 0) return
+
+      // Consume the opening wheel gesture, including its trackpad momentum.
+      event.preventDefault()
+      if (expanded) return
+      const unit =
+        event.deltaMode === 1
+          ? 16
+          : event.deltaMode === 2
+            ? (event.currentTarget as HTMLElement).clientHeight
+            : 1
+      gesture.distance += event.deltaY * unit
+      if (gesture.distance >= 16) {
+        gesture.opening = true
+        setExpanded(true)
+      }
+    }
+
+    element.addEventListener('wheel', onWheel, { passive: false })
+    return () => element.removeEventListener('wheel', onWheel)
+  }, [expanded])
+
+  function changePanel(open: boolean) {
+    if (!open && list.current) list.current.scrollTop = 0
+    setExpanded(open)
+  }
+
   function startSwipe(x: number, y: number) {
     suppressClick.current = false
-    swipe.current = { x, y, atTop: (list.current?.scrollTop ?? 0) <= 0 }
+    swipe.current = { x, y }
   }
 
   function moveSwipe(x: number, y: number) {
@@ -37,7 +77,7 @@ export function HomePage() {
     swipe.current = null
     if (Math.abs(x - start.x) >= Math.abs(dy)) return
     suppressClick.current = true
-    if (dy > 0 || start.atTop) setExpanded(dy > 0)
+    changePanel(dy > 0)
   }
 
   function selectSpot(next: PickupSpot | null) {
@@ -68,11 +108,17 @@ export function HomePage() {
         ))}
       </section>
       <section
+        ref={panel}
         className={styles.panel}
         aria-label="주변 모집방"
         onTouchStart={(event) => {
           const touch = event.touches[0]
-          if (touch && event.touches.length === 1)
+          suppressClick.current = false
+          if (
+            touch &&
+            event.touches.length === 1 &&
+            (!expanded || handle.current?.contains(event.target as Node))
+          )
             startSwipe(touch.clientX, touch.clientY)
           else swipe.current = null
         }}
@@ -87,30 +133,6 @@ export function HomePage() {
         onTouchCancel={() => {
           swipe.current = null
         }}
-        onWheel={(event) => {
-          if (event.ctrlKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY))
-            return
-          const gesture = wheel.current
-          if (event.timeStamp - gesture.time > 160) {
-            gesture.distance = 0
-            gesture.handled = false
-            gesture.atTop = (list.current?.scrollTop ?? 0) <= 0
-          }
-          gesture.time = event.timeStamp
-          if (gesture.handled) return
-          // Wheel deltas can be in pixels, lines or pages.
-          const unit =
-            event.deltaMode === 1
-              ? 16
-              : event.deltaMode === 2
-                ? event.currentTarget.clientHeight
-                : 1
-          gesture.distance += event.deltaY * unit
-          if (Math.abs(gesture.distance) < 16) return
-          gesture.handled = true
-          if (gesture.distance > 0 || gesture.atTop)
-            setExpanded(gesture.distance > 0)
-        }}
         onClickCapture={(event) => {
           if (suppressClick.current && event.detail > 0) {
             event.preventDefault()
@@ -124,6 +146,7 @@ export function HomePage() {
       >
         <button
           type="button"
+          ref={handle}
           className={styles.handle}
           aria-label={expanded ? '모집방 목록 접기' : '모집방 목록 펼치기'}
           aria-controls="nearby-rooms"
@@ -140,10 +163,7 @@ export function HomePage() {
           onLostPointerCapture={(event) => {
             if (event.pointerType === 'mouse') swipe.current = null
           }}
-          onClick={(event) => {
-            // Keyboard and assistive activation have no pointer click count.
-            if (event.detail === 0) setExpanded((open) => !open)
-          }}
+          onClick={() => changePanel(!expanded)}
         >
           <span className={styles.grip} />
           <span className={styles.region}>
