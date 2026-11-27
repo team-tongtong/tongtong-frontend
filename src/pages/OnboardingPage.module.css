@@ -52,7 +52,7 @@
   grid-template-rows:
     minmax(0, var(--top-space)) minmax(0, auto) minmax(4px, var(--after-art))
     auto
-    minmax(6px, var(--before-progress)) auto minmax(8px, 20fr) auto;
+    minmax(6px, var(--before-progress)) auto auto;
 }
 .page[data-step='1'] {
   --top-space: 120fr;
@@ -86,10 +86,10 @@
 }
 .page:is([data-step='1'], [data-step='2']) .progress {
   grid-row: 6;
-  margin-block: 0;
+  margin-top: 0;
 }
 .page:is([data-step='1'], [data-step='2']) .action {
-  grid-row: 8;
+  grid-row: 7;
 }
 .progress span {
   width: 8px;
