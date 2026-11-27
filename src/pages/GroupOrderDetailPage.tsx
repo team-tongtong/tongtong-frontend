@@ -1,5 +1,5 @@
 import { trackLabels } from '@/components/group-order/orderMethod'
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { AppHeader } from '@/components/layout/AppHeader'
@@ -125,6 +125,14 @@ function RoomDetails({
 }) {
   const navigate = useNavigate()
   const { state, search } = useLocation()
+  const completedOrderId = useRef<number | null>(null)
+  useLayoutEffect(() => {
+    if (search || completedOrderId.current === null) return
+    const orderId = completedOrderId.current
+    completedOrderId.current = null
+    // Replace the room entry so browser Back from the order also reaches home.
+    navigate('/orders/' + orderId, { replace: true, state: { fromHome: true } })
+  }, [search, navigate])
   const storeQuery = useQuery(storeDetailQuery(String(room.storeId)))
   const store = storeQuery.data && toMenuStore(storeQuery.data)
   const spots = useQuery(spotListQuery)
@@ -186,8 +194,14 @@ function RoomDetails({
     )
       return
     participation.mutate(payment, {
-      onSuccess: ({ orderId }) =>
-        navigate('/orders/' + orderId, { replace: true }),
+      onSuccess: ({ orderId }) => {
+        if (state?.fromHome && confirming) {
+          completedOrderId.current = orderId
+          navigate(-1)
+        } else {
+          navigate('/orders/' + orderId, { replace: true })
+        }
+      },
       onError: (error) => {
         if (error instanceof ApiError && error.status === 409) navigate(-1)
       },

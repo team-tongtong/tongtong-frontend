@@ -18,12 +18,17 @@ export function OrderDetailPage() {
   const query = useQuery(orderDetailQuery(orderId ?? ''))
   const missing = query.error instanceof ApiError && query.error.status === 404
   const order = missing ? undefined : query.data
+  const backLabel = state?.fromHome
+    ? '홈으로 돌아가기'
+    : '주문 내역으로 돌아가기'
   const back = () =>
-    state?.fromOrders ? navigate(-1) : navigate('/orders', { replace: true })
+    state?.fromHome || state?.fromOrders
+      ? navigate(-1)
+      : navigate('/orders', { replace: true })
   if (!order)
     return (
       <main>
-        <AppHeader title="주문 상세" onBack={back} />
+        <AppHeader title="주문 상세" onBack={back} backLabel={backLabel} />
         {query.isPending ? (
           <LoadingSpinner label="주문 상세를 불러오는 중" />
         ) : missing ? (
@@ -48,7 +53,7 @@ export function OrderDetailPage() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <BackButton label="주문 내역으로 돌아가기" onClick={back} />
+        <BackButton label={backLabel} onClick={back} />
         <span className={styles.time}>
           <RecruitDeadline value={order.recruitDeadline} />
         </span>
