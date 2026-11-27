@@ -152,6 +152,13 @@
   overflow-y: auto;
   overscroll-behavior-y: contain;
 }
+.home[data-expanded='false'] .panel,
+.home[data-expanded='false'] .scrollArea {
+  touch-action: pinch-zoom;
+}
+.home[data-expanded='false'] .scrollArea {
+  overflow-y: hidden;
+}
 .rooms {
   margin: 0;
   padding: 0;
