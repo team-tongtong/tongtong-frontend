@@ -382,11 +382,7 @@ function RoomDetails({
         )}
         <strong>{room.spotName}</strong>
         {spot?.description && <p>{spot.description}</p>}
-        <p>
-          지정 수령 구역에서 픽업 코드 입력 필수
-          <br />
-          주문 도착 후 15분 내 수령 필수 · 미수령 시 페널티 발생
-        </p>
+        <p>지정 수령 구역에서 픽업 코드 입력 필수</p>
       </section>
       <footer className={styles.footer}>
         <PrimaryButton

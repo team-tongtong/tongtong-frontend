@@ -368,8 +368,6 @@ export function CreateRoomPage() {
               {spot && (
                 <p className={styles.spotInstructions}>
                   지정 수령 구역에서 픽업 코드 입력 필수
-                  <br />
-                  주문 도착 후 15분 내 수령 필수 · 미수령 시 페널티 발생
                 </p>
               )}
             </section>
