@@ -5,16 +5,22 @@ import { FilterChip } from '@/components/filter/FilterChip'
 import { GroupOrderListItem } from '@/components/group-order/GroupOrderListItem'
 import areaIcon from '@/assets/home/area.svg'
 import pickupCat from '@/assets/home/pickup-cat.png'
-import {
-  pickupSpots,
-  sampleGroupOrdersQuery,
-  type PickupSpot,
-} from './sampleGroupOrders'
+import { roomListQuery, spotListQuery } from '@/features/rooms/api'
 import styles from './HomePage.module.css'
+
+// Named landmarks with existing pins on the static map.
+const mapLandmarks: Record<string, string | undefined> = {
+  '한양대 ERICA 정문': 'ERICA 정문',
+  '한양대 ERICA 행복관 1층': '기숙사',
+  셔틀콕: '셔틀콕',
+}
 
 export function HomePage() {
   const [expanded, setExpanded] = useState(false)
-  const [spot, setSpot] = useState<PickupSpot | null>(null)
+  const spots = useQuery(spotListQuery)
+  const [spotId, setSpotId] = useState<number | null>(null)
+  const points = spots.data?.spots ?? []
+  const spot = points.find((point) => point.spotId === spotId)
   const list = useRef<HTMLDivElement>(null)
   const panel = useRef<HTMLElement>(null)
   const handle = useRef<HTMLButtonElement>(null)
@@ -80,9 +86,9 @@ export function HomePage() {
     changePanel(dy > 0)
   }
 
-  function selectSpot(next: PickupSpot | null) {
-    if (next !== spot && list.current) list.current.scrollTop = 0
-    setSpot(next)
+  function selectSpot(next: number | null) {
+    if (next !== spotId && list.current) list.current.scrollTop = 0
+    setSpotId(next)
   }
 
   return (
@@ -93,19 +99,23 @@ export function HomePage() {
           role="img"
           aria-label="샘플 현재 위치"
         />
-        {pickupSpots.map((point) => (
-          <button
-            key={point}
-            type="button"
-            className={styles.marker}
-            data-spot={point}
-            aria-label={point + ' 픽업 위치'}
-            aria-pressed={spot === point}
-            onClick={() => selectSpot(spot === point ? null : point)}
-          >
-            <img src={pickupCat} alt="" />
-          </button>
-        ))}
+        {points
+          .filter((point) => mapLandmarks[point.name])
+          .map((point) => (
+            <button
+              key={point.spotId}
+              type="button"
+              className={styles.marker}
+              data-spot={mapLandmarks[point.name]}
+              aria-label={point.name + ' 픽업 위치'}
+              aria-pressed={spot?.spotId === point.spotId}
+              onClick={() =>
+                selectSpot(spot?.spotId === point.spotId ? null : point.spotId)
+              }
+            >
+              <img src={pickupCat} alt="" />
+            </button>
+          ))}
       </section>
       <section
         ref={panel}
@@ -176,21 +186,27 @@ export function HomePage() {
           role="group"
           aria-label="픽업 위치 필터"
         >
-          <FilterChip selected={spot === null} onClick={() => selectSpot(null)}>
+          <FilterChip selected={!spot} onClick={() => selectSpot(null)}>
             전체
           </FilterChip>
-          {pickupSpots.map((point) => (
+          {points.map((point) => (
             <FilterChip
-              key={point}
-              selected={spot === point}
-              onClick={() => selectSpot(point)}
+              key={point.spotId}
+              selected={spot?.spotId === point.spotId}
+              onClick={() => selectSpot(point.spotId)}
             >
-              {point}
+              {point.name}
             </FilterChip>
           ))}
         </div>
         <div id="nearby-rooms" ref={list} className={styles.scrollArea}>
-          <NearbyRoomList spot={spot} expanded={expanded} />
+          {spots.isError && !spots.data && (
+            <div className={styles.feedback}>
+              <p role="alert">픽업 장소를 불러오지 못했어요.</p>
+              <button onClick={() => void spots.refetch()}>다시 시도</button>
+            </div>
+          )}
+          <NearbyRoomList spot={spot?.name} expanded={expanded} />
         </div>
       </section>
     </main>
@@ -201,10 +217,10 @@ function NearbyRoomList({
   spot,
   expanded,
 }: {
-  spot: PickupSpot | null
+  spot?: string
   expanded: boolean
 }) {
-  const query = useQuery(sampleGroupOrdersQuery)
+  const query = useQuery(roomListQuery)
 
   if (query.isPending) {
     return (
@@ -214,7 +230,7 @@ function NearbyRoomList({
     )
   }
 
-  if (query.isError) {
+  if (query.isError && !query.data) {
     return (
       <div className={styles.feedback}>
         <p role="alert">모집방 목록을 불러오지 못했어요.</p>
@@ -226,8 +242,8 @@ function NearbyRoomList({
   }
 
   const filtered = spot
-    ? query.data.filter((room) => room.spot === spot)
-    : query.data
+    ? query.data.rooms.filter((room) => room.spotName === spot)
+    : query.data.rooms
   if (!filtered.length) {
     return (
       <p className={styles.empty} role="status">
@@ -241,7 +257,7 @@ function NearbyRoomList({
   return (
     <ul className={styles.rooms} aria-label="모집방 목록">
       {(expanded ? filtered : filtered.slice(0, 2)).map((room) => (
-        <li key={room.id}>
+        <li key={room.roomId}>
           <GroupOrderListItem room={room} />
         </li>
       ))}

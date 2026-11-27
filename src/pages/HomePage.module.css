@@ -138,6 +138,8 @@
   color: var(--tt-text-primary);
 }
 .filters {
+  flex: none;
+  overflow-x: auto;
   display: flex;
   align-items: flex-start;
   gap: 5px;

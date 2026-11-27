@@ -1,50 +1,43 @@
-import { orderMethodLabels } from '@/components/group-order/orderMethod'
+import type { RoomSummary } from '@/features/rooms/api'
+import { RecruitDeadline } from './RecruitDeadline'
+import rabbit from '@/assets/character-rabbit-face.png'
+import paw from '@/assets/character-paw.png'
+import { trackLabels } from '@/components/group-order/orderMethod'
 import { Link } from 'react-router'
 import styles from './GroupOrderListItem.module.css'
 
-export interface GroupOrderSummary {
-  id: string
-  name: string
-  image: string
-  method: keyof typeof orderMethodLabels
-  orderTime: string
-  pickupSpot: string
-  participants: number
-  capacity: number
-  avatars: string[]
-}
+const participantIcons = [rabbit, paw, rabbit]
 
-export function GroupOrderListItem({ room }: { room: GroupOrderSummary }) {
+export function GroupOrderListItem({ room }: { room: RoomSummary }) {
   return (
     <Link
       className={styles.item}
-      to={`/rooms/${encodeURIComponent(room.id)}`}
+      to={`/rooms/${room.roomId}`}
       state={{ fromHome: true }}
     >
-      <img className={styles.logo} src={room.image} alt="" />
+      {room.storeImageUrl && (
+        <img className={styles.logo} src={room.storeImageUrl} alt="" />
+      )}
       <span className={styles.info}>
         <span className={styles.tags}>
-          <span>{orderMethodLabels[room.method]}</span>
-          <time
-            dateTime={room.orderTime}
-            aria-label={`주문 예정 ${room.orderTime}`}
-          >
-            {room.orderTime}
-          </time>
+          <span>{trackLabels[room.track]}</span>
+          <RecruitDeadline value={room.recruitDeadline} />
         </span>
-        <strong className={styles.name}>{room.name}</strong>
-        <span className={styles.spot}>{room.pickupSpot}</span>
+        <strong className={styles.name}>{room.storeName}</strong>
+        <span className={styles.spot}>{room.spotName}</span>
       </span>
       <span className={styles.members}>
         <span className={styles.avatars} aria-hidden="true">
-          {room.avatars.slice(0, 3).map((src, index) => (
-            <img key={index} src={src} alt="" />
-          ))}
+          {participantIcons
+            .slice(0, room.currentParticipants)
+            .map((src, index) => (
+              <img key={index} src={src} alt="" />
+            ))}
         </span>
         <span
-          aria-label={`정원 ${room.capacity}명 중 ${room.participants}명 참여`}
+          aria-label={`정원 ${room.maxParticipants}명 중 ${room.currentParticipants}명 참여`}
         >
-          {room.participants}/{room.capacity}
+          {room.currentParticipants}/{room.maxParticipants}
         </span>
       </span>
     </Link>

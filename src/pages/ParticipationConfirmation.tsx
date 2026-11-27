@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
 import { PaymentMethodsCard } from '@/components/order/PaymentMethodsCard'
 import { paymentMethods } from '@/components/order/paymentMethods'
-import type { GroupOrderDetail } from './sampleGroupOrders'
+import type { RoomDetail } from '@/features/rooms/api'
+import type { MenuStore } from './roomMenuSelection'
+import { RecruitDeadline } from '@/components/group-order/RecruitDeadline'
 import styles from './GroupOrderDetailPage.module.css'
 
 type Props = {
-  room: GroupOrderDetail
-  selected: (GroupOrderDetail['menus'][number] & { quantity: number })[]
+  room: RoomDetail
+  selected: (MenuStore['menus'][number] & { quantity: number })[]
   personalSubtotal: number
   delivery?: number
 }
@@ -24,9 +26,9 @@ export function ParticipationConfirmation({
 }: Props) {
   const [payment, setPayment] = useState<string>()
   const [notice, setNotice] = useState('')
-  const shared = room.method === '내 몫 담기'
-  const sharedPrice = shared ? room.sharedMenu?.pricePerPerson : 0
-  const portion = shared ? room.portionFeePerPerson : 0
+  const shared = room.track === 'PORTION'
+  const sharedPrice = shared ? room.sharedMenu?.portionPrice : 0
+  const portion = shared ? room.portionFee : 0
   const total =
     sharedPrice != null && delivery != null && portion != null
       ? personalSubtotal + sharedPrice + delivery + portion
@@ -40,25 +42,24 @@ export function ParticipationConfirmation({
         </h2>
         <div className={styles.row}>
           <span>매장명</span>
-          <strong>{room.name}</strong>
+          <strong>{room.storeName}</strong>
         </div>
         <div className={styles.row}>
           <span>통통 스팟</span>
-          <span>{room.pickupSpot}</span>
+          <span>{room.spotName}</span>
         </div>
         <div className={styles.row}>
           <span>최소 주문 금액</span>
-          <span>{amount(room.minimumOrderAmount)}</span>
+          <span>{amount(room.minOrderAmount)}</span>
         </div>
         <div className={styles.row}>
           <span>모집 현황</span>
           <span>
-            {room.participants}/{room.capacity}명
+            {room.currentParticipants}/{room.maxParticipants}명
           </span>
         </div>
         <div className={styles.row}>
-          <span>주문 예정</span>
-          <span>{room.orderTime}</span>
+          <RecruitDeadline value={room.recruitDeadline} />
         </div>
       </section>
       <section className={styles.menu} aria-label="주문 내역">
