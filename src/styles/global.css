@@ -2,6 +2,7 @@
 @import './tokens.css';
 
 :root {
+  overscroll-behavior-y: contain;
   scrollbar-gutter: stable both-edges;
   font-family: var(--tt-font-family);
   color: var(--tt-text-primary);
