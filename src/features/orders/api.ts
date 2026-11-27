@@ -1,4 +1,4 @@
-import { queryOptions } from '@tanstack/react-query'
+import { queryOptions, type QueryClient } from '@tanstack/react-query'
 import { apiRequest } from '@/api/client'
 import type { OrderStatusFilterValue } from '@/components/filter/orderStatuses'
 import type { RoomDetail } from '@/features/rooms/api'
@@ -84,4 +84,36 @@ export function cancelOrder(orderId: number) {
   return apiRequest<unknown>(`/api/v1/orders/${orderId}/cancel`, {
     method: 'PATCH',
   })
+}
+
+type PickupResult = { orderId: number; orderStatus: 'PICKED_UP' }
+
+export function pickupOrder({
+  orderId,
+  code,
+}: {
+  orderId: number
+  code: string
+}) {
+  return apiRequest<PickupResult>(`/api/v1/orders/${orderId}/pickup`, {
+    method: 'POST',
+    body: JSON.stringify({ code }),
+  })
+}
+
+export function applyPickupResult(client: QueryClient, result: PickupResult) {
+  client.setQueriesData<{ orders: OrderSummary[] }>(
+    { queryKey: ['orders', 'list'] },
+    (previous) =>
+      previous && {
+        orders: previous.orders.map((order) =>
+          order.orderId === result.orderId ? { ...order, ...result } : order,
+        ),
+      },
+  )
+  const detail = orderDetailQuery(String(result.orderId))
+  client.setQueryData(
+    detail.queryKey,
+    (order) => order && { ...order, ...result },
+  )
 }

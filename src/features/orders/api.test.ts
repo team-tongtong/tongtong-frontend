@@ -1,15 +1,91 @@
 import { QueryClient } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  applyPickupResult,
   cancelOrder,
   displayStatus,
+  orderDetailQuery,
   orderListQuery,
+  pickupOrder,
+  type OrderDetail,
   type OrderSummary,
 } from './api'
 
 afterEach(() => {
   vi.unstubAllEnvs()
   vi.unstubAllGlobals()
+})
+
+describe('픽업 코드 입력', () => {
+  it('잘못된 코드의 오류를 전달하고 앞자리 0을 유지한 코드로 다시 요청한다', async () => {
+    vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
+    const result = { orderId: 31, orderStatus: 'PICKED_UP' }
+    const error = {
+      code: 'INVALID_PICKUP_CODE',
+      message: '픽업 코드가 맞지 않아요.',
+    }
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(Response.json(error, { status: 400 }))
+      .mockResolvedValueOnce(
+        Response.json({ code: 'SUCCESS', message: '성공', data: result }),
+      )
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(
+      pickupOrder({ orderId: 31, code: '00000' }),
+    ).rejects.toMatchObject(error)
+    await expect(pickupOrder({ orderId: 31, code: '04821' })).resolves.toEqual(
+      result,
+    )
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      'http://localhost:8080/api/v1/orders/31/pickup',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ code: '04821' }),
+      }),
+    )
+  })
+
+  it('같은 방의 주문 중 수령한 주문만 목록과 상세에서 갱신한다', () => {
+    const client = new QueryClient()
+    const order: OrderSummary = {
+      orderId: 31,
+      roomId: 12,
+      storeName: '가게',
+      storeImageUrl: null,
+      spotName: '스팟',
+      track: 'INDIVIDUAL',
+      status: 'ARRIVED',
+      orderStatus: 'JOINED',
+      orderedAt: '2026-11-27T12:00:00',
+      recruitDeadline: '2026-11-27T12:30:00',
+    }
+    const other = { ...order, orderId: 32 }
+    const detail: OrderDetail = {
+      ...order,
+      currentParticipants: 2,
+      maxParticipants: 2,
+      items: [],
+      totalAmount: 5000,
+      paymentMethod: 'CARD',
+      cancelable: false,
+    }
+    const tabs = [orderListQuery('전체'), orderListQuery('배달 완료')]
+    for (const tab of tabs)
+      client.setQueryData(tab.queryKey, { orders: [order, other] })
+    const detailKey = orderDetailQuery('31').queryKey
+    client.setQueryData(detailKey, detail)
+    const result = { orderId: 31, orderStatus: 'PICKED_UP' } as const
+    applyPickupResult(client, result)
+    for (const tab of tabs) {
+      expect(client.getQueryData(tab.queryKey)?.orders).toEqual([
+        { ...order, ...result },
+        other,
+      ])
+    }
+    expect(client.getQueryData(detailKey)).toEqual({ ...detail, ...result })
+  })
 })
 
 describe('주문 내역 상태 필터', () => {

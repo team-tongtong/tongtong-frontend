@@ -109,6 +109,12 @@ export function OrderDetailPage() {
         <img className={styles.cat} src={cat} alt="" />
         <section className={styles.card} aria-label="주문 내역">
           <h2>주문 내역</h2>
+          {order.orderStatus === 'PICKED_UP' && (
+            <div className={styles.row}>
+              <span>수령 상태</span>
+              <span>픽업 완료</span>
+            </div>
+          )}
           <div className={styles.row}>
             <span>매장명</span>
             <span>{order.storeName}</span>

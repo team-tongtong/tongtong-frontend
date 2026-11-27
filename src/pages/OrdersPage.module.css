@@ -20,13 +20,10 @@
   padding: var(--tt-space-20) var(--tt-page-gutter);
   margin: 0;
 }
-.empty,
-.notice {
+.empty {
   text-align: center;
   color: var(--tt-text-secondary);
   font-size: 14px;
   padding: var(--tt-space-20);
-}
-.empty {
   margin: var(--tt-space-48) 0;
 }

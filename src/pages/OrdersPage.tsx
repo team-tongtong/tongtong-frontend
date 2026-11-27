@@ -2,10 +2,19 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { OrderStatusFilter } from '@/components/filter/OrderStatusFilter'
 import { OrderHistoryCard } from '@/components/order/OrderHistoryCard'
-import { useQuery } from '@tanstack/react-query'
-import { orderListQuery } from '@/features/orders/api'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  applyPickupResult,
+  orderListQuery,
+  pickupOrder,
+} from '@/features/orders/api'
+import { ApiError } from '@/api/client'
+import { useToast } from '@/components/toast/useToast'
 import { LoadingSpinner } from '@/components/loading/LoadingSpinner'
-import { PickupCodeDialog } from '@/components/pickup/PickupDialog'
+import {
+  PickupCodeDialog,
+  PickupSuccessDialog,
+} from '@/components/pickup/PickupDialog'
 import { readOrderStatus } from '@/components/filter/orderStatuses'
 import styles from './OrdersPage.module.css'
 
@@ -13,10 +22,31 @@ export function OrdersPage() {
   const [params, setParams] = useSearchParams()
   const status = readOrderStatus(params.get('status'))
   const [pickupOrderId, setPickupOrderId] = useState<number | null>(null)
-  const [notice, setNotice] = useState('')
+  const client = useQueryClient()
+  const showToast = useToast()
+  const pickupKey = ['orders', 'pickup', pickupOrderId]
+  const pickup = useMutation({
+    mutationKey: pickupKey,
+    mutationFn: pickupOrder,
+    networkMode: 'always',
+    onSuccess: (result) => applyPickupResult(client, result),
+    onError: (error) => {
+      if (error instanceof ApiError && error.status === 409) {
+        showToast(error.message, 'error')
+      }
+    },
+    onSettled: (_result, error, { orderId }) => {
+      if (error instanceof ApiError && error.code === 'INVALID_PICKUP_CODE')
+        return
+      void client.invalidateQueries({ queryKey: ['orders', 'list'] })
+      void client.invalidateQueries({
+        queryKey: ['orders', 'detail', String(orderId)],
+      })
+    },
+  })
   const query = useQuery(orderListQuery(status))
   const visibleOrders = query.data ?? []
-  const pickupOrder = visibleOrders.find(
+  const selectedOrder = visibleOrders.find(
     (order) =>
       order.orderId === pickupOrderId &&
       order.status === 'ARRIVED' &&
@@ -40,7 +70,7 @@ export function OrdersPage() {
               { replace: true },
             )
             setPickupOrderId(null)
-            setNotice('')
+            pickup.reset()
           }}
         />
       </header>
@@ -63,7 +93,7 @@ export function OrdersPage() {
                 order={order}
                 onEnterCode={() => {
                   setPickupOrderId(order.orderId)
-                  setNotice('')
+                  pickup.reset()
                 }}
               />
             </li>
@@ -76,19 +106,30 @@ export function OrdersPage() {
             : '해당 상태의 주문이 없어요.'}
         </p>
       )}
-      {notice && (
-        <p role="status" className={styles.notice}>
-          {notice}
-        </p>
-      )}
-      {pickupOrder && (
-        <PickupCodeDialog
-          onDismiss={() => setPickupOrderId(null)}
-          onSubmit={() => {
+      {pickup.isSuccess ? (
+        <PickupSuccessDialog
+          onDismiss={() => {
             setPickupOrderId(null)
-            setNotice('픽업 코드 확인 기능은 준비 중이에요.')
+            pickup.reset()
           }}
         />
+      ) : (
+        selectedOrder && (
+          <PickupCodeDialog
+            pending={pickup.isPending}
+            error={
+              pickup.error &&
+              (pickup.error instanceof ApiError
+                ? pickup.error.message
+                : '픽업 코드를 확인하지 못했어요. 다시 시도해 주세요.')
+            }
+            onDismiss={() => setPickupOrderId(null)}
+            onSubmit={(code) => {
+              if (client.isMutating({ mutationKey: pickupKey })) return
+              pickup.mutate({ orderId: selectedOrder.orderId, code })
+            }}
+          />
+        )
       )}
     </main>
   )

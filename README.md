@@ -58,6 +58,13 @@ const data = await apiRequest<YourResponse>('/api/v1/your-resources', {
 })
 ```
 
+## 배달 완료·픽업 시연 (#50)
+
+1. 모집이 완료된 시연용 방의 `roomId`로 Swagger에서 `PATCH /api/v1/rooms/{roomId}/arrive`를 실행합니다.
+2. 응답의 `data.status`가 `ARRIVED`인지 확인합니다. `data.pickupCodes`에서 시연할 주문의 `orderId`와 짝을 이루는 5자리 `code`를 확인합니다.
+3. 프론트의 주문 내역을 새로고침하고 ‘배달 완료’ 탭에서 해당 주문의 ‘코드 입력하기’를 누릅니다. 코드는 앞자리 0을 포함해 그대로 입력합니다.
+4. 잘못된 코드를 입력하면 오류가 표시되고 다시 입력할 수 있습니다. 올바른 코드로 수령하면 해당 주문 카드와 상세에 ‘픽업 완료’가 표시됩니다. 같은 방의 다른 참여자 주문은 기존 수령 상태를 유지합니다.
+
 ## 구조와 협업
 
 구조는 [ARCHITECTURE](docs/ARCHITECTURE.md), 브랜치·커밋·PR 규칙은 [CONTRIBUTING](CONTRIBUTING.md)을 따릅니다.
