@@ -130,6 +130,7 @@ export function CreateRoomPage() {
     return (
       <SearchPage
         menuMode={menuMode}
+        onBack={returnToRoom}
         initialMenus={menuMode === 'individual' ? individualMenus : menus}
         onSelectMenu={(selection) => {
           if (menuMode === 'individual') setIndividualMenus(selection)

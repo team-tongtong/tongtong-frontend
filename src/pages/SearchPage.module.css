@@ -72,14 +72,16 @@
 .popular strong {
   font-weight: 600;
 }
-.resultHeader {
+.searchHeader {
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr);
   gap: 17px;
   align-items: center;
+}
+.page[data-standalone='true'] .searchHeader[data-results='true'] {
   margin-inline: var(--tt-page-gutter);
 }
-.resultHeader input {
+.searchHeader[data-results='true'] input {
   font-size: 16px;
 }
 .back {

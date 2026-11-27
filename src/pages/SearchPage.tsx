@@ -33,10 +33,12 @@ function readTerms(fallback: string[]): string[] {
 }
 
 export function SearchPage({
+  onBack,
   onSelectMenu,
   initialMenus,
   menuMode,
 }: {
+  onBack?: () => void
   onSelectMenu?: (menus: RoomMenuSelection[]) => void
   initialMenus?: RoomMenuSelection[]
   menuMode?: 'shared' | 'individual'
@@ -130,15 +132,19 @@ export function SearchPage({
     )
 
   const restaurants = searchStores(stores, submitted, sort)
+  const handleBack = submitted ? backToSearch : onBack
   return (
-    <main className={styles.page} aria-label="검색">
-      <div className={submitted ? styles.resultHeader : undefined}>
-        {submitted && (
+    <main className={styles.page} aria-label="검색" data-standalone={!onBack}>
+      <div
+        className={handleBack ? styles.searchHeader : undefined}
+        data-results={!!submitted}
+      >
+        {handleBack && (
           <button
             className={styles.back}
             type="button"
             aria-label="뒤로가기"
-            onClick={backToSearch}
+            onClick={handleBack}
           >
             <img src={back} alt="" />
           </button>
