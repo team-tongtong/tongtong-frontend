@@ -128,20 +128,15 @@ export function CreateRoomPage() {
       else navigate('/rooms/new', { replace: true })
     }
     return (
-      <>
-        {!params.has('q') && (
-          <AppHeader title="메뉴 검색" onBack={returnToRoom} />
-        )}
-        <SearchPage
-          menuMode={menuMode}
-          initialMenus={menuMode === 'individual' ? individualMenus : menus}
-          onSelectMenu={(selection) => {
-            if (menuMode === 'individual') setIndividualMenus(selection)
-            else updateMenus(selection)
-            returnToRoom()
-          }}
-        />
-      </>
+      <SearchPage
+        menuMode={menuMode}
+        initialMenus={menuMode === 'individual' ? individualMenus : menus}
+        onSelectMenu={(selection) => {
+          if (menuMode === 'individual') setIndividualMenus(selection)
+          else updateMenus(selection)
+          returnToRoom()
+        }}
+      />
     )
   }
 
