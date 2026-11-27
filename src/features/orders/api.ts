@@ -9,7 +9,8 @@ export const statusByTab = {
   모집중: 'RECRUITING',
   조리중: 'RECRUIT_COMPLETED',
   '배달 완료': 'ARRIVED',
-  취소: 'CANCELED',
+  // 모집 중인 방에서도 내 주문만 취소할 수 있으므로 전체 응답에서 판별한다.
+  취소: undefined,
 } as const satisfies Record<
   OrderStatusFilterValue,
   RoomDetail['status'] | undefined
@@ -57,7 +58,7 @@ export function displayStatus(order: Pick<Order, 'status' | 'orderStatus'>) {
 export function orderListQuery(tab: OrderStatusFilterValue) {
   const status = statusByTab[tab]
   return queryOptions({
-    queryKey: ['orders', 'list', tab],
+    queryKey: ['orders', 'list', status ?? '전체'],
     queryFn: ({ signal }) =>
       apiRequest<{ orders: OrderSummary[] }>(
         status ? `/api/v1/orders?status=${status}` : '/api/v1/orders',
@@ -77,5 +78,11 @@ export function orderDetailQuery(orderId: string) {
       apiRequest<OrderDetail>(`/api/v1/orders/${encodeURIComponent(orderId)}`, {
         signal,
       }),
+  })
+}
+
+export function cancelOrder(orderId: number) {
+  return apiRequest<unknown>(`/api/v1/orders/${orderId}/cancel`, {
+    method: 'PATCH',
   })
 }

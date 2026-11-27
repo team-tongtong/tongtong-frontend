@@ -1,8 +1,14 @@
 import { BackButton } from '@/components/layout/BackButton'
 import { useLocation, useNavigate, useParams } from 'react-router'
 import { AppHeader } from '@/components/layout/AppHeader'
-import { useQuery } from '@tanstack/react-query'
-import { displayStatus, orderDetailQuery } from '@/features/orders/api'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  cancelOrder,
+  displayStatus,
+  orderDetailQuery,
+} from '@/features/orders/api'
+import { refreshRoomsAndOrders } from '@/features/rooms/api'
+import { useToast } from '@/components/toast/useToast'
 import { ApiError } from '@/api/client'
 import { LoadingSpinner } from '@/components/loading/LoadingSpinner'
 import { RecruitDeadline } from '@/components/group-order/RecruitDeadline'
@@ -15,7 +21,33 @@ export function OrderDetailPage() {
   const { orderId } = useParams()
   const { state } = useLocation()
   const navigate = useNavigate()
-  const query = useQuery(orderDetailQuery(orderId ?? ''))
+  const client = useQueryClient()
+  const showToast = useToast()
+  const detail = orderDetailQuery(orderId ?? '')
+  const query = useQuery(detail)
+  const cancelKey = ['orders', 'cancel', orderId]
+  const cancellation = useMutation({
+    mutationKey: cancelKey,
+    networkMode: 'always',
+    mutationFn: cancelOrder,
+    onSuccess: () => {
+      client.setQueryData(
+        detail.queryKey,
+        (previous) =>
+          previous && {
+            ...previous,
+            orderStatus: 'CANCELED' as const,
+            cancelable: false,
+          },
+      )
+      refreshRoomsAndOrders(client)
+      showToast('주문을 취소했어요.', 'success')
+    },
+    onError: (error) => {
+      if (error instanceof ApiError) showToast(error.message, 'error')
+      return client.invalidateQueries({ queryKey: detail.queryKey })
+    },
+  })
   const missing = query.error instanceof ApiError && query.error.status === 404
   const order = missing ? undefined : query.data
   const backLabel = state?.fromHome
@@ -120,8 +152,18 @@ export function OrderDetailPage() {
             <span>{paymentMethodLabels[order.paymentMethod]}</span>
           </div>
           {order.cancelable && (
-            <button type="button" className={styles.cancel} disabled>
-              취소하기
+            <button
+              type="button"
+              className={styles.cancel}
+              disabled={cancellation.isPending}
+              onClick={() => {
+                if (client.isMutating({ mutationKey: cancelKey })) return
+                if (window.confirm('이 주문을 취소할까요?')) {
+                  cancellation.mutate(order.orderId)
+                }
+              }}
+            >
+              {cancellation.isPending ? '취소 처리 중…' : '취소하기'}
             </button>
           )}
         </section>

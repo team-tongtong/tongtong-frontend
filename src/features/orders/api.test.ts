@@ -1,5 +1,16 @@
-import { describe, expect, it } from 'vitest'
-import { displayStatus, orderListQuery, type OrderSummary } from './api'
+import { QueryClient } from '@tanstack/react-query'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import {
+  cancelOrder,
+  displayStatus,
+  orderListQuery,
+  type OrderSummary,
+} from './api'
+
+afterEach(() => {
+  vi.unstubAllEnvs()
+  vi.unstubAllGlobals()
+})
 
 describe('주문 내역 상태 필터', () => {
   const canceledOrder: OrderSummary = {
@@ -28,6 +39,53 @@ describe('주문 내역 상태 필터', () => {
   it('방 전체가 취소된 경우에도 취소로 표시한다', () => {
     expect(displayStatus({ status: 'CANCELED', orderStatus: 'JOINED' })).toBe(
       '취소',
+    )
+  })
+
+  it('취소 탭은 방 상태로 서버 목록을 제한하지 않고 내 취소 주문을 찾는다', async () => {
+    vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
+    const fetchMock = vi.fn().mockResolvedValue(
+      Response.json({
+        code: 'SUCCESS',
+        message: '성공',
+        data: {
+          orders: [
+            canceledOrder,
+            { ...canceledOrder, orderId: 3, orderStatus: 'JOINED' },
+          ],
+        },
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    const options = orderListQuery('취소')
+    const data = await new QueryClient().fetchQuery(options)
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8080/api/v1/orders',
+      expect.anything(),
+    )
+    expect(options.select?.(data)).toEqual([canceledOrder])
+  })
+
+  it('취소는 내 주문 번호로 PATCH하고 서버의 거절 메시지를 전달한다', async () => {
+    vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080')
+    const fetchMock = vi.fn().mockResolvedValue(
+      Response.json(
+        {
+          code: 'TEST_ERROR',
+          message: '이미 모집이 마감됐어요.',
+          data: null,
+        },
+        { status: 409 },
+      ),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(cancelOrder(8)).rejects.toMatchObject({
+      status: 409,
+      message: '이미 모집이 마감됐어요.',
+    })
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8080/api/v1/orders/8/cancel',
+      expect.objectContaining({ method: 'PATCH' }),
     )
   })
 })
