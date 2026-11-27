@@ -8,11 +8,12 @@ import pickupCat from '@/assets/home/pickup-cat.png'
 import { roomListQuery, spotListQuery } from '@/features/rooms/api'
 import styles from './HomePage.module.css'
 
-// Named landmarks with existing pins on the static map.
-const mapLandmarks: Record<string, string | undefined> = {
-  '한양대 ERICA 정문': 'ERICA 정문',
-  '한양대 ERICA 행복관 1층': '기숙사',
-  셔틀콕: '셔틀콕',
+// Positions on the sample map, keyed by the spot IDs returned by /spots.
+const markerClasses: Partial<Record<number, string>> = {
+  1: styles.dormitory,
+  2: styles.studentCenter,
+  3: styles.library,
+  4: styles.mainGate,
 }
 
 export function HomePage() {
@@ -100,13 +101,12 @@ export function HomePage() {
           aria-label="샘플 현재 위치"
         />
         {points
-          .filter((point) => mapLandmarks[point.name])
+          .filter((point) => markerClasses[point.spotId])
           .map((point) => (
             <button
               key={point.spotId}
               type="button"
-              className={styles.marker}
-              data-spot={mapLandmarks[point.name]}
+              className={`${styles.marker} ${markerClasses[point.spotId]}`}
               aria-label={point.name + ' 픽업 위치'}
               aria-pressed={spot?.spotId === point.spotId}
               onClick={() =>
