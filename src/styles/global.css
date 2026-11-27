@@ -2,6 +2,7 @@
 @import './tokens.css';
 
 :root {
+  overscroll-behavior-y: contain;
   scrollbar-gutter: stable both-edges;
   font-family: var(--tt-font-family);
   color: var(--tt-text-primary);
@@ -37,6 +38,10 @@ select {
 :focus-visible {
   outline: 3px solid var(--color-primary);
   outline-offset: 4px;
+}
+button:focus-visible {
+  outline: 1px solid var(--tt-text-primary);
+  outline-offset: -2px;
 }
 .message-page {
   margin-block: 80px;

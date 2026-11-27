@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { AppHeader } from '@/components/layout/AppHeader'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
+import { QuantityCounter } from '@/components/quantity/QuantityCounter'
 import { StoreDetail } from './StoreDetail'
 import { selectRoomMenu } from './roomMenuSelection'
 import { LoadingSpinner } from '@/components/loading/LoadingSpinner'
@@ -191,7 +192,11 @@ function RoomDetails({
           {room.sharedMenu.image && <img src={blackJjimdak} alt="" />}
         </section>
       )}
-      <section className={styles.menu} aria-label="개인 메뉴">
+      <section
+        className={styles.menu}
+        data-individual={shared && selected.length > 0}
+        aria-label="개인 메뉴"
+      >
         {selected.length ? (
           <>
             <div className={styles.row}>
@@ -200,19 +205,34 @@ function RoomDetails({
                 변경
               </button>
             </div>
-            {selected.map((menu) => (
-              <div key={menu.id} className={styles.row}>
-                <span>
-                  {menu.name} · {menu.quantity}개
-                </span>
-                <span>{won(menu.price * menu.quantity)}</span>
-              </div>
-            ))}
-            {shared && (
-              <div className={styles.row}>
-                <strong>개인 메뉴 합계</strong>
-                <strong>{won(total)}</strong>
-              </div>
+            {selected.map((menu) =>
+              shared ? (
+                <div key={menu.id} className={styles.row}>
+                  <div className={styles.menuInfo}>
+                    <strong>{menu.name}</strong>
+                    <span>{won(menu.price)}</span>
+                  </div>
+                  <QuantityCounter
+                    variant="individual"
+                    label={menu.name + ' 수량'}
+                    value={menu.quantity}
+                    unit="개"
+                    onChange={(quantity) =>
+                      setQuantities((current) => ({
+                        ...current,
+                        [menu.id]: quantity,
+                      }))
+                    }
+                  />
+                </div>
+              ) : (
+                <div key={menu.id} className={styles.row}>
+                  <span>
+                    {menu.name} · {menu.quantity}개
+                  </span>
+                  <span>{won(menu.price * menu.quantity)}</span>
+                </div>
+              ),
             )}
           </>
         ) : (

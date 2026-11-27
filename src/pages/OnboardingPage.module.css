@@ -38,6 +38,14 @@
   /* The lime card's right edge sits at 96% of the Figma frame width. */
   object-position: 96% bottom;
 }
+.page[data-step='3'] .art {
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+.page[data-step='3'] .art img {
+  height: auto;
+}
 .caption {
   margin: var(--caption-gap) 12px 0;
   transform: translateY(1px);
