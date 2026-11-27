@@ -1,45 +1,95 @@
 .page {
   display: flex;
   flex-direction: column;
-  min-height: max(620px, 100dvh);
+  height: 100dvh;
   padding-top: env(safe-area-inset-top);
-  padding-bottom: max(clamp(20px, 6.4dvh, 54px), env(safe-area-inset-bottom));
+  padding-inline: env(safe-area-inset-left) env(safe-area-inset-right);
+  padding-bottom: max(min(6.4dvh, 54px), env(safe-area-inset-bottom));
+  --caption-gap: min(3.8dvh, 32px);
+  --progress-gap: min(4.03dvh, 34px);
   background: var(--tt-background-onboarding);
   color: var(--tt-text-strong);
   text-align: center;
-}
-.readyPage {
-  height: max(620px, 100dvh);
 }
 .page[data-step='2'],
 .page[data-step='4'] {
   background: var(--tt-background-onboarding-muted);
 }
 .art {
-  margin-top: auto;
+  flex: 1;
+  min-height: 0;
 }
 .art img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+.page[data-step='2'] .art {
+  display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+}
+.page[data-step='2'] .art img {
+  grid-area: 1 / 1;
+  object-position: left bottom;
+}
+.page[data-step='2'] .art img:last-child {
+  /* The lime card's right edge sits at 96% of the Figma frame width. */
+  object-position: 96% bottom;
 }
 .caption {
-  margin: clamp(16px, 3.8dvh, 32px) 12px 0;
-  font-size: clamp(20px, 6.15vw, 24px);
+  margin: var(--caption-gap) 12px 0;
+  transform: translateY(1px);
+  font-size: 24px;
   font-weight: 600;
-  line-height: 1.34;
+  line-height: 32px;
   white-space: pre-line;
 }
+/* Give the artwork its intrinsic size before distributing extra height to gaps. */
+.page:is([data-step='1'], [data-step='2']) {
+  display: grid;
+  grid-template-rows:
+    minmax(0, var(--top-space)) minmax(0, auto) minmax(4px, var(--after-art))
+    auto
+    minmax(6px, var(--before-progress)) auto auto;
+}
+.page[data-step='1'] {
+  --top-space: 120fr;
+  --after-art: 49fr;
+  --before-progress: 29fr;
+}
+.page[data-step='2'] {
+  --top-space: 0fr;
+  --after-art: 32fr;
+  --before-progress: 34fr;
+}
+.page:is([data-step='1'], [data-step='2']) .art {
+  grid-row: 2;
+}
+.page:is([data-step='1'], [data-step='2']) .caption {
+  grid-row: 4;
+  margin-block: 0;
+}
 .page[data-step='1'] .caption {
-  margin-top: calc(clamp(16px, 3.8dvh, 32px) + 5px);
+  transform: translate(0.5px, 1px);
+}
+.page[data-step='2'] .caption,
+.page[data-step='4'] .caption {
+  /* In these two frames only the first line is centered 3px farther left. */
+  text-indent: -6px;
 }
 .progress {
   display: flex;
   gap: 6px;
-  margin: clamp(18px, 4.03dvh, 34px) auto 20px;
+  margin: var(--progress-gap) auto min(2.37dvh, 20px);
 }
-.page[data-step='1'] .progress {
-  margin-top: calc(clamp(18px, 4.03dvh, 34px) - 5px);
+.page:is([data-step='1'], [data-step='2']) .progress {
+  grid-row: 6;
+  margin-top: 0;
+}
+.page:is([data-step='1'], [data-step='2']) .action {
+  grid-row: 7;
 }
 .progress span {
   width: 8px;
@@ -58,6 +108,7 @@
   font-weight: 500;
   letter-spacing: -0.02em;
 }
+
 .ready {
   flex: 1;
   display: grid;
@@ -68,7 +119,7 @@
 .ready h1 {
   grid-row: 2;
   margin: 0;
-  font-size: clamp(23px, 7.7vw, 30px);
+  font-size: min(7.7vw, 30px);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.03em;
@@ -84,7 +135,7 @@
 .mascot {
   grid-row: 6;
   align-self: center;
-  width: min(63.08%, 246px);
+  width: 246px;
   height: 100%;
   object-fit: contain;
 }
@@ -92,7 +143,7 @@
   grid-row: 8;
   justify-self: stretch;
   display: grid;
-  gap: clamp(12px, 2.26dvh, 19px);
+  gap: min(2.26dvh, 19px);
   margin: 0 12px 0 max(16px, calc(50% - 120px));
   padding: 0;
   list-style: none;
@@ -116,8 +167,10 @@
 .ready strong {
   font-size: 15px;
   font-weight: 500;
+  transform: translateY(0.5px);
 }
 .ready small {
   font-size: 12px;
   color: #888a7a;
+  transform: translateY(2px);
 }

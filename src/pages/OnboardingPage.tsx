@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { PrimaryButton } from '@/components/button/PrimaryButton'
 import cart from '@/assets/onboarding/cart.webp'
 import community from '@/assets/onboarding/community.webp'
+import communityBack from '@/assets/onboarding/community-back.webp'
 import delivery from '@/assets/onboarding/delivery.webp'
 import pickup from '@/assets/onboarding/pickup.webp'
 import mascot from '@/assets/onboarding/mascot.webp'
@@ -12,8 +13,12 @@ import rider from '@/assets/onboarding/rider.webp'
 import styles from './OnboardingPage.module.css'
 
 const slides = [
-  { image: cart, title: '혼자 먹는 한 끼,\n가격이 부담됐나요?' },
-  { image: community, title: 'TONG TONG에서 찾은\n가까운 이웃과 주문만 함께' },
+  { image: cart, height: 448, title: '혼자 먹는 한 끼,\n가격이 부담됐나요?' },
+  {
+    image: community,
+    background: communityBack,
+    title: 'TONG TONG에서 찾은\n가까운 이웃과 주문만 함께',
+  },
   { image: delivery, title: '먹고 싶은 메뉴를 원하는 만큼\n배달비는 나눠서' },
   { image: pickup, title: '픽업 코드 입력하고\n내 음식만 쏙!' },
 ]
@@ -40,15 +45,21 @@ export function OnboardingPage({ onComplete }: { onComplete: () => void }) {
   const [step, setStep] = useState(0)
   const navigate = useNavigate()
   const slide = slides[step]
+
   return (
-    <main
-      className={slide ? styles.page : `${styles.page} ${styles.readyPage}`}
-      data-step={step + 1}
-    >
+    <main className={styles.page} data-step={step + 1}>
       {slide ? (
         <>
           <div className={styles.art}>
-            <img src={slide.image} width={390} height={580} alt="" />
+            {slide.background && (
+              <img src={slide.background} width={390} height={580} alt="" />
+            )}
+            <img
+              src={slide.image}
+              width={390}
+              height={slide.height ?? 580}
+              alt=""
+            />
           </div>
           <h1 className={styles.caption} aria-live="polite">
             {slide.title}
