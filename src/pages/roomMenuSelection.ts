@@ -16,7 +16,6 @@ export type MenuStore = {
   image: string
   minimumOrderAmount?: number | null
   deliveryFeeTotal?: number
-  portionFeePerPerson?: number
   menus: StoreMenu[]
   storeDetails?: {
     name: string
@@ -61,7 +60,6 @@ export function selectRoomMenu(room: MenuStore, menu: StoreMenu) {
     portionable: menu.portionable === true,
     minimumOrderAmount: room.minimumOrderAmount,
     deliveryFeeTotal: room.deliveryFeeTotal,
-    portionFeePerPerson: room.portionFeePerPerson,
     quantity: 1,
   }
 }

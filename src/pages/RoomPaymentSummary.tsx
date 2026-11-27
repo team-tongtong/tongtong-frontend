@@ -2,6 +2,8 @@ import type { RoomMenuSelection } from './roomMenuSelection'
 import { splitRoomCost } from './roomShare'
 import styles from './CreateRoomPage.module.css'
 
+const portionFeePerPerson = 500
+
 function won(value: number) {
   return value.toLocaleString('ko-KR') + '원'
 }
@@ -29,9 +31,8 @@ export function RoomPaymentSummary({
     delivery == null
       ? undefined
       : splitRoomCost(shared ? menu.price : 0, delivery, people)
-  const fee = shared ? menu.portionFeePerPerson : 0
-  const total =
-    share && fee != null ? share.perPerson + personalTotal + fee : undefined
+  const fee = shared ? portionFeePerPerson : 0
+  const total = share ? share.perPerson + personalTotal + fee : undefined
   return (
     <section className={styles.panel} aria-labelledby="payment-summary-title">
       <h2 id="payment-summary-title">내 결제 금액</h2>
@@ -65,7 +66,7 @@ export function RoomPaymentSummary({
         {shared && (
           <div>
             <dt>소분 수수료</dt>
-            <dd>{fee == null ? '확인 전' : won(fee)}</dd>
+            <dd>{won(fee)}</dd>
           </div>
         )}
         <div className={styles.total}>
