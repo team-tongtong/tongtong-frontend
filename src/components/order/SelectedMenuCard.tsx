@@ -24,13 +24,10 @@ export function SelectedMenuCard({
         <h2>{title}</h2>
         {changeControl}
       </div>
-      {menus.map(({ name, storeName, price, quantity, menuId }) => (
+      <p className={styles.storeName}>{menus[0]?.storeName}</p>
+      {menus.map(({ name, price, quantity, menuId }) => (
         <div key={menuId} className={styles.row}>
-          <div className={styles.menu}>
-            <small>{storeName}</small>
-            <strong>{name}</strong>
-            <span>{price.toLocaleString('ko-KR')}원</span>
-          </div>
+          <strong className={styles.menuName}>{name}</strong>
           <QuantityCounter
             label={name + ' 수량'}
             value={quantity}
@@ -38,6 +35,9 @@ export function SelectedMenuCard({
             max={maxQuantity}
             onChange={(value) => onQuantityChange(menuId, value)}
           />
+          <span className={styles.price}>
+            {price.toLocaleString('ko-KR')}원
+          </span>
         </div>
       ))}
       <div className={styles.subtotal}>
