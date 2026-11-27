@@ -51,7 +51,8 @@ export function RoomPaymentSummary({
             {shared ? '함께 나눌 메뉴 · ' + menu.name + ' + 배달비' : '배달비'}
             {shared && delivery != null && (
               <small className={styles.formula}>
-                ({won(menu.price)} + {won(delivery)}) ÷ {people}명
+                {won(menu.price)} ÷ {people}명 + {won(delivery)} ÷ {people}명
+                (각각 원 단위 내림)
               </small>
             )}
           </dt>
