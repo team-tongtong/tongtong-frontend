@@ -38,13 +38,21 @@
   /* The lime card's right edge sits at 96% of the Figma frame width. */
   object-position: 96% bottom;
 }
-.page[data-step='3'] .art {
+.page:is([data-step='3'], [data-step='4']) .art {
   display: flex;
   align-items: flex-end;
   overflow: hidden;
 }
-.page[data-step='3'] .art img {
+.page:is([data-step='3'], [data-step='4']) .art img {
   height: auto;
+}
+.page[data-step='4'] .art {
+  container-type: size;
+  justify-content: center;
+}
+.page[data-step='4'] .art img {
+  /* The top 140px of the 390 × 580 artwork is empty and can be clipped. */
+  max-width: calc(100cqh * 390 / 440);
 }
 .caption {
   margin: var(--caption-gap) 12px 0;
