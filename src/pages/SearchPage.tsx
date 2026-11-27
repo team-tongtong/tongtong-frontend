@@ -35,9 +35,11 @@ function readTerms(fallback: string[]): string[] {
 export function SearchPage({
   onSelectMenu,
   initialMenus,
+  menuMode,
 }: {
   onSelectMenu?: (menus: RoomMenuSelection[]) => void
   initialMenus?: RoomMenuSelection[]
+  menuMode?: 'shared' | 'individual'
 }) {
   const { state } = useLocation()
   const navigate = useNavigate()
@@ -94,12 +96,15 @@ export function SearchPage({
   }
 
   function selectMenus(menus: RoomMenuSelection[]) {
+    if (onSelectMenu) {
+      onSelectMenu(menus)
+      return
+    }
     setParams(params, {
       replace: true,
       state: { ...state, selectedMenus: menus },
     })
-    if (onSelectMenu) onSelectMenu(menus)
-    else navigate('/rooms/new', { state: { selectedMenus: menus } })
+    navigate('/rooms/new', { state: { selectedMenus: menus } })
   }
 
   const detail = stores.find((store) => store.id === storeId)
@@ -109,6 +114,8 @@ export function SearchPage({
         key={detail.id}
         store={detail}
         action={onSelectMenu ? '메뉴 담기' : '모집방 만들기'}
+        menuMode={menuMode}
+        allowEmpty={menuMode === 'individual'}
         initialMenus={initialMenus ?? state?.selectedMenus}
         onConfirm={selectMenus}
         onBack={() => {
