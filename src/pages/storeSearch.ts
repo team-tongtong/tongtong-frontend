@@ -52,8 +52,8 @@ export function useStoreSearch(term: string, sort: SearchSort) {
 }
 
 export function sortStores(stores: StoreSummary[], sort: SearchSort) {
-  if (sort === '기본순') return stores
   return [...stores].sort((a, b) => {
+    if (sort === '기본순') return a.name.localeCompare(b.name, 'ko')
     if (sort === '가까운 순') return a.distanceMeters - b.distanceMeters
     if (sort === '별점 높은 순') return b.rating - a.rating
     return b.orderCount - a.orderCount
