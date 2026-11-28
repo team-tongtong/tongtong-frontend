@@ -138,7 +138,6 @@ export function CreateRoomPage() {
     if (creation.isPending) return
     if (choosingSpot) setChoosingSpot(false)
     else if (step === 2) setStep(1)
-    else if (window.history.state?.idx > 0) navigate(-1)
     else navigate('/', { replace: true })
   }
 
