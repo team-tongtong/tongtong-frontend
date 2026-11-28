@@ -18,7 +18,7 @@ export function OrderStatusFilter({ value, onChange }: OrderStatusFilterProps) {
           selected={value === status}
           onClick={() => onChange(status)}
         >
-          {status === '조리중' ? '모집 완료' : status}
+          {status}
         </FilterChip>
       ))}
     </div>

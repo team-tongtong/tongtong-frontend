@@ -1,5 +1,6 @@
 import { QueryClient } from '@tanstack/react-query'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { readOrderStatus } from '@/components/filter/orderStatuses'
 import {
   applyPickupResult,
   cancelOrder,
@@ -107,8 +108,25 @@ describe('주문 내역 상태 필터', () => {
     for (const tab of ['전체', '취소'] as const) {
       expect(orderListQuery(tab).select?.(data)).toEqual([canceledOrder])
     }
-    for (const tab of ['모집중', '조리중', '배달 완료'] as const) {
+    for (const tab of ['모집중', '모집 완료', '배달 완료'] as const) {
       expect(orderListQuery(tab).select?.(data)).toEqual([])
+    }
+  })
+
+  it('기존 조리중 링크와 모집 완료 링크는 같은 모집 완료 주문을 표시한다', () => {
+    const order: OrderSummary = {
+      ...canceledOrder,
+      orderStatus: 'JOINED',
+      status: 'RECRUIT_COMPLETED',
+    }
+    for (const value of ['조리중', '모집 완료']) {
+      const tab = readOrderStatus(value)
+      expect(tab).toBe('모집 완료')
+      const query = orderListQuery(tab)
+      expect(query.queryKey).toEqual(['orders', 'list', 'RECRUIT_COMPLETED'])
+      expect(query.select?.({ orders: [order, canceledOrder] })).toEqual([
+        order,
+      ])
     }
   })
 

@@ -34,7 +34,7 @@ export function OrderHistoryCard({
           state={{ fromOrders: true }}
           aria-label={`${order.storeName} 주문 상세 보기`}
         >
-          {status === '조리중' ? '배달 현황 보기' : '주문 상세 보기'}
+          {status === '모집 완료' ? '배달 현황 보기' : '주문 상세 보기'}
         </Link>
         {status !== '취소' && (
           <button

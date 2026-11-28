@@ -77,11 +77,7 @@ export function OrderDetailPage() {
 
   const current = displayStatus(order)
   const isCanceled = current === '취소'
-  const steps = [
-    '모집중',
-    current === '조리중' ? '조리중' : '모집 완료',
-    '배달 완료',
-  ]
+  const steps = ['모집중', '모집 완료', '배달 완료']
   return (
     <main className={styles.page}>
       <header className={styles.header}>
