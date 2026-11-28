@@ -4,14 +4,13 @@ import { PaymentMethodsCard } from '@/components/order/PaymentMethodsCard'
 import type { PaymentMethod } from '@/components/order/paymentMethods'
 import type { RoomDetail } from '@/features/rooms/api'
 import type { MenuStore } from './roomMenuSelection'
-import { RecruitDeadline } from '@/components/group-order/RecruitDeadline'
 import styles from './GroupOrderDetailPage.module.css'
 
 type Props = {
   room: RoomDetail
   selected: (MenuStore['menus'][number] & { quantity: number })[]
   personalSubtotal: number
-  delivery?: number
+  deliveryFeeTotal?: number
   submitting: boolean
   disabled: boolean
   error?: string
@@ -26,13 +25,14 @@ export function ParticipationConfirmation({
   room,
   selected,
   personalSubtotal,
-  delivery,
+  deliveryFeeTotal,
   submitting,
   disabled,
   error,
   onConfirm,
 }: Props) {
   const [payment, setPayment] = useState<PaymentMethod>()
+  const delivery = room.deliveryFeeShare
   const shared = room.track === 'PORTION'
   const sharedPrice = shared ? room.sharedMenu?.portionPrice : 0
   const portion = shared ? room.portionFee : 0
@@ -66,7 +66,10 @@ export function ParticipationConfirmation({
           </span>
         </div>
         <div className={styles.row}>
-          <RecruitDeadline value={room.recruitDeadline} />
+          <span>모집 기간</span>
+          <time dateTime={room.recruitDeadline}>
+            {room.recruitDeadline.slice(11, 16)}
+          </time>
         </div>
       </section>
       <section className={styles.menu} aria-label="주문 내역">
@@ -74,9 +77,7 @@ export function ParticipationConfirmation({
         {shared && selected.length > 0 && <strong>개별 주문 메뉴</strong>}
         {selected.map((menu) => (
           <div className={styles.row} key={menu.id}>
-            <span>
-              {menu.name} · {menu.quantity}개
-            </span>
+            <span>{menu.name}</span>
             <span>{amount(menu.price * menu.quantity)}</span>
           </div>
         ))}
@@ -92,7 +93,11 @@ export function ParticipationConfirmation({
           </>
         )}
         <div className={styles.row}>
-          <span>배달비 부담액</span>
+          <span>
+            {deliveryFeeTotal == null
+              ? '배달비'
+              : `배달비 (${deliveryFeeTotal}원 / ${room.maxParticipants}명)`}
+          </span>
           <span>{amount(delivery)}</span>
         </div>
         {shared && (
