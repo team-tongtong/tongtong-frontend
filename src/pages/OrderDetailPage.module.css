@@ -26,6 +26,7 @@
 }
 .header p {
   margin-inline: 20px;
+  color: var(--tt-text-accent);
 }
 .progress {
   list-style: none;

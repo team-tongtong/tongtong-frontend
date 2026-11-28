@@ -41,7 +41,6 @@ export function OrderDetailPage() {
           },
       )
       refreshRoomsAndOrders(client)
-      showToast('주문을 취소했어요.', 'success')
     },
     onError: (error) => {
       if (error instanceof ApiError) showToast(error.message, 'error')
