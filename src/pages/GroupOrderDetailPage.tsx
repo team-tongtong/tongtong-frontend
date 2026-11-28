@@ -169,14 +169,17 @@ function RoomDetails({
   )
   const isLastSeat =
     !unavailable && room.maxParticipants - room.currentParticipants === 1
-  // 정원이 찰 때 나눠통의 음식값에는 마지막 1인 몫과 원 단위 나눗셈 잔액이 포함된다.
-  const sharedFoodAtLastSeat =
+  const sharedPortion = shared ? (room.sharedMenu?.portionPrice ?? 0) : 0
+  // 서버는 정원이 찰 때만 나눗셈에서 남은 원 단위를 음식값에 더한다.
+  const roundingRemainder =
     isLastSeat && shared && room.sharedMenu
-      ? room.sharedMenu.portionPrice +
-        (room.sharedMenu.price % room.maxParticipants)
+      ? room.sharedMenu.price % room.maxParticipants
       : 0
   const amountToMinimum =
-    room.minOrderAmount - room.currentFoodTotal - sharedFoodAtLastSeat
+    room.minOrderAmount -
+    room.currentFoodTotal -
+    sharedPortion -
+    roundingRemainder
   const lastSeatShortfall = isLastSeat
     ? Math.max(0, amountToMinimum - total)
     : 0
@@ -234,7 +237,7 @@ function RoomDetails({
       <StoreDetail
         store={store}
         action="메뉴 담기"
-        amountToMinimum={shared && !isLastSeat ? null : amountToMinimum}
+        amountToMinimum={amountToMinimum}
         isLastSeat={isLastSeat}
         initialMenus={selected.map((menu) => ({
           ...selectRoomMenu(store, menu),
