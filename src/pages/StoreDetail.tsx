@@ -10,6 +10,7 @@ import pin from '@/assets/store/pin.svg'
 import star from '@/assets/store/star.svg'
 import emptyStar from '@/assets/store/empty-star.svg'
 import {
+  lastSeatHint,
   selectRoomMenu,
   type RoomMenuSelection,
   type MenuStore,
@@ -78,7 +79,7 @@ export function StoreDetail({
   let menuHint = '더 먹고 싶은 메뉴를 추가해보세요'
   if (remaining > 0) {
     menuHint = isLastSeat
-      ? `마지막 자리예요! ${won(remaining)} 이상 담아야 주문이 진행돼요`
+      ? lastSeatHint(remaining)
       : `부족한 ${won(remaining)}, 함께 채워볼까요?`
   } else if (sharedPicker) {
     menuHint = '함께 나눌 메뉴는 1개만 선택할 수 있어요'

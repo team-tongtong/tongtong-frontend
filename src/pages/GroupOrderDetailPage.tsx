@@ -167,6 +167,21 @@ function RoomDetails({
     (sum, menu) => sum + menu.price * menu.quantity,
     0,
   )
+  const isLastSeat =
+    !unavailable && room.maxParticipants - room.currentParticipants === 1
+  // 정원이 찰 때 나눠통의 음식값에는 마지막 1인 몫과 원 단위 나눗셈 잔액이 포함된다.
+  const sharedFoodAtLastSeat =
+    isLastSeat && shared && room.sharedMenu
+      ? room.sharedMenu.portionPrice +
+        (room.sharedMenu.price % room.maxParticipants)
+      : 0
+  const amountToMinimum =
+    room.minOrderAmount - room.currentFoodTotal - sharedFoodAtLastSeat
+  const lastSeatShortfall = isLastSeat
+    ? Math.max(0, amountToMinimum - total)
+    : 0
+  const selectionIncomplete =
+    (!shared && !selected.length) || lastSeatShortfall > 0
 
   const client = useQueryClient()
   const showToast = useToast()
@@ -191,7 +206,7 @@ function RoomDetails({
   function confirmParticipation(payment: PaymentMethod) {
     if (
       unavailable ||
-      (!shared && !selected.length) ||
+      selectionIncomplete ||
       client.isMutating({ mutationKey: joinKey })
     )
       return
@@ -219,12 +234,8 @@ function RoomDetails({
       <StoreDetail
         store={store}
         action="메뉴 담기"
-        amountToMinimum={
-          shared ? null : room.minOrderAmount - room.currentFoodTotal
-        }
-        isLastSeat={
-          !unavailable && room.maxParticipants - room.currentParticipants === 1
-        }
+        amountToMinimum={shared && !isLastSeat ? null : amountToMinimum}
+        isLastSeat={isLastSeat}
         initialMenus={selected.map((menu) => ({
           ...selectRoomMenu(store, menu),
           quantity: menu.quantity,
@@ -254,7 +265,8 @@ function RoomDetails({
         personalSubtotal={total}
         deliveryFeeTotal={store?.deliveryFeeTotal}
         submitting={participation.isPending}
-        disabled={!shared && !selected.length}
+        disabled={selectionIncomplete}
+        lastSeatShortfall={lastSeatShortfall}
         error={
           participation.error instanceof ApiError
             ? participation.error.message

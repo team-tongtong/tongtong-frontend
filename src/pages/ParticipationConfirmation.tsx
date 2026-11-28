@@ -3,7 +3,7 @@ import { PrimaryButton } from '@/components/button/PrimaryButton'
 import { PaymentMethodsCard } from '@/components/order/PaymentMethodsCard'
 import type { PaymentMethod } from '@/components/order/paymentMethods'
 import type { RoomDetail } from '@/features/rooms/api'
-import type { MenuStore } from './roomMenuSelection'
+import { lastSeatHint, type MenuStore } from './roomMenuSelection'
 import styles from './GroupOrderDetailPage.module.css'
 
 type Props = {
@@ -13,6 +13,7 @@ type Props = {
   deliveryFeeTotal?: number
   submitting: boolean
   disabled: boolean
+  lastSeatShortfall: number
   error?: string
   onConfirm: (payment: PaymentMethod) => void
 }
@@ -28,6 +29,7 @@ export function ParticipationConfirmation({
   deliveryFeeTotal,
   submitting,
   disabled,
+  lastSeatShortfall,
   error,
   onConfirm,
 }: Props) {
@@ -131,6 +133,9 @@ export function ParticipationConfirmation({
         onChange={setPayment}
       />
       <footer className={styles.footer}>
+        {lastSeatShortfall > 0 && (
+          <p role="status">{lastSeatHint(lastSeatShortfall)}</p>
+        )}
         <PrimaryButton
           disabled={!payment || submitting || disabled}
           onClick={() => payment && onConfirm(payment)}
