@@ -87,12 +87,18 @@ export function OrderDetailPage() {
     <main className={styles.page}>
       <header className={styles.header}>
         <BackButton label={backLabel} onClick={back} />
-        <span className={styles.time}>
-          <RecruitDeadline value={order.recruitDeadline} />
-        </span>
+        {!isCanceled && (
+          <span className={styles.time}>
+            <RecruitDeadline value={order.recruitDeadline} />
+          </span>
+        )}
         <h1>{order.storeName}</h1>
         {isCanceled ? (
-          <p>취소</p>
+          <p>
+            {order.status === 'CANCELED'
+              ? '모집 인원이 모이지 않아 모집방이 자동으로 취소됐어요.'
+              : '직접 취소한 주문이에요.'}
+          </p>
         ) : (
           <ol className={styles.progress} aria-label="주문 상태">
             {steps.map((step) => (
