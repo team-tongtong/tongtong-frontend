@@ -20,7 +20,6 @@ import { storeDetailQuery } from '@/features/stores/api'
 import type { PaymentMethod } from '@/components/order/paymentMethods'
 import { useToast } from '@/components/toast/useToast'
 import { ApiError } from '@/api/client'
-import { RecruitDeadline } from '@/components/group-order/RecruitDeadline'
 import { ParticipationConfirmation } from './ParticipationConfirmation'
 import styles from './GroupOrderDetailPage.module.css'
 
@@ -76,7 +75,6 @@ export function GroupOrderDetailPage() {
 }
 
 function Recruitment({ room, image }: { room: RoomDetail; image?: string }) {
-  const remaining = room.minOrderAmount - room.currentFoodTotal
   return (
     <section className={styles.card}>
       <div className={styles.store}>
@@ -84,7 +82,10 @@ function Recruitment({ room, image }: { room: RoomDetail; image?: string }) {
         <div>
           <h2>{room.storeName}</h2>
           <p>
-            <RecruitDeadline value={room.recruitDeadline} />
+            <time dateTime={room.recruitDeadline}>
+              {room.recruitDeadline.slice(11, 16)}
+            </time>{' '}
+            주문 예정
           </p>
         </div>
         <span className={styles.tag}>{trackLabels[room.track]}</span>
@@ -112,18 +113,6 @@ function Recruitment({ room, image }: { room: RoomDetail; image?: string }) {
             </span>
           ))}
         </div>
-        {room.track === 'INDIVIDUAL' && (
-          <div className={styles.foodTotal}>
-            <div className={styles.row}>
-              <span>현재 음식값 합계</span>
-              <strong>{won(room.currentFoodTotal)}</strong>
-            </div>
-            <p>
-              최소주문금액 {won(room.minOrderAmount)} ·{' '}
-              {remaining > 0 ? `${won(remaining)} 부족` : '달성'}
-            </p>
-          </div>
-        )}
       </div>
     </section>
   )
@@ -178,6 +167,24 @@ function RoomDetails({
     (sum, menu) => sum + menu.price * menu.quantity,
     0,
   )
+  const isLastSeat =
+    !unavailable && room.maxParticipants - room.currentParticipants === 1
+  const sharedPortion = shared ? (room.sharedMenu?.portionPrice ?? 0) : 0
+  // 서버는 정원이 찰 때만 나눗셈에서 남은 원 단위를 음식값에 더한다.
+  const roundingRemainder =
+    isLastSeat && shared && room.sharedMenu
+      ? room.sharedMenu.price % room.maxParticipants
+      : 0
+  const amountToMinimum =
+    room.minOrderAmount -
+    room.currentFoodTotal -
+    sharedPortion -
+    roundingRemainder
+  const lastSeatShortfall = isLastSeat
+    ? Math.max(0, amountToMinimum - total)
+    : 0
+  const selectionIncomplete =
+    (!shared && !selected.length) || lastSeatShortfall > 0
 
   const client = useQueryClient()
   const showToast = useToast()
@@ -202,7 +209,7 @@ function RoomDetails({
   function confirmParticipation(payment: PaymentMethod) {
     if (
       unavailable ||
-      (!shared && !selected.length) ||
+      selectionIncomplete ||
       client.isMutating({ mutationKey: joinKey })
     )
       return
@@ -230,9 +237,8 @@ function RoomDetails({
       <StoreDetail
         store={store}
         action="메뉴 담기"
-        roomAmountRemaining={
-          shared ? undefined : room.minOrderAmount - room.currentFoodTotal
-        }
+        amountToMinimum={amountToMinimum}
+        isLastSeat={isLastSeat}
         initialMenus={selected.map((menu) => ({
           ...selectRoomMenu(store, menu),
           quantity: menu.quantity,
@@ -260,9 +266,10 @@ function RoomDetails({
         room={room}
         selected={selected}
         personalSubtotal={total}
-        delivery={delivery}
+        deliveryFeeTotal={store?.deliveryFeeTotal}
         submitting={participation.isPending}
-        disabled={!shared && !selected.length}
+        disabled={selectionIncomplete}
+        lastSeatShortfall={lastSeatShortfall}
         error={
           participation.error instanceof ApiError
             ? participation.error.message
@@ -381,7 +388,6 @@ function RoomDetails({
           <img src={spot.mapImageUrl} alt={spot.name + ' 픽업 위치'} />
         )}
         <strong>{room.spotName}</strong>
-        {spot?.description && <p>{spot.description}</p>}
         <p>지정 수령 구역에서 픽업 코드 입력 필수</p>
       </section>
       <footer className={styles.footer}>

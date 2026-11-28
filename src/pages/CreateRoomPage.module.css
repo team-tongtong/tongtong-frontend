@@ -89,6 +89,20 @@
   display: grid;
   gap: var(--tt-space-10);
 }
+.pickupHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tt-space-12);
+  margin-bottom: var(--tt-space-12);
+}
+.pickupHeading h2 {
+  margin: 0;
+}
+.pickupHeading button {
+  min-height: 24px;
+  min-width: 24px;
+}
 .pickup {
   display: flex;
   align-items: center;

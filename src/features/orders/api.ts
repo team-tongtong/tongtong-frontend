@@ -7,7 +7,7 @@ import type { paymentMethodLabels } from '@/components/order/paymentMethods'
 export const statusByTab = {
   전체: undefined,
   모집중: 'RECRUITING',
-  조리중: 'RECRUIT_COMPLETED',
+  '모집 완료': 'RECRUIT_COMPLETED',
   '배달 완료': 'ARRIVED',
   취소: 'CANCELED',
 } as const satisfies Record<
@@ -46,7 +46,7 @@ export function displayStatus(order: Pick<Order, 'status' | 'orderStatus'>) {
     case 'RECRUITING':
       return '모집중'
     case 'RECRUIT_COMPLETED':
-      return '조리중'
+      return '모집 완료'
     case 'ARRIVED':
       return '배달 완료'
     case 'CANCELED':

@@ -10,6 +10,7 @@ import pin from '@/assets/store/pin.svg'
 import star from '@/assets/store/star.svg'
 import emptyStar from '@/assets/store/empty-star.svg'
 import {
+  lastSeatHint,
   selectRoomMenu,
   type RoomMenuSelection,
   type MenuStore,
@@ -32,7 +33,8 @@ type Props = {
   onConfirm: (menus: RoomMenuSelection[]) => void
   menuMode?: 'shared' | 'individual'
   allowEmpty?: boolean
-  roomAmountRemaining?: number
+  amountToMinimum?: number | null
+  isLastSeat?: boolean
 }
 
 export function StoreDetail({
@@ -43,7 +45,8 @@ export function StoreDetail({
   onConfirm,
   allowEmpty,
   menuMode,
-  roomAmountRemaining,
+  amountToMinimum = menuMode ? null : store.minimumOrderAmount,
+  isLastSeat = false,
 }: Props) {
   const sharedPicker = menuMode === 'shared'
   const dialog = useRef<HTMLDialogElement>(null)
@@ -72,13 +75,15 @@ export function StoreDetail({
     (sum, item) => sum + item.price * item.quantity,
     0,
   )
-  const remaining =
-    (roomAmountRemaining ?? store.minimumOrderAmount ?? 0) - total
-  const shortageHint =
-    remaining > 0 ? `부족한 ${won(remaining)}, 함께 채워볼까요?` : undefined
+  const remaining = (amountToMinimum ?? 0) - total
   let menuHint = '더 먹고 싶은 메뉴를 추가해보세요'
-  if (sharedPicker) menuHint = '함께 나눌 메뉴는 1개만 선택할 수 있어요'
-  if (roomAmountRemaining != null && shortageHint) menuHint = shortageHint
+  if (remaining > 0) {
+    menuHint = isLastSeat
+      ? lastSeatHint(remaining)
+      : `부족한 ${won(remaining)}, 함께 채워볼까요?`
+  } else if (sharedPicker) {
+    menuHint = '함께 나눌 메뉴는 1개만 선택할 수 있어요'
+  }
   return createPortal(
     <dialog
       className={styles.page}
@@ -206,14 +211,8 @@ export function StoreDetail({
       <footer className={styles.footer}>
         <div aria-live="polite">
           <strong>{won(total)}</strong>
-          {action === '메뉴 담기' ? (
+          {(action === '메뉴 담기' || amountToMinimum != null) && (
             <small>{menuHint}</small>
-          ) : (
-            store.minimumOrderAmount != null && (
-              <small className={styles.minimumOrderHint}>
-                {shortageHint ?? '최소주문금액을 다 채웠어요!'}
-              </small>
-            )
           )}
         </div>
         <PrimaryButton

@@ -1,5 +1,9 @@
 import type { StoreDetailResponse } from '@/features/stores/api'
 
+export function lastSeatHint(shortfall: number) {
+  return `마지막 자리예요! ${shortfall.toLocaleString('ko-KR')}원 이상 담아야 주문이 진행돼요`
+}
+
 type StoreMenu = {
   id: number
   name: string

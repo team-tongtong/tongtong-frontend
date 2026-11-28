@@ -41,7 +41,6 @@ export function OrderDetailPage() {
           },
       )
       refreshRoomsAndOrders(client)
-      showToast('주문을 취소했어요.', 'success')
     },
     onError: (error) => {
       if (error instanceof ApiError) showToast(error.message, 'error')
@@ -77,21 +76,24 @@ export function OrderDetailPage() {
     )
 
   const current = displayStatus(order)
-  const steps = [
-    '모집중',
-    current === '조리중' ? '조리중' : '모집 완료',
-    '배달 완료',
-  ]
+  const isCanceled = current === '취소'
+  const steps = ['모집중', '모집 완료', '배달 완료']
   return (
     <main className={styles.page}>
       <header className={styles.header}>
         <BackButton label={backLabel} onClick={back} />
-        <span className={styles.time}>
-          <RecruitDeadline value={order.recruitDeadline} />
-        </span>
+        {!isCanceled && (
+          <span className={styles.time}>
+            <RecruitDeadline value={order.recruitDeadline} />
+          </span>
+        )}
         <h1>{order.storeName}</h1>
-        {current === '취소' ? (
-          <p>취소</p>
+        {isCanceled ? (
+          <p>
+            {order.status === 'CANCELED'
+              ? '모집 인원이 모이지 않아 모집방이 자동으로 취소됐어요.'
+              : '직접 취소한 주문이에요.'}
+          </p>
         ) : (
           <ol className={styles.progress} aria-label="주문 상태">
             {steps.map((step) => (
@@ -157,19 +159,21 @@ export function OrderDetailPage() {
             <span>결제 방식</span>
             <span>{paymentMethodLabels[order.paymentMethod]}</span>
           </div>
-          {order.cancelable && (
+          {(isCanceled || order.cancelable) && (
             <button
               type="button"
               className={styles.cancel}
-              disabled={cancellation.isPending}
+              disabled={isCanceled || cancellation.isPending}
               onClick={() => {
                 if (client.isMutating({ mutationKey: cancelKey })) return
-                if (window.confirm('이 주문을 취소할까요?')) {
-                  cancellation.mutate(order.orderId)
-                }
+                cancellation.mutate(order.orderId)
               }}
             >
-              {cancellation.isPending ? '취소 처리 중…' : '취소하기'}
+              {isCanceled
+                ? '취소된 주문'
+                : cancellation.isPending
+                  ? '취소 처리 중…'
+                  : '취소하기'}
             </button>
           )}
         </section>
