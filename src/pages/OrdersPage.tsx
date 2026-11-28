@@ -18,6 +18,10 @@ import {
 import { readOrderStatus } from '@/components/filter/orderStatuses'
 import styles from './OrdersPage.module.css'
 
+function isInvalidPickupCode(error: unknown) {
+  return error instanceof ApiError && error.code === 'INVALID_PICKUP_CODE'
+}
+
 export function OrdersPage() {
   const [params, setParams] = useSearchParams()
   const status = readOrderStatus(params.get('status'))
@@ -31,13 +35,16 @@ export function OrdersPage() {
     networkMode: 'always',
     onSuccess: (result) => applyPickupResult(client, result),
     onError: (error) => {
-      if (error instanceof ApiError && error.status === 409) {
+      if (
+        error instanceof ApiError &&
+        error.status === 409 &&
+        !isInvalidPickupCode(error)
+      ) {
         showToast(error.message, 'error')
       }
     },
     onSettled: (_result, error, { orderId }) => {
-      if (error instanceof ApiError && error.code === 'INVALID_PICKUP_CODE')
-        return
+      if (isInvalidPickupCode(error)) return
       void client.invalidateQueries({ queryKey: ['orders', 'list'] })
       void client.invalidateQueries({
         queryKey: ['orders', 'detail', String(orderId)],
@@ -119,10 +126,13 @@ export function OrdersPage() {
             pending={pickup.isPending}
             error={
               pickup.error &&
-              (pickup.error instanceof ApiError
-                ? pickup.error.message
-                : '픽업 코드를 확인하지 못했어요. 다시 시도해 주세요.')
+              (isInvalidPickupCode(pickup.error)
+                ? '픽업 코드가 맞지 않아요.'
+                : pickup.error instanceof ApiError
+                  ? pickup.error.message
+                  : '픽업 코드를 확인하지 못했어요. 다시 시도해 주세요.')
             }
+            onClearError={pickup.reset}
             onDismiss={() => setPickupOrderId(null)}
             onSubmit={(code) => {
               if (client.isMutating({ mutationKey: pickupKey })) return

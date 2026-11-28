@@ -63,6 +63,7 @@ function PickupDialog({
 type PickupCodeDialogProps = {
   pending: boolean
   error: string | null
+  onClearError: () => void
   onDismiss: () => void
   onSubmit: (code: string) => void
 }
@@ -72,10 +73,12 @@ const codeLength = 5
 export function PickupCodeDialog({
   pending,
   error,
+  onClearError,
   onDismiss,
   onSubmit,
 }: PickupCodeDialogProps) {
   const [code, setCode] = useState('')
+  const errorId = useId()
   const complete = code.length === codeLength
 
   return (
@@ -103,15 +106,24 @@ export function PickupCodeDialog({
             autoComplete="one-time-code"
             disabled={pending}
             aria-label="5자리 숫자 픽업 코드"
+            aria-describedby={error ? errorId : undefined}
             value={code}
-            onChange={(event) =>
-              setCode(
-                event.target.value.replace(/\D/g, '').slice(0, codeLength),
-              )
-            }
+            onChange={(event) => {
+              const next = event.target.value
+                .replace(/\D/g, '')
+                .slice(0, codeLength)
+              if (error && next !== code) onClearError()
+              setCode(next)
+            }}
           />
         </div>
-        {error && <p role="alert">{error}</p>}
+        <div className={styles.feedback}>
+          {error && (
+            <span id={errorId} role="alert">
+              {error}
+            </span>
+          )}
+        </div>
         <PrimaryButton type="submit" disabled={!complete || pending}>
           {pending ? '확인 중…' : '확인'}
         </PrimaryButton>

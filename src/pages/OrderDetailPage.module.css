@@ -26,6 +26,7 @@
 }
 .header p {
   margin-inline: 20px;
+  color: var(--tt-text-accent);
 }
 .progress {
   list-style: none;
@@ -135,4 +136,7 @@
   font: 600 14px var(--tt-font-family);
   color: white;
   background: var(--tt-action-primary);
+}
+.cancel:disabled {
+  background: var(--tt-action-disabled);
 }

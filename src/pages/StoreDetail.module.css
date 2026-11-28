@@ -157,7 +157,6 @@
   margin-top: 5px;
   color: var(--tt-text-accent);
   font-size: 12px;
-}
-.minimumOrderHint {
-  white-space: nowrap;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 }

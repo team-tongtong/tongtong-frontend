@@ -121,7 +121,16 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: calc(20cqi - 1ch);
 }
+.feedback {
+  display: grid;
+  align-content: end;
+  min-height: calc(81.5 * var(--design-px));
+  padding-bottom: calc(16 * var(--design-px));
+  color: #c62828;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
 .form :global(.tt-button-primary) {
-  margin-top: calc(81.5 * var(--design-px));
+  margin-top: 0;
   min-height: calc(52 * var(--design-px));
 }

@@ -138,8 +138,12 @@ export function CreateRoomPage() {
     if (creation.isPending) return
     if (choosingSpot) setChoosingSpot(false)
     else if (step === 2) setStep(1)
-    else if (window.history.state?.idx > 0) navigate(-1)
     else navigate('/', { replace: true })
+  }
+
+  function openSpotPicker() {
+    setDraftSpotId(spotId)
+    setChoosingSpot(true)
   }
 
   function updateMenus(selection: RoomMenuSelection[]) {
@@ -333,9 +337,21 @@ export function CreateRoomPage() {
         ) : (
           <>
             <section className={styles.panel} aria-labelledby="pickup-title">
-              <h2 id="pickup-title">
-                {spot ? '선택한 통통 스팟' : '픽업 장소 선택'}
-              </h2>
+              <div className={styles.pickupHeading}>
+                <h2 id="pickup-title">
+                  {spot ? '선택한 통통 스팟' : '픽업 장소 선택'}
+                </h2>
+                {spot && (
+                  <button
+                    type="button"
+                    className={styles.changeMenu}
+                    disabled={creation.isPending}
+                    onClick={openSpotPicker}
+                  >
+                    변경
+                  </button>
+                )}
+              </div>
               {spot?.mapImageUrl && (
                 <img
                   className={styles.spotMap}
@@ -350,10 +366,7 @@ export function CreateRoomPage() {
                   spot ? spot.name + ' · 스팟 변경' : '픽업 장소 선택'
                 }
                 className={styles.pickup}
-                onClick={() => {
-                  setDraftSpotId(spotId)
-                  setChoosingSpot(true)
-                }}
+                onClick={openSpotPicker}
               >
                 <span>
                   {spot?.name ?? '어디에서 받을까요?'}
@@ -363,7 +376,7 @@ export function CreateRoomPage() {
                       : '등록된 통통 스팟에서 함께 받아요.'}
                   </small>
                 </span>
-                <img src={chevron} alt="" />
+                {!spot && <img src={chevron} alt="" />}
               </button>
               {spot && (
                 <p className={styles.spotInstructions}>
