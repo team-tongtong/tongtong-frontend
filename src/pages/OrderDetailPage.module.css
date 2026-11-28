@@ -136,3 +136,6 @@
   color: white;
   background: var(--tt-action-primary);
 }
+.cancel:disabled {
+  background: var(--tt-action-disabled);
+}

@@ -77,6 +77,7 @@ export function OrderDetailPage() {
     )
 
   const current = displayStatus(order)
+  const isCanceled = current === '취소'
   const steps = [
     '모집중',
     current === '조리중' ? '조리중' : '모집 완료',
@@ -90,7 +91,7 @@ export function OrderDetailPage() {
           <RecruitDeadline value={order.recruitDeadline} />
         </span>
         <h1>{order.storeName}</h1>
-        {current === '취소' ? (
+        {isCanceled ? (
           <p>취소</p>
         ) : (
           <ol className={styles.progress} aria-label="주문 상태">
@@ -157,19 +158,21 @@ export function OrderDetailPage() {
             <span>결제 방식</span>
             <span>{paymentMethodLabels[order.paymentMethod]}</span>
           </div>
-          {order.cancelable && (
+          {(isCanceled || order.cancelable) && (
             <button
               type="button"
               className={styles.cancel}
-              disabled={cancellation.isPending}
+              disabled={isCanceled || cancellation.isPending}
               onClick={() => {
                 if (client.isMutating({ mutationKey: cancelKey })) return
-                if (window.confirm('이 주문을 취소할까요?')) {
-                  cancellation.mutate(order.orderId)
-                }
+                cancellation.mutate(order.orderId)
               }}
             >
-              {cancellation.isPending ? '취소 처리 중…' : '취소하기'}
+              {isCanceled
+                ? '취소된 주문'
+                : cancellation.isPending
+                  ? '취소 처리 중…'
+                  : '취소하기'}
             </button>
           )}
         </section>
